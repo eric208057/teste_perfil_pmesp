@@ -487,11 +487,27 @@ function goBack(){
 /* ============================= SCORING ============================= */
 const AXES_ORDER = ["FIS","TIR","ABR","COM","JUR","SOC","DIR","LID"];
 
-function cosineSim(a, b){
-  let dot=0, na=0, nb=0;
-  for(let i=0;i<a.length;i++){ dot += a[i]*b[i]; na += a[i]*a[i]; nb += b[i]*b[i]; }
-  return dot / (Math.sqrt(na)*Math.sqrt(nb));
+// Pearson correlation: compares the SHAPE of two profiles (which axes are
+// relatively high/low vs each vector's own average), not their overall level.
+// Raw cosine similarity on all-positive vectors of similar magnitude stays
+// artificially high (0.85-0.98) for almost any pairing, because it's dominated
+// by the shared baseline level rather than the actual pattern of differences —
+// that was flattening the operational match and letting temperament/knowledge
+// quietly decide the result. Centering each vector on its own mean before
+// comparing fixes that.
+function pearson(a, b){
+  const n = a.length;
+  const meanA = a.reduce((s,x)=>s+x,0)/n;
+  const meanB = b.reduce((s,x)=>s+x,0)/n;
+  let num=0, da=0, db=0;
+  for(let i=0;i<n;i++){
+    const xa = a[i]-meanA, xb = b[i]-meanB;
+    num += xa*xb; da += xa*xa; db += xb*xb;
+  }
+  if(da < 1e-6 || db < 1e-6) return 0; // no meaningful variance to compare — stay neutral
+  return num / Math.sqrt(da*db);
 }
+const to01 = r => (r + 1) / 2; // map correlation -1..1 to 0..1
 
 function computeResults(){
   const tempScore = {C:0, S:0, F:0, M:0};
@@ -523,27 +539,28 @@ function computeResults(){
 
   // rank temperaments
   const tempRank = Object.keys(tempNorm).sort((a,b) => tempNorm[b]-tempNorm[a]);
+  const userTempVec = ["C","S","F","M"].map(k => tempNorm[k]);
 
   // match GU profiles across the three fronts
   const scored = GU_PROFILES.map(p => {
-    const wsum = p.w.C + p.w.S + p.w.F + p.w.M;
-    let tempComponent = 0;
-    Object.keys(tempNorm).forEach(k => { tempComponent += tempNorm[k] * (p.w[k] / wsum); });
+    const profileTempVec = ["C","S","F","M"].map(k => p.w[k]);
+    const tempComponent = to01(pearson(userTempVec, profileTempVec));
 
     let knowComponent = 0;
     if(p.k === topKnow) knowComponent = 1;
     else if(p.kSecondary === topKnow) knowComponent = 0.5;
 
-    const opComponent = cosineSim(userVec, p.vec); // ~0.7-1.0 typically
+    const opComponent = to01(pearson(userVec, p.vec));
 
-    // operational fit is the most direct signal, so it carries the most weight
-    const score = 0.5*opComponent + 0.28*tempComponent + 0.22*knowComponent;
+    // operational fit is the most direct signal (you rated yourself on the exact
+    // axes that define each function), so it carries the most weight
+    const score = 0.55*opComponent + 0.27*tempComponent + 0.18*knowComponent;
     return {...p, score, opComponent, tempComponent, knowComponent};
   });
   const maxScore = Math.max(...scored.map(s => s.score));
   const minScore = Math.min(...scored.map(s => s.score));
   scored.forEach(s => {
-    s.pct = Math.round(((s.score - minScore) / (maxScore - minScore)) * 40 + 60); // spread 60-100%
+    s.pct = Math.round(((s.score - minScore) / (maxScore - minScore || 1)) * 45 + 55); // spread 55-100%
   });
   scored.sort((a,b) => b.score - a.score);
 
