@@ -114,6 +114,13 @@
   .rec-pct{font-family:'JetBrains Mono',monospace;color:var(--amber);font-size:13px;}
   .rec-code{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--faint);margin-bottom:10px;}
   .rec-why{font-size:13.5px;line-height:1.55;color:#c7ccd8;}
+  .rec-breakdown{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:12px;padding-top:10px;
+    border-top:1px solid var(--line);font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);}
+  .rec-breakdown b{color:var(--text);}
+  .axis-legend{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;
+    font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--muted);}
+  .axis-legend span{display:block;}
+  @media(max-width:480px){ .axis-legend{grid-template-columns:1fr;} }
 
   .note{border-left:2px solid var(--amber-dim);padding:10px 14px;background:rgba(217,164,65,0.06);
     font-size:13px;line-height:1.55;color:var(--muted);border-radius:0 6px 6px 0;margin-top:22px;}
@@ -163,7 +170,7 @@
   <div id="screen-intro">
     <div class="eyebrow">Diagnóstico de perfil · Comando 190</div>
     <h1>Teste de perfil<br><span>temperamento &amp; função ideal</span></h1>
-    <p class="sub">20 etapas cruzam três frentes: temperamento (8 rodadas de escolha forçada — você escolhe o que mais e o que menos te representa entre as 4 opções, para evitar resultado empatado), forma de usar o conhecimento (4 perguntas — Especialista, Generalista, Nexialista) e preferência operacional direta nos oito eixos usados nos perfis do 190 (físico, tiro, abordagem, comunicação, jurídico, socorros, direção, liderança).</p>
+    <p class="sub">24 rodadas de escolha forçada cobrem três frentes com o mesmo método: temperamento (8 rodadas — modelo dos 4 temperamentos / DISC), forma de usar o conhecimento (8 rodadas — Especialista, Generalista, Nexialista) e preferência operacional (8 rodadas cobrindo os oito eixos usados nos perfis do 190: físico, tiro, abordagem, comunicação, jurídico, socorros, direção, liderança). Em cada rodada você escolhe o que mais e o que menos te representa — isso evita que tudo fique parecido no resultado final.</p>
     <p class="sub">Isso não substitui a avaliação do comandante na Nine Box — desempenho é medido em campo, não em teste. Serve como ponto de partida para a conversa sobre função e desenvolvimento.</p>
     <div class="card" style="margin-top:26px;">
       <div class="qtext" style="margin-bottom:14px;">Responda com sinceridade, pensando em como você realmente age em serviço — não em como gostaria de agir.</div>
@@ -195,102 +202,142 @@
 </div>
 
 <script>
+
 /* ============================= DATA ============================= */
 
-// 8 forced-choice blocks: each round has one statement per temperament (C/S/F/M).
-// The person picks which is MOST like them and which is LEAST like them.
-// This ipsative format forces differentiation — unlike independent Likert ratings,
-// where someone who agrees with everything ends up with four flat, indistinguishable scores.
+// Three fronts, all scored with the SAME forced-choice (ipsative) method:
+// each round shows N statements, the person picks the one MOST like them
+// and the one LEAST like them. This is what makes results differentiate —
+// independent Likert/multiple-choice ratings let someone score high on
+// everything, which is what was happening before.
+
+const AXES_FULL = {
+  FIS:"Físico", TIR:"Tiro/Armamento", ABR:"Abordagem", COM:"Comunicação/Mediação",
+  JUR:"Conhecimento Jurídico", SOC:"Primeiros Socorros", DIR:"Direção/Viatura", LID:"Liderança/Equipe"
+};
+const AXES_ORDER = ["FIS","TIR","ABR","COM","JUR","SOC","DIR","LID"];
+
+const KNOW_FULL = { E:"Especialista", G:"Generalista", N:"Nexialista" };
+
+// ---- Frente 1: Temperamento (8 rodadas × 4 opções C/S/F/M) ----
 const TEMP_BLOCKS = [
   { situacao:"Numa ocorrência tensa, o que mais e o que menos te representa:",
+    keys:["C","S","F","M"],
     opts:{ C:"Assumo o controle e decido rápido.",
            S:"Converso com as pessoas envolvidas para acalmar o clima.",
            F:"Mantenho a calma e sigo o procedimento com tranquilidade.",
            M:"Observo os detalhes com atenção antes de agir." } },
   { situacao:"Na rotina de serviço, o que mais e o que menos te representa:",
+    keys:["C","S","F","M"],
     opts:{ C:"Prefiro decidir sozinho a discutir demais uma decisão simples.",
            S:"Gosto de puxar assunto com colegas e com a comunidade.",
            F:"Prefiro previsibilidade a mudanças constantes de plano.",
            M:"Gosto de revisar e organizar relatórios com cuidado." } },
   { situacao:"Sob pressão, o que mais e o que menos te representa:",
+    keys:["C","S","F","M"],
     opts:{ C:"Fico mais assertivo e direto.",
            S:"Busco apoio conversando com a equipe.",
            F:"Fico mais quieto, mas estável.",
            M:"Fico mais cauteloso e analítico." } },
   { situacao:"Ao liderar uma tarefa, o que mais e o que menos te representa:",
+    keys:["C","S","F","M"],
     opts:{ C:"Cobro resultado rápido.",
            S:"Motivo o grupo com entusiasmo.",
            F:"Cuido do ritmo para manter todos confortáveis.",
            M:"Garanto que cada etapa seja seguida corretamente." } },
   { situacao:"Quando alguém erra, o que mais e o que menos te representa:",
+    keys:["C","S","F","M"],
     opts:{ C:"Aponto o erro na hora e sigo em frente.",
            S:"Converso de forma leve para não desmotivar.",
            F:"Dou um tempo e resolvo com calma.",
            M:"Analiso a causa antes de dar qualquer feedback." } },
   { situacao:"No planejamento de uma operação, o que mais e o que menos te representa:",
+    keys:["C","S","F","M"],
     opts:{ C:"Quero decidir logo e partir para a ação.",
            S:"Quero ouvir a opinião de todos os envolvidos.",
            F:"Quero manter o plano estável, sem muitas mudanças de última hora.",
            M:"Quero revisar cada detalhe do plano com calma." } },
   { situacao:"Em um conflito entre colegas, o que mais e o que menos te representa:",
+    keys:["C","S","F","M"],
     opts:{ C:"Resolvo rápido, decidindo quem está certo.",
            S:"Medeio a conversa buscando reaproximar as partes.",
            F:"Dou tempo para as coisas se acalmarem sozinhas.",
            M:"Busco entender os fatos com precisão antes de opinar." } },
   { situacao:"No fim do plantão, o que mais e o que menos te representa:",
+    keys:["C","S","F","M"],
     opts:{ C:"Já penso na próxima ação, sem parar muito para refletir.",
            S:"Comento o dia com os colegas.",
            F:"Saio tranquilo, sem me abalar com o que rolou.",
            M:"Reviso mentalmente o que vou registrar no relatório." } },
 ];
 
-// 4 forced-choice knowledge-use questions
-const KNOW_QUESTIONS = [
-  {
-    text:"Se pudesse escolher uma função por 6 meses, você prefere:",
-    options:[
-      {k:"E", label:"Aprofundar uma técnica específica até virar referência nela"},
-      {k:"G", label:"Rodar por várias frentes, adaptando-se ao que aparecer"},
-      {k:"N", label:"Organizar e conectar pessoas e áreas diferentes em um projeto"},
-    ]
-  },
-  {
-    text:"Quando aparece um problema novo e complexo, você tende a:",
-    options:[
-      {k:"E", label:"Estudar a fundo até dominar aquele problema específico"},
-      {k:"G", label:"Buscar uma solução prática rápida, mesmo sem dominar tudo"},
-      {k:"N", label:"Reunir pessoas de áreas diferentes para resolver juntos"},
-    ]
-  },
-  {
-    text:"Seu maior risco de desgaste no serviço costuma ser:",
-    options:[
-      {k:"E", label:"Isolamento, por focar demais em um único assunto"},
-      {k:"G", label:"Superficialidade, por tentar abraçar tudo ao mesmo tempo"},
-      {k:"N", label:"Sobrecarga, por assumir múltiplas frentes ao mesmo tempo"},
-    ]
-  },
-  {
-    text:"Colegas normalmente recorrem a você para:",
-    options:[
-      {k:"E", label:"Uma resposta técnica precisa sobre um assunto específico"},
-      {k:"G", label:"Resolver o que aparecer, sem exigir grande profundidade"},
-      {k:"N", label:"Juntar as pontas entre pessoas ou setores diferentes"},
-    ]
-  },
+// ---- Frente 2: Forma de usar o conhecimento (8 rodadas × 3 opções E/G/N) ----
+const KNOW_BLOCKS = [
+  { situacao:"Se pudesse escolher uma função por 6 meses, o que mais e o que menos combina com você:",
+    keys:["E","G","N"],
+    opts:{ E:"Aprofundar uma técnica específica até virar referência nela.",
+           G:"Rodar por várias frentes, adaptando-se ao que aparecer.",
+           N:"Organizar e conectar pessoas e áreas diferentes em um projeto." } },
+  { situacao:"Quando aparece um problema novo e complexo, o que mais e o que menos te representa:",
+    keys:["E","G","N"],
+    opts:{ E:"Estudar a fundo até dominar aquele problema específico.",
+           G:"Buscar uma solução prática rápida, mesmo sem dominar tudo.",
+           N:"Reunir pessoas de áreas diferentes para resolver juntos." } },
+  { situacao:"Seu maior risco de desgaste no serviço, o que mais e o que menos se aplica a você:",
+    keys:["E","G","N"],
+    opts:{ E:"Isolamento, por focar demais em um único assunto.",
+           G:"Superficialidade, por tentar abraçar tudo ao mesmo tempo.",
+           N:"Sobrecarga, por assumir múltiplas frentes ao mesmo tempo." } },
+  { situacao:"Colegas normalmente recorrem a você, o que mais e o que menos combina:",
+    keys:["E","G","N"],
+    opts:{ E:"Uma resposta técnica precisa sobre um assunto específico.",
+           G:"Resolver o que aparecer, sem exigir grande profundidade.",
+           N:"Juntar as pontas entre pessoas ou setores diferentes." } },
+  { situacao:"Num curso ou instrução, o que mais e o que menos combina com você:",
+    keys:["E","G","N"],
+    opts:{ E:"Se aprofundar num único módulo até dominar de verdade.",
+           G:"Aprender um pouco de cada assunto, sem travar em nenhum.",
+           N:"Conectar o conteúdo com outras áreas que você já conhece." } },
+  { situacao:"Se pudesse escolher uma responsabilidade extra, o que mais e o que menos combina:",
+    keys:["E","G","N"],
+    opts:{ E:"Ser referência técnica em um equipamento ou procedimento específico.",
+           G:"Circular entre setores cobrindo o que for preciso.",
+           N:"Coordenar um projeto que envolve várias equipes diferentes." } },
+  { situacao:"Depois de um curso ou capacitação, o que mais e o que menos te representa:",
+    keys:["E","G","N"],
+    opts:{ E:"Vira a pessoa mais fundo naquele assunto na sua unidade.",
+           G:"Aplica o básico no dia a dia sem se aprofundar mais.",
+           N:"Passa a ensinar e conectar o conteúdo com outras equipes." } },
+  { situacao:"Numa reunião de planejamento, o que mais e o que menos te representa:",
+    keys:["E","G","N"],
+    opts:{ E:"Contribui com um detalhe técnico que só você domina.",
+           G:"Ajuda a cobrir os pontos gerais que faltam.",
+           N:"Ajuda a conectar as partes que as outras áreas não estão vendo." } },
 ];
 
-// 8 questions tied directly to the operational axes used in the 12 profile radars
-const OP_QUESTIONS = [
-  {axis:"FIS", text:"Me sinto bem preparado fisicamente para perseguição, contenção e uso da força quando necessário."},
-  {axis:"TIR", text:"Tenho domínio e segurança no manuseio de armamento e na decisão de quando usá-lo."},
-  {axis:"ABR", text:"Me sinto confiante conduzindo abordagens a pessoas e veículos suspeitos."},
-  {axis:"COM", text:"Consigo acalmar uma situação tensa só pela forma como converso com as pessoas."},
-  {axis:"JUR", text:"Domino bem a legislação e os procedimentos aplicáveis às ocorrências que atendo."},
-  {axis:"SOC", text:"Me sinto preparado para prestar primeiros socorros a uma vítima até o socorro especializado chegar."},
-  {axis:"DIR", text:"Tenho facilidade e segurança para dirigir viatura ou moto em situação de urgência."},
-  {axis:"LID", text:"Outros policiais recorrem a mim naturalmente quando é preciso organizar ou decidir algo em equipe."},
-];
+// ---- Frente 3: Preferência operacional (8 rodadas × 4 dos 8 eixos, janela deslizante) ----
+// Cada eixo aparece em exatamente 4 das 8 rodadas — garante comparação justa entre todos.
+const OP_STATEMENTS = {
+  FIS:"Me sinto bem preparado fisicamente para perseguição, contenção e uso da força quando necessário.",
+  TIR:"Tenho domínio e segurança no manuseio de armamento e na decisão de quando usá-lo.",
+  ABR:"Me sinto confiante conduzindo abordagens a pessoas e veículos suspeitos.",
+  COM:"Consigo acalmar uma situação tensa só pela forma como converso com as pessoas.",
+  JUR:"Domino bem a legislação e os procedimentos aplicáveis às ocorrências que atendo.",
+  SOC:"Me sinto preparado para prestar primeiros socorros a uma vítima até o socorro especializado chegar.",
+  DIR:"Tenho facilidade e segurança para dirigir viatura ou moto em situação de urgência.",
+  LID:"Outros policiais recorrem a mim naturalmente quando é preciso organizar ou decidir algo em equipe.",
+};
+function opWindow(startIdx){
+  const keys = [];
+  for(let i=0;i<4;i++) keys.push(AXES_ORDER[(startIdx+i) % 8]);
+  return keys;
+}
+const OP_BLOCKS = AXES_ORDER.map((_, i) => {
+  const keys = opWindow(i);
+  const opts = {};
+  keys.forEach(k => { opts[k] = OP_STATEMENTS[k]; });
+  return { situacao:"Entre as afirmações abaixo, qual é a mais e a menos parecida com você:", keys, opts };
+});
 
 const TEMPERAMENTOS = {
   C: {nome:"Colérico", disc:"D — Dominância", cor:"#d9a441",
@@ -312,65 +359,65 @@ const TEMPERAMENTOS = {
 };
 
 const CONHECIMENTO = {
-  E: {nome:"Especialista", risco:"Isolamento, dificuldade de trabalhar em equipe, rigidez.",
+  E: {nome:"Especialista", cor:"#d9a441", risco:"Isolamento, dificuldade de trabalhar em equipe, rigidez.",
       uso:"Instrutor, planejamento operacional (P3/P5), referência técnica, análise de ocorrências complexas.",
       exemplo:"Policial de Tiro, operador de sistemas do COPOM, mecânico de viatura, especialista em drones."},
-  G: {nome:"Generalista", risco:"Superficialidade, dificuldade em aprofundar temas complexos.",
+  G: {nome:"Generalista", cor:"#6fae7c", risco:"Superficialidade, dificuldade em aprofundar temas complexos.",
       uso:"Coordenação de turno, atendimento ao público, suporte operacional, integração entre setores.",
       exemplo:"Policial de radiopatrulha, auxiliar de pelotão, base de apoio."},
-  N: {nome:"Nexialista", risco:"Sobrecarga, dispersão de foco, burnout.",
+  N: {nome:"Nexialista", cor:"#5b7fa6", risco:"Sobrecarga, dispersão de foco, burnout.",
       uso:"Comando de equipe, projetos especiais, operações complexas, articulação intersetorial.",
       exemplo:"Coordenador de grandes eventos, líder de equipe em ocorrência de múltiplas viaturas."},
 };
 
-// 12 operational profiles: temperament weights (0-3), knowledge type, and the 8-axis
-// operational vector [FIS,TIR,ABR,COM,JUR,SOC,DIR,LID] from the radar charts
+// 12 operational profiles: temperament weights (0-3), knowledge vector (0-3 each),
+// and the 8-axis operational vector [FIS,TIR,ABR,COM,JUR,SOC,DIR,LID]
 const GU_PROFILES = [
-  {code:"GU-01", title:"Generalista de Patrulha Ostensiva", w:{C:2,S:2,F:1,M:1}, k:"G",
+  {code:"GU-01", title:"Generalista de Patrulha Ostensiva", w:{C:2,S:2,F:1,M:1}, kv:{E:0,G:3,N:0},
    vec:[7,6,7,7,6,6,7,6],
    why:"Combina decisão rápida com boa relação com o público — o perfil que sustenta a cobertura contínua do território."},
-  {code:"GU-02", title:"Comunitário Pacificador", w:{C:0,S:3,F:2,M:0}, k:"G",
+  {code:"GU-02", title:"Comunitário Pacificador", w:{C:0,S:3,F:2,M:0}, kv:{E:0,G:3,N:0},
    vec:[5,3,4,10,6,4,4,6],
    why:"Comunicação forte e paciência para manter vínculo de longo prazo com a mesma área."},
-  {code:"GU-03", title:"Tático de Confronto", w:{C:3,S:0,F:1,M:0}, k:"E",
+  {code:"GU-03", title:"Tático de Confronto", w:{C:3,S:0,F:1,M:0}, kv:{E:3,G:0,N:0},
    vec:[9,9,9,4,5,5,6,6],
    why:"Decisão sob risco extremo e foco técnico em cenários de confronto armado."},
-  {code:"GU-04", title:"Motociclista de Ronda", w:{C:2,S:0,F:2,M:0}, k:"G",
+  {code:"GU-04", title:"Motociclista de Ronda", w:{C:2,S:0,F:2,M:0}, kv:{E:0,G:3,N:0},
    vec:[7,6,7,5,4,4,10,4],
    why:"Decisão rápida com estabilidade emocional para pilotar sob pressão em áreas de difícil acesso."},
-  {code:"GU-05", title:"Socorrista Operacional", w:{C:0,S:0,F:2,M:2}, k:"E",
+  {code:"GU-05", title:"Socorrista Operacional", w:{C:0,S:0,F:2,M:2}, kv:{E:3,G:0,N:0},
    vec:[7,4,4,6,4,10,5,5],
    why:"Calma sob pressão somada à atenção técnica exigida para estabilizar vítimas."},
-  {code:"GU-06", title:"Mediador de Crise", w:{C:0,S:1,F:3,M:0}, k:"N",
+  {code:"GU-06", title:"Mediador de Crise", w:{C:0,S:1,F:3,M:0}, kv:{E:0,G:0,N:3},
    vec:[5,3,5,10,7,7,4,6],
    why:"Paciência e comunicação para de-escalar crises psicológicas e conflitos domésticos."},
-  {code:"GU-07", title:"Comandante de Guarnição", w:{C:3,S:0,F:0,M:1}, k:"N",
+  {code:"GU-07", title:"Comandante de Guarnição", w:{C:3,S:0,F:0,M:1}, kv:{E:0,G:0,N:3},
    vec:[6,6,6,7,8,5,5,10],
    why:"Decisão firme e capacidade de conectar equipes em ocorrências complexas."},
-  {code:"GU-08", title:"Apoio a Registro Técnico", w:{C:0,S:0,F:0,M:3}, k:"E",
+  {code:"GU-08", title:"Apoio a Registro Técnico", w:{C:0,S:0,F:0,M:3}, kv:{E:3,G:0,N:0},
    vec:[5,4,5,7,9,4,4,5],
    why:"Precisão analítica para registros que sustentam o trabalho da Polícia Civil."},
-  {code:"GU-09", title:"Agente de Levantamento de Área", w:{C:0,S:0,F:0,M:3}, k:"N", kSecondary:"E",
+  {code:"GU-09", title:"Agente de Levantamento de Área", w:{C:0,S:0,F:0,M:3}, kv:{E:2,G:0,N:3},
    vec:[5,3,6,8,8,4,5,5],
    why:"Leitura analítica de padrões conectada à inteligência da própria PM — sem substituir a Polícia Civil."},
-  {code:"GU-10", title:"Policiamento Escolar", w:{C:0,S:3,F:0,M:0}, k:"G",
+  {code:"GU-10", title:"Policiamento Escolar", w:{C:0,S:3,F:0,M:0}, kv:{E:0,G:3,N:0},
    vec:[5,2,4,9,7,5,4,5],
    why:"Comunicação entusiástica, essencial para criar vínculo de confiança com estudantes."},
-  {code:"GU-11", title:"Cinotécnico (K9)", w:{C:0,S:0,F:2,M:2}, k:"E",
+  {code:"GU-11", title:"Cinotécnico (K9)", w:{C:0,S:0,F:2,M:2}, kv:{E:3,G:0,N:0},
    vec:[8,6,8,4,4,5,6,4],
    why:"Paciência com o animal somada à precisão técnica do protocolo de faro."},
-  {code:"GU-12", title:"Policiamento de Trânsito", w:{C:1,S:0,F:0,M:3}, k:"E",
+  {code:"GU-12", title:"Policiamento de Trânsito", w:{C:1,S:0,F:0,M:3}, kv:{E:3,G:0,N:0},
    vec:[6,4,5,6,7,5,9,4],
    why:"Precisão e conformidade às normas, com firmeza para autuações em confronto."},
 ];
 
 /* ============================= STATE ============================= */
-let answers = {}; // qIndex -> value
+let answers = {};
 let currentQ = 0;
 const ALL_QUESTIONS = [
-  ...TEMP_BLOCKS.map(q => ({type:"ipsative", ...q})),
-  ...KNOW_QUESTIONS.map(q => ({type:"choice", ...q})),
-  ...OP_QUESTIONS.map(q => ({type:"likert", ...q})),
+  ...TEMP_BLOCKS.map(q => ({type:"ipsative", front:"temp", ...q})),
+  ...KNOW_BLOCKS.map(q => ({type:"ipsative", front:"know", ...q})),
+  ...OP_BLOCKS.map(q => ({type:"ipsative", front:"op", ...q})),
 ];
 const TOTAL = ALL_QUESTIONS.length;
 
@@ -384,78 +431,48 @@ function renderQuestion(){
   const q = ALL_QUESTIONS[currentQ];
   document.getElementById('qCounter').textContent = `PERGUNTA ${currentQ+1}/${TOTAL}`;
   document.getElementById('progressFill').style.width = `${(currentQ/TOTAL)*100}%`;
-  document.getElementById('qText').textContent = q.type === "ipsative" ? q.situacao : q.text;
+  document.getElementById('qText').textContent = q.situacao;
   const body = document.getElementById('qBody');
   body.innerHTML = "";
 
-  if(q.type === "ipsative"){
-    const current = answers[currentQ] || {};
-    const temps = ["C","S","F","M"];
+  const current = answers[currentQ] || {};
+  const stepTitle = document.createElement('div');
+  stepTitle.className = 'section-title';
+  stepTitle.style.margin = '0 0 10px';
+  stepTitle.textContent = current.most ? "AGORA, O QUE MENOS TE REPRESENTA:" : "O QUE MAIS TE REPRESENTA:";
+  body.appendChild(stepTitle);
 
-    const stepTitle = document.createElement('div');
-    stepTitle.className = 'section-title';
-    stepTitle.style.margin = '0 0 10px';
-    stepTitle.textContent = current.most ? "AGORA, O QUE MENOS TE REPRESENTA:" : "O QUE MAIS TE REPRESENTA:";
-    body.appendChild(stepTitle);
+  const wrap = document.createElement('div');
+  wrap.className = 'options';
+  const pool = current.most ? q.keys.filter(k => k !== current.most) : q.keys;
+  pool.forEach(k => {
+    const b = document.createElement('button');
+    b.className = 'opt';
+    const isSelected = current.most ? current.least === k : current.most === k;
+    if(isSelected) b.classList.add('selected');
+    b.textContent = q.opts[k];
+    b.onclick = () => {
+      if(!current.most){
+        answers[currentQ] = {most:k};
+      } else {
+        answers[currentQ] = {most:current.most, least:k};
+      }
+      renderQuestion();
+      updateNextBtn();
+    };
+    wrap.appendChild(b);
+  });
+  body.appendChild(wrap);
 
-    const wrap = document.createElement('div');
-    wrap.className = 'options';
-    const pool = current.most ? temps.filter(t => t !== current.most) : temps;
-    pool.forEach(t => {
-      const b = document.createElement('button');
-      b.className = 'opt';
-      const isSelected = current.most ? current.least === t : current.most === t;
-      if(isSelected) b.classList.add('selected');
-      b.textContent = q.opts[t];
-      b.onclick = () => {
-        if(!current.most){
-          answers[currentQ] = {most:t};
-        } else {
-          answers[currentQ] = {most:current.most, least:t};
-        }
-        renderQuestion();
-        updateNextBtn();
-      };
-      wrap.appendChild(b);
-    });
-    body.appendChild(wrap);
-
-    if(current.most){
-      const back = document.createElement('button');
-      back.className = 'btn ghost';
-      back.style.marginTop = '10px';
-      back.textContent = '← trocar o "mais te representa"';
-      back.onclick = () => { answers[currentQ] = {}; renderQuestion(); updateNextBtn(); };
-      body.appendChild(back);
-    }
-  } else if(q.type === "likert"){
-    const row = document.createElement('div');
-    row.className = 'likert';
-    for(let v=1; v<=5; v++){
-      const b = document.createElement('button');
-      b.textContent = v;
-      if(answers[currentQ] === v) b.classList.add('selected');
-      b.onclick = () => { answers[currentQ] = v; renderQuestion(); updateNextBtn(); };
-      row.appendChild(b);
-    }
-    body.appendChild(row);
-    const labels = document.createElement('div');
-    labels.className = 'likert-labels';
-    labels.innerHTML = `<span>DISCORDO TOTALMENTE</span><span>CONCORDO TOTALMENTE</span>`;
-    body.appendChild(labels);
-  } else {
-    const wrap = document.createElement('div');
-    wrap.className = 'options';
-    q.options.forEach((opt, i) => {
-      const b = document.createElement('button');
-      b.className = 'opt';
-      if(answers[currentQ] === i) b.classList.add('selected');
-      b.textContent = opt.label;
-      b.onclick = () => { answers[currentQ] = i; renderQuestion(); updateNextBtn(); };
-      wrap.appendChild(b);
-    });
-    body.appendChild(wrap);
+  if(current.most){
+    const back = document.createElement('button');
+    back.className = 'btn ghost';
+    back.style.marginTop = '10px';
+    back.textContent = '← trocar o "mais te representa"';
+    back.onclick = () => { answers[currentQ] = {}; renderQuestion(); updateNextBtn(); };
+    body.appendChild(back);
   }
+
   document.getElementById('btnBack').disabled = currentQ === 0;
   updateNextBtn();
 }
@@ -463,14 +480,14 @@ function renderQuestion(){
 function updateNextBtn(){
   const btn = document.getElementById('btnNext');
   const a = answers[currentQ];
-  const q = ALL_QUESTIONS[currentQ];
-  const answered = q.type === "ipsative" ? !!(a && a.most && a.least) : (a !== undefined);
+  const answered = !!(a && a.most && a.least);
   btn.disabled = !answered;
   btn.textContent = currentQ === TOTAL - 1 ? "Ver resultado →" : "Próxima →";
 }
 
 function goNext(){
-  if(answers[currentQ] === undefined) return;
+  const a = answers[currentQ];
+  if(!(a && a.most && a.least)) return;
   if(currentQ === TOTAL - 1){
     showResults();
   } else {
@@ -485,16 +502,11 @@ function goBack(){
 }
 
 /* ============================= SCORING ============================= */
-const AXES_ORDER = ["FIS","TIR","ABR","COM","JUR","SOC","DIR","LID"];
 
-// Pearson correlation: compares the SHAPE of two profiles (which axes are
+// Pearson correlation: compares the SHAPE of two profiles (which entries are
 // relatively high/low vs each vector's own average), not their overall level.
-// Raw cosine similarity on all-positive vectors of similar magnitude stays
-// artificially high (0.85-0.98) for almost any pairing, because it's dominated
-// by the shared baseline level rather than the actual pattern of differences —
-// that was flattening the operational match and letting temperament/knowledge
-// quietly decide the result. Centering each vector on its own mean before
-// comparing fixes that.
+// Used identically across all three fronts now, so none of them can be
+// "flattened" by someone who scores evenly across the board.
 function pearson(a, b){
   const n = a.length;
   const meanA = a.reduce((s,x)=>s+x,0)/n;
@@ -504,116 +516,138 @@ function pearson(a, b){
     const xa = a[i]-meanA, xb = b[i]-meanB;
     num += xa*xb; da += xa*xa; db += xb*xb;
   }
-  if(da < 1e-6 || db < 1e-6) return 0; // no meaningful variance to compare — stay neutral
+  if(da < 1e-6 || db < 1e-6) return 0;
   return num / Math.sqrt(da*db);
 }
-const to01 = r => (r + 1) / 2; // map correlation -1..1 to 0..1
+const to01 = r => (r + 1) / 2;
 
 function computeResults(){
+  // ---- Frente 1: Temperamento ----
   const tempScore = {C:0, S:0, F:0, M:0};
   TEMP_BLOCKS.forEach((q, i) => {
     const a = answers[i];
     if(a && a.most) tempScore[a.most] += 2;
     if(a && a.least) tempScore[a.least] -= 1;
   });
-  // range per temperament across 8 blocks: min -8 (always least), max 16 (always most)
   const tempNorm = {};
-  Object.keys(tempScore).forEach(k => {
-    tempNorm[k] = (tempScore[k] + 8) / 24;
-  });
-
-  const knowVotes = {E:0, G:0, N:0};
-  KNOW_QUESTIONS.forEach((q, i) => {
-    const idx = answers[TEMP_BLOCKS.length + i];
-    const k = q.options[idx].k;
-    knowVotes[k]++;
-  });
-  const topKnow = Object.keys(knowVotes).sort((a,b) => knowVotes[b]-knowVotes[a])[0];
-
-  // operational self-assessment vector, 0-10 per axis
-  const opBase = TEMP_BLOCKS.length + KNOW_QUESTIONS.length;
-  const userVec = OP_QUESTIONS.map((q, i) => {
-    const v = answers[opBase + i] || 3;
-    return (v - 1) / 4 * 10; // 1..5 -> 0..10
-  });
-
-  // rank temperaments
+  Object.keys(tempScore).forEach(k => { tempNorm[k] = (tempScore[k] + 8) / 24; });
   const tempRank = Object.keys(tempNorm).sort((a,b) => tempNorm[b]-tempNorm[a]);
   const userTempVec = ["C","S","F","M"].map(k => tempNorm[k]);
 
-  // match GU profiles across the three fronts
+  // ---- Frente 2: Conhecimento ----
+  const knowBase = TEMP_BLOCKS.length;
+  const knowScore = {E:0, G:0, N:0};
+  KNOW_BLOCKS.forEach((q, i) => {
+    const a = answers[knowBase + i];
+    if(a && a.most) knowScore[a.most] += 2;
+    if(a && a.least) knowScore[a.least] -= 1;
+  });
+  const knowNorm = {};
+  Object.keys(knowScore).forEach(k => { knowNorm[k] = (knowScore[k] + 8) / 24; });
+  const knowRank = Object.keys(knowNorm).sort((a,b) => knowNorm[b]-knowNorm[a]);
+  const userKnowVec = ["E","G","N"].map(k => knowNorm[k]);
+
+  // ---- Frente 3: Operacional ----
+  const opBase = knowBase + KNOW_BLOCKS.length;
+  const opScore = {}; AXES_ORDER.forEach(a => opScore[a]=0);
+  OP_BLOCKS.forEach((q, i) => {
+    const a = answers[opBase + i];
+    if(a && a.most) opScore[a.most] += 2;
+    if(a && a.least) opScore[a.least] -= 1;
+  });
+  // each axis appears in exactly 4 of 8 rounds -> range -4..+8
+  const userVec = AXES_ORDER.map(k => ((opScore[k] + 4) / 12) * 10); // scale to 0-10 for the radar
+
+  // ---- Match GU profiles across the three fronts (same method, all three) ----
   const scored = GU_PROFILES.map(p => {
     const profileTempVec = ["C","S","F","M"].map(k => p.w[k]);
     const tempComponent = to01(pearson(userTempVec, profileTempVec));
 
-    let knowComponent = 0;
-    if(p.k === topKnow) knowComponent = 1;
-    else if(p.kSecondary === topKnow) knowComponent = 0.5;
+    const profileKnowVec = ["E","G","N"].map(k => p.kv[k]);
+    const knowComponent = to01(pearson(userKnowVec, profileKnowVec));
 
     const opComponent = to01(pearson(userVec, p.vec));
 
-    // operational fit is the most direct signal (you rated yourself on the exact
-    // axes that define each function), so it carries the most weight
-    const score = 0.55*opComponent + 0.27*tempComponent + 0.18*knowComponent;
+    const score = 0.5*opComponent + 0.28*tempComponent + 0.22*knowComponent;
     return {...p, score, opComponent, tempComponent, knowComponent};
   });
   const maxScore = Math.max(...scored.map(s => s.score));
   const minScore = Math.min(...scored.map(s => s.score));
   scored.forEach(s => {
-    s.pct = Math.round(((s.score - minScore) / (maxScore - minScore || 1)) * 45 + 55); // spread 55-100%
+    s.pct = Math.round(((s.score - minScore) / (maxScore - minScore || 1)) * 45 + 55);
   });
   scored.sort((a,b) => b.score - a.score);
 
-  return {tempScore: tempNorm, tempRank, knowVotes, topKnow, userVec, ranked: scored};
+  return {tempScore: tempNorm, tempRank, knowScore: knowNorm, knowRank, userVec, ranked: scored};
 }
 
 /* ============================= RESULTS UI ============================= */
 function showResults(){
   document.getElementById('screen-quiz').classList.add('hidden');
-  const {tempScore, tempRank, topKnow, userVec, ranked} = computeResults();
+  const {tempScore, tempRank, knowScore, knowRank, userVec, ranked} = computeResults();
   const dom = tempRank[0], sec = tempRank[1];
   const domT = TEMPERAMENTOS[dom], secT = TEMPERAMENTOS[sec];
-  const know = CONHECIMENTO[topKnow];
+  const knowDom = knowRank[0], knowSec = knowRank[1];
+  const know = CONHECIMENTO[knowDom];
   const top = ranked[0];
 
   const el = document.getElementById('screen-result');
   el.classList.remove('hidden');
+
+  const axisLegendHtml = AXES_ORDER.map(a =>
+    `<span><b style="color:var(--amber)">${a}</b> ${AXES_FULL[a]}</span>`
+  ).join('');
 
   el.innerHTML = `
     <div class="eyebrow">Relatório de perfil · Comando 190</div>
     <div class="result-header">
       <h1 style="margin:0;">Seu perfil <span>operacional</span></h1>
     </div>
-    <p class="sub">Cruzamento de três frentes: temperamento dominante, forma de usar o conhecimento e preferência operacional direta nos oito eixos usados nos perfis do 190.</p>
+    <p class="sub">Este relatório cruza três frentes — temperamento, forma de usar o conhecimento e preferência operacional direta — todas medidas pelo mesmo método de escolha forçada, para que o resultado reflita como você realmente se diferencia, não apenas o que você concorda em geral.</p>
 
     <div class="section-title">Frente 1 · Temperamento</div>
     <div class="card">
       <div class="chart-box"><canvas id="tempChart"></canvas></div>
       <div class="temp-bars" id="tempBars"></div>
     </div>
-
-    <div class="section-title">Temperamento dominante — ${domT.nome} <span style="color:var(--faint)">(${domT.disc})</span></div>
     <div class="card">
+      <div class="desc-block"><b>Temperamento dominante — ${domT.nome}</b> <span style="color:var(--faint)">(${domT.disc})</span></div>
       <div class="desc-block"><b>Como é:</b> ${domT.como}</div>
       <div class="desc-block"><b>Onde rende mais:</b> ${domT.rende}</div>
       <div class="desc-block"><b>Onde mais sofre:</b> ${domT.sofre}</div>
-      <div class="desc-block" style="margin-top:10px;color:var(--faint);font-size:12.5px;">Traço secundário: ${secT.nome} — vale observar também as situações listadas para esse temperamento.</div>
+      <div class="desc-block" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line);color:var(--muted);">
+        <b>Traço secundário — ${secT.nome}:</b> vale observar também onde esse temperamento rende (${secT.rende.toLowerCase()}) e onde sofre (${secT.sofre.toLowerCase()}), porque na prática você provavelmente mistura os dois conforme a situação.
+      </div>
     </div>
 
-    <div class="section-title">Frente 2 · Forma de usar o conhecimento — ${know.nome}</div>
+    <div class="section-title">Frente 2 · Forma de usar o conhecimento</div>
     <div class="card">
+      <div class="temp-bars" id="knowBars"></div>
+    </div>
+    <div class="card">
+      <div class="desc-block"><b>Predominante — ${know.nome}</b></div>
       <div class="desc-block"><b>Melhor uso pelo comandante:</b> ${know.uso}</div>
       <div class="desc-block"><b>Risco principal:</b> ${know.risco}</div>
       <div class="desc-block"><b>Exemplo na PM:</b> ${know.exemplo}</div>
+      <div class="desc-block" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line);color:var(--muted);">
+        <b>Segundo lugar — ${CONHECIMENTO[knowSec].nome}:</b> quando a função exigir, você também consegue puxar para esse modo de trabalhar — vale considerar isso em funções híbridas.
+      </div>
     </div>
 
     <div class="section-title">Frente 3 · Perfil operacional (você × ${top.title})</div>
     <div class="card">
       <div class="chart-box"><canvas id="opChart"></canvas></div>
-      <div style="display:flex;gap:18px;margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">
+      <div style="display:flex;gap:18px;margin:8px 0 14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">
         <span><span style="display:inline-block;width:9px;height:9px;background:#d9a441;border-radius:2px;margin-right:5px;"></span>Sua autoavaliação</span>
         <span><span style="display:inline-block;width:9px;height:9px;background:#6fae7c;border-radius:2px;margin-right:5px;"></span>${top.code} · perfil ideal</span>
       </div>
+      <div class="axis-legend">${axisLegendHtml}</div>
+      <div class="temp-bars" id="opBars" style="margin-top:16px;"></div>
+    </div>
+
+    <div class="section-title">Como o resultado foi calculado</div>
+    <div class="card">
+      <div class="desc-block">As 24 respostas viram três perfis numéricos (temperamento, conhecimento, eixos operacionais). Cada um dos 12 perfis do 190 também tem esses três perfis pré-definidos. O sistema compara o <i>formato</i> do seu perfil com o de cada função — não o nível geral das respostas — e calcula quanto eles se parecem. A frente operacional pesa mais (50%) por ser o sinal mais direto; temperamento (28%) e forma de usar o conhecimento (22%) refinam o resultado.</div>
     </div>
 
     <div class="section-title">Funções onde você tende a render mais</div>
@@ -629,7 +663,7 @@ function showResults(){
   `;
 
   // temperament bars
-  const barsWrap = document.getElementById('tempBars');
+  const tempBarsWrap = document.getElementById('tempBars');
   tempRank.forEach(k => {
     const t = TEMPERAMENTOS[k];
     const pct = Math.round(tempScore[k]*100);
@@ -640,10 +674,40 @@ function showResults(){
       <div class="temp-track"><div class="temp-fill" style="width:${pct}%;background:${t.cor};"></div></div>
       <div class="temp-val">${pct}%</div>
     `;
-    barsWrap.appendChild(row);
+    tempBarsWrap.appendChild(row);
   });
 
-  // radar chart of temperament
+  // knowledge bars
+  const knowBarsWrap = document.getElementById('knowBars');
+  knowRank.forEach(k => {
+    const t = CONHECIMENTO[k];
+    const pct = Math.round(knowScore[k]*100);
+    const row = document.createElement('div');
+    row.className = 'temp-row';
+    row.innerHTML = `
+      <div class="temp-name">${t.nome}</div>
+      <div class="temp-track"><div class="temp-fill" style="width:${pct}%;background:${t.cor};"></div></div>
+      <div class="temp-val">${pct}%</div>
+    `;
+    knowBarsWrap.appendChild(row);
+  });
+
+  // operational bars (full names, sorted high to low)
+  const opBarsWrap = document.getElementById('opBars');
+  const opPairs = AXES_ORDER.map((a,i) => ({a, v:userVec[i]})).sort((x,y)=>y.v-x.v);
+  opPairs.forEach(({a,v}) => {
+    const pct = Math.round(v*10);
+    const row = document.createElement('div');
+    row.className = 'temp-row';
+    row.innerHTML = `
+      <div class="temp-name">${AXES_FULL[a]}</div>
+      <div class="temp-track"><div class="temp-fill" style="width:${pct}%;background:#d9a441;"></div></div>
+      <div class="temp-val">${pct}%</div>
+    `;
+    opBarsWrap.appendChild(row);
+  });
+
+  // temperament radar
   const ctx = document.getElementById('tempChart').getContext('2d');
   new Chart(ctx, {
     type:'radar',
@@ -666,12 +730,12 @@ function showResults(){
     }
   });
 
-  // operational radar: user self-assessment vs top matched profile
+  // operational radar: user vs top matched profile, full axis names in point labels
   const opCtx = document.getElementById('opChart').getContext('2d');
   new Chart(opCtx, {
     type:'radar',
     data:{
-      labels:AXES_ORDER,
+      labels:AXES_ORDER.map(a => `${a} · ${AXES_FULL[a]}`),
       datasets:[
         {
           label:'Você', data:userVec,
@@ -690,13 +754,13 @@ function showResults(){
       plugins:{legend:{display:false}, tooltip:{enabled:false}},
       scales:{ r:{ min:0, max:10,
         angleLines:{color:'#223148'}, grid:{color:'#1a2538'},
-        pointLabels:{color:'#8b98ac', font:{family:"'JetBrains Mono', monospace", size:10.5}},
+        pointLabels:{color:'#8b98ac', font:{family:"'JetBrains Mono', monospace", size:9.5}},
         ticks:{display:false}
       }}
     }
   });
 
-  // recommendations (top 3)
+  // recommendations (top 3), now showing the per-front contribution
   const recWrap = document.getElementById('recList');
   ranked.slice(0,3).forEach((p, i) => {
     const card = document.createElement('div');
@@ -708,10 +772,16 @@ function showResults(){
       </div>
       <div class="rec-code">${p.code}</div>
       <div class="rec-why">${p.why}</div>
+      <div class="rec-breakdown">
+        <span>Operacional: <b>${Math.round(p.opComponent*100)}%</b></span>
+        <span>Temperamento: <b>${Math.round(p.tempComponent*100)}%</b></span>
+        <span>Conhecimento: <b>${Math.round(p.knowComponent*100)}%</b></span>
+      </div>
     `;
     recWrap.appendChild(card);
   });
 }
+
 </script>
 </body>
 </html>
