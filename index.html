@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Teste de Perfil · Comando 190</title>
+<title>PRISMA · Perfil de Risco e Inteligência para Seleção Militar e Atuação</title>
 <script>
 /*!
  * Chart.js v4.4.1
@@ -25,16 +25,21 @@
   @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
   :root{
-    --bg:#0a0f1a; --panel:#111a2b; --panel2:#0d1522; --line:#223148;
-    --amber:#d9a441; --amber-dim:#8a6b2f; --green:#6fae7c; --steel:#5b7fa6;
-    --text:#e7eaf0; --muted:#8b98ac; --faint:#56637a;
+    /* tactical / gunmetal palette — muted brass, olive drab, gunmetal steel */
+    --bg:#0b0d0c; --panel:#141817; --panel2:#101312; --line:#272c28;
+    --amber:#a9884f; --amber-dim:#6b5730; --green:#7c8f6d; --steel:#5c6a72;
+    --text:#e6e8e2; --muted:#97a199; --faint:#586258;
+    --danger:#b3705c; --ok-text:#c7ddb9; --warn-text:#e3c48f; --on-accent:#171208;
+    --c-colerico:var(--amber); --c-sanguineo:var(--green); --c-fleumatico:var(--steel); --c-melancolico:#7d7690;
+    --c-especialista:var(--amber); --c-generalista:var(--green); --c-nexialista:var(--steel);
+    --chart-grid:#1c2320; --chart-angle:#252b26; --chart-label:#97a199;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{
     background:
-      radial-gradient(1200px 600px at 15% -10%, rgba(91,127,166,0.10), transparent),
-      radial-gradient(900px 500px at 100% 0%, rgba(217,164,65,0.06), transparent),
+      radial-gradient(1200px 600px at 15% -10%, rgba(92,106,114,0.10), transparent),
+      radial-gradient(900px 500px at 100% 0%, rgba(169,136,79,0.06), transparent),
       var(--bg);
     color:var(--text); font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased;
     min-height:100vh;
@@ -45,8 +50,8 @@
     font-family:'JetBrains Mono',monospace; font-size:11.5px; letter-spacing:.16em;
     color:var(--amber); text-transform:uppercase; display:flex; align-items:center; gap:9px; margin-bottom:16px;
   }
-  .eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--amber);
-    box-shadow:0 0 10px 2px rgba(217,164,65,.6);}
+  .eyebrow::before{content:"";width:7px;height:7px;border-radius:1px;background:var(--amber);
+    box-shadow:0 0 8px 1px rgba(169,136,79,.5);}
   h1{font-family:'Oswald',sans-serif;font-weight:600;font-size:clamp(26px,5vw,38px);
     letter-spacing:-.01em;line-height:1.08;margin:0 0 14px;text-transform:uppercase;}
   h1 span{color:var(--amber);}
@@ -56,8 +61,11 @@
   .progress-fill{height:100%;background:linear-gradient(90deg,var(--amber),var(--green));
     width:0%;transition:width .4s ease;}
 
-  .card{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);
-    border-radius:8px;padding:28px 26px;}
+  .card{position:relative;background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);
+    border-radius:3px;padding:28px 26px;margin-bottom:18px;}
+  .card::before, .card::after{content:"";position:absolute;width:9px;height:9px;pointer-events:none;}
+  .card::before{top:-1px;left:-1px;border-top:2px solid var(--amber-dim);border-left:2px solid var(--amber-dim);}
+  .card::after{bottom:-1px;right:-1px;border-bottom:2px solid var(--amber-dim);border-right:2px solid var(--amber-dim);}
 
   .qnum{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--faint);letter-spacing:.1em;margin-bottom:10px;}
   .qtext{font-family:'Oswald',sans-serif;font-size:19px;font-weight:500;line-height:1.35;margin-bottom:22px;}
@@ -65,55 +73,139 @@
   .likert{display:flex;justify-content:space-between;gap:6px;margin-top:6px;}
   .likert button{
     flex:1;background:var(--panel2);border:1px solid var(--line);color:var(--muted);
-    border-radius:6px;padding:12px 4px;font-family:'JetBrains Mono',monospace;font-size:11px;
+    border-radius:2px;padding:12px 4px;font-family:'JetBrains Mono',monospace;font-size:11px;
     cursor:pointer;transition:.15s ease;text-align:center;
   }
   .likert button:hover{border-color:var(--amber-dim);color:var(--text);}
-  .likert button.selected{background:var(--amber);border-color:var(--amber);color:#1a1204;font-weight:700;}
+  .likert button.selected{background:var(--amber);border-color:var(--amber);color:var(--on-accent);font-weight:700;}
   .likert-labels{display:flex;justify-content:space-between;margin-top:8px;font-size:10.5px;color:var(--faint);
     font-family:'JetBrains Mono',monospace;}
 
   .options{display:flex;flex-direction:column;gap:10px;margin-top:6px;}
-  .opt{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:6px;
+  .options.row{flex-direction:row;flex-wrap:wrap;}
+  .opt{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:2px;
     padding:14px 16px;font-size:14px;line-height:1.4;cursor:pointer;text-align:left;transition:.15s ease;}
+  .options.row .opt{flex:1;min-width:120px;text-align:center;}
   .opt:hover{border-color:var(--amber-dim);}
-  .opt.selected{border-color:var(--amber);background:rgba(217,164,65,0.08);}
+  .opt.selected{border-color:var(--amber);background:rgba(169,136,79,0.10);}
 
-  .navrow{display:flex;justify-content:space-between;align-items:center;margin-top:26px;}
+  .navrow{display:flex;justify-content:space-between;align-items:center;margin-top:26px;gap:12px;}
   .btn{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;
-    border-radius:6px;padding:11px 20px;cursor:pointer;border:1px solid var(--line);background:transparent;
+    border-radius:2px;padding:11px 20px;cursor:pointer;border:1px solid var(--line);background:transparent;
     color:var(--muted);transition:.15s ease;}
   .btn:hover{border-color:var(--amber-dim);color:var(--text);}
-  .btn.primary{background:var(--amber);border-color:var(--amber);color:#1a1204;font-weight:700;}
+  .btn.primary{background:var(--amber);border-color:var(--amber);color:var(--on-accent);font-weight:700;}
   .btn.primary:hover{filter:brightness(1.08);}
   .btn:disabled{opacity:.35;cursor:not-allowed;}
   .btn.ghost{border-color:transparent;}
 
   .hidden{display:none !important;}
 
-  /* results */
+  /* brand / menu */
+  .brand-mark{font-family:'Oswald',sans-serif;font-weight:700;letter-spacing:.02em;}
+  .creator-line{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--faint);margin-top:14px;line-height:1.6;}
+  .menu-cards{display:flex;flex-direction:column;gap:14px;margin-top:24px;}
+  .menu-card{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);
+    border-radius:3px;padding:24px 22px;cursor:pointer;transition:.15s ease;text-align:left;width:100%;
+    font-family:inherit;color:inherit;}
+  .menu-card:hover{border-color:var(--amber);}
+  .mc-title{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:19px;font-weight:600;margin-bottom:8px;color:var(--text);}
+  .mc-title b{color:var(--amber);font-family:'JetBrains Mono',monospace;font-size:12px;margin-right:10px;font-weight:700;}
+  .mc-desc{font-size:13.5px;line-height:1.55;color:var(--muted);}
+  .mc-arrow{margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--amber);}
+
+  /* forms */
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
+  .field input, .field select, .field textarea{width:100%;background:var(--panel2);border:1px solid var(--line);
+    border-radius:2px;padding:11px 13px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;}
+  .field input:focus, .field select:focus, .field textarea:focus{outline:none;border-color:var(--amber-dim);}
+  .field-row{display:flex;gap:12px;flex-wrap:wrap;}
+  .field-row .field{flex:1;min-width:150px;}
+  .field textarea{resize:vertical;min-height:90px;font-family:'Inter',sans-serif;}
+  select option{background:var(--panel2);color:var(--text);}
+  .form-hint{font-size:12.5px;color:var(--faint);margin-top:-8px;margin-bottom:16px;}
+
+  /* checklist */
+  .checklist{display:flex;flex-direction:column;gap:8px;margin-top:6px;}
+  .check-item{display:flex;align-items:center;gap:11px;background:var(--panel2);border:1px solid var(--line);
+    border-radius:2px;padding:12px 14px;cursor:pointer;font-size:13.5px;line-height:1.4;transition:.15s ease;}
+  .check-item:hover{border-color:var(--amber-dim);}
+  .check-item .box{width:18px;height:18px;flex:none;border:1px solid var(--line);border-radius:2px;
+    display:flex;align-items:center;justify-content:center;font-size:12px;color:transparent;background:var(--bg);}
+  .check-item.checked{border-color:var(--green);background:rgba(124,143,109,0.09);}
+  .check-item.checked .box{background:var(--green);border-color:var(--green);color:var(--bg);}
+  .interp-box{margin-top:14px;padding:12px 14px;border-radius:2px;border:1px solid var(--line);
+    font-size:13px;line-height:1.5;background:var(--panel2);}
+  .interp-box.warn{border-color:var(--amber-dim);color:var(--warn-text);}
+  .interp-box.ok{border-color:var(--green);color:var(--ok-text);}
+
+  .check-result-list{display:flex;flex-direction:column;gap:6px;margin:10px 0 4px;}
+  .check-result-row{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;padding:8px 0;
+    border-bottom:1px solid var(--line);}
+  .check-result-row:last-child{border-bottom:none;}
+  .check-result-row .mark{font-family:'JetBrains Mono',monospace;font-weight:700;}
+  .check-result-row .mark.yes{color:var(--green);}
+  .check-result-row .mark.no{color:var(--danger);}
+
+  /* nine box */
+  .ninebox{display:flex;gap:10px;margin-top:16px;}
+  .nb-axis-y{writing-mode:vertical-rl;transform:rotate(180deg);display:flex;align-items:center;justify-content:center;
+    font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--faint);letter-spacing:.12em;padding:4px 0;}
+  .nb-body{flex:1;}
+  .nb-row{display:flex;gap:6px;margin-bottom:6px;}
+  .nb-row-label{width:52px;flex:none;display:flex;align-items:center;justify-content:flex-end;
+    font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-align:right;padding-right:4px;}
+  .nb-cell{flex:1;background:var(--panel2);border:1px solid var(--line);border-radius:2px;padding:9px 7px;
+    min-height:58px;display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;
+    transition:.15s ease;font-size:11px;font-weight:600;line-height:1.25;color:var(--text);}
+  .nb-cell:hover{border-color:var(--amber-dim);}
+  .nb-cell.selected{border-color:var(--amber);background:rgba(169,136,79,.16);}
+  .nb-cell.readonly{cursor:default;}
+  .nb-xlabels{display:flex;gap:6px;margin-top:2px;}
+  .nb-xlabels .sp{width:52px;flex:none;}
+  .nb-xlabels span{flex:1;text-align:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--faint);}
+  .nb-xcaption{text-align:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--faint);
+    letter-spacing:.12em;margin-top:4px;padding-left:58px;}
+  .nb-detail{margin-top:14px;padding:14px 16px;border-radius:2px;border:1px solid var(--amber-dim);
+    background:rgba(169,136,79,0.07);font-size:13.5px;line-height:1.55;color:var(--text);}
+  .nb-detail b{color:var(--text);}
+
+  .pipeline-card{border-left:2px solid var(--steel);padding:12px 16px;background:rgba(92,106,114,0.08);
+    border-radius:0 2px 2px 0;font-size:13.5px;line-height:1.6;margin-top:10px;color:var(--text);}
+  .pipeline-card .pc-title{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--steel);
+    text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+
+  .ident-block{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--muted);
+    display:grid;grid-template-columns:1fr 1fr;gap:4px 18px;background:var(--panel2);border:1px solid var(--line);
+    border-radius:2px;padding:14px 16px;margin-bottom:22px;}
+  .ident-block b{color:var(--text);}
+  @media(max-width:480px){ .ident-block{grid-template-columns:1fr;} }
+
+  /* results (shared) */
   .result-header{display:flex;align-items:center;gap:14px;margin-bottom:6px;}
   .badge{font-family:'JetBrains Mono',monospace;font-size:11px;border:1px solid var(--amber-dim);
-    color:var(--amber);padding:3px 9px;border-radius:4px;}
+    color:var(--amber);padding:3px 9px;border-radius:2px;}
   .section-title{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.12em;
     text-transform:uppercase;color:var(--steel);margin:28px 0 10px;}
   .chart-box{position:relative;height:230px;margin:10px 0 4px;}
   .temp-bars{display:flex;flex-direction:column;gap:10px;margin-top:6px;}
   .temp-row{display:grid;grid-template-columns:96px 1fr 34px;align-items:center;gap:10px;}
   .temp-name{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--muted);}
-  .temp-track{height:8px;background:var(--panel2);border-radius:4px;overflow:hidden;border:1px solid var(--line);}
-  .temp-fill{height:100%;border-radius:4px;}
+  .temp-track{height:8px;background:var(--panel2);border-radius:2px;overflow:hidden;border:1px solid var(--line);}
+  .temp-fill{height:100%;border-radius:2px;}
   .temp-val{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--faint);text-align:right;}
 
-  .desc-block{font-size:14px;line-height:1.65;color:#d3d8e2;margin-bottom:4px;}
+  .desc-block{font-size:14px;line-height:1.65;color:var(--text);margin-bottom:4px;}
   .desc-block b{color:var(--text);}
 
-  .rec-card{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:20px 20px;margin-top:14px;}
+  .rec-card{background:var(--panel2);border:1px solid var(--line);border-radius:3px;padding:20px 20px;margin-top:14px;}
   .rec-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
   .rec-title{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:17px;font-weight:600;}
   .rec-pct{font-family:'JetBrains Mono',monospace;color:var(--amber);font-size:13px;}
   .rec-code{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--faint);margin-bottom:10px;}
-  .rec-why{font-size:13.5px;line-height:1.55;color:#c7ccd8;}
+  .rec-why{font-size:13.5px;line-height:1.55;color:var(--muted);}
   .rec-breakdown{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:12px;padding-top:10px;
     border-top:1px solid var(--line);font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);}
   .rec-breakdown b{color:var(--text);}
@@ -122,8 +214,11 @@
   .axis-legend span{display:block;}
   @media(max-width:480px){ .axis-legend{grid-template-columns:1fr;} }
 
-  .note{border-left:2px solid var(--amber-dim);padding:10px 14px;background:rgba(217,164,65,0.06);
-    font-size:13px;line-height:1.55;color:var(--muted);border-radius:0 6px 6px 0;margin-top:22px;}
+  .note{border-left:2px solid var(--amber-dim);padding:10px 14px;background:rgba(169,136,79,0.07);
+    font-size:13px;line-height:1.55;color:var(--muted);border-radius:0 2px 2px 0;margin-top:22px;}
+
+  .sig-line{margin-top:30px;padding-top:18px;border-top:1px solid var(--line);font-size:13px;color:var(--muted);}
+  .sig-line .line{display:inline-block;min-width:260px;border-bottom:1px solid var(--faint);margin-left:8px;}
 
   footer{margin-top:50px;padding-top:20px;border-top:1px solid var(--line);color:var(--faint);
     font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.7;}
@@ -131,17 +226,27 @@
   @media(max-width:520px){
     .likert button{font-size:9.5px;padding:10px 2px;}
     .temp-row{grid-template-columns:76px 1fr 30px;}
+    .nb-row-label{width:40px;font-size:9px;}
+    .nb-xlabels .sp{width:40px;}
+    .nb-xcaption{padding-left:46px;}
+    .nb-cell{font-size:9.5px;min-height:50px;}
   }
 
   @media print{
     :root{
-      --bg:#ffffff; --panel:#f4f5f8; --panel2:#eceef2; --line:#d3d7de;
-      --text:#181c24; --muted:#4a5262; --faint:#7a8494;
+      --bg:#ffffff; --panel:#f1f2ef; --panel2:#e7e9e4; --line:#ccd0c9;
+      --text:#14170f; --muted:#3d453d; --faint:#5c665c;
+      --amber:#6e5526; --amber-dim:#4a3a1c; --green:#33502c; --steel:#33424a;
+      --danger:#7a3b2c; --ok-text:#23361d; --warn-text:#5c3f14; --on-accent:#fbf9f4;
+      --c-colerico:var(--amber); --c-sanguineo:var(--green); --c-fleumatico:var(--steel); --c-melancolico:#453f5c;
+      --c-especialista:var(--amber); --c-generalista:var(--green); --c-nexialista:var(--steel);
+      --chart-grid:#cfd2c9; --chart-angle:#bdc1b6; --chart-label:#20241a;
     }
     body{background:#fff !important;}
     .wrap{max-width:100%;padding:0 6mm;}
-    #screen-intro, #screen-quiz, .navrow, footer, .no-print{display:none !important;}
-    .card, .rec-card{break-inside:avoid;box-shadow:none;}
+    #screen-menu, #screen-self-data, #screen-intro, #screen-quiz, #screen-cmd-data, #screen-cmd-form,
+    .navrow, footer, .no-print{display:none !important;}
+    .card, .rec-card{break-inside:avoid;box-shadow:none;border-color:var(--line);}
     .section-title{break-after:avoid;}
   }
 </style>
@@ -166,9 +271,55 @@
 </script>
 <div class="wrap">
 
+  <!-- MENU -->
+  <div id="screen-menu">
+    <div class="eyebrow">Sistema de perfil e avaliação · PMESP</div>
+    <h1><span class="brand-mark">PRISMA</span><br><span>Perfil de Risco e Inteligência para Seleção Militar e Atuação</span></h1>
+    <p class="sub">Duas frentes de diagnóstico com a mesma base conceitual — temperamentos, hard/soft skills, perfis de conhecimento e os 12 perfis operacionais do 190 — usadas de formas diferentes conforme quem está respondendo.</p>
+    <p class="creator-line">Desenvolvido pelo 3° Sgt PM Éric — 46°BPM/M</p>
+
+    <div class="menu-cards">
+      <button class="menu-card" onclick="chooseSelf()">
+        <div class="mc-title"><b>01</b>Autoavaliação</div>
+        <div class="mc-desc">O próprio policial responde 24 rodadas de escolha forçada. O sistema mapeia temperamento, forma de usar o conhecimento e preferência operacional, indicando as funções do 190 onde ele tende a render mais.</div>
+        <div class="mc-arrow">Começar autoavaliação →</div>
+      </button>
+
+      <button class="menu-card" onclick="chooseCmd()">
+        <div class="mc-title"><b>02</b>Avaliação do Comando</div>
+        <div class="mc-desc">O comandante avalia um policial sob seu comando: checklist comportamental observável, método dos 30 segundos, temperamento e perfil observados, Nine Box (desempenho × potencial) e próxima passagem no Pipeline de Liderança.</div>
+        <div class="mc-arrow">Começar avaliação →</div>
+      </button>
+    </div>
+
+    <div class="note">Nenhuma das duas frentes substitui o julgamento do comando. São ferramentas de apoio à decisão — não instrumentos oficiais de avaliação de desempenho da corporação.</div>
+  </div>
+
+  <!-- SELF DATA -->
+  <div id="screen-self-data" class="hidden">
+    <div class="eyebrow">PRISMA · Autoavaliação</div>
+    <h1>Seus <span>dados</span></h1>
+    <p class="sub">Essas informações aparecem no cabeçalho do relatório final gerado em PDF.</p>
+    <div class="card">
+      <div class="field"><label>Nome completo</label><input type="text" id="selfNome" placeholder="Nome completo"></div>
+      <div class="field-row">
+        <div class="field"><label>Posto/Graduação</label><select id="selfPosto"></select></div>
+        <div class="field"><label>RE</label><input type="text" id="selfRE" placeholder="Ex.: 000.000-0"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>OPM/Unidade</label><input type="text" id="selfOPM" placeholder="Ex.: 46°BPM/M"></div>
+        <div class="field"><label>Data</label><input type="text" id="selfData_" placeholder="dd/mm/aaaa"></div>
+      </div>
+    </div>
+    <div class="navrow">
+      <button class="btn" onclick="goMenu()">← Menu</button>
+      <button class="btn primary" onclick="submitSelfData()">Continuar →</button>
+    </div>
+  </div>
+
   <!-- INTRO -->
-  <div id="screen-intro">
-    <div class="eyebrow">Diagnóstico de perfil · Comando 190</div>
+  <div id="screen-intro" class="hidden">
+    <div class="eyebrow">PRISMA · Autoavaliação</div>
     <h1>Teste de perfil<br><span>temperamento &amp; função ideal</span></h1>
     <p class="sub">24 rodadas de escolha forçada cobrem três frentes com o mesmo método: temperamento (8 rodadas — modelo dos 4 temperamentos / DISC), forma de usar o conhecimento (8 rodadas — Especialista, Generalista, Nexialista) e preferência operacional (8 rodadas cobrindo os oito eixos usados nos perfis do 190: físico, tiro, abordagem, comunicação, jurídico, socorros, direção, liderança). Em cada rodada você escolhe o que mais e o que menos te representa — isso evita que tudo fique parecido no resultado final.</p>
     <p class="sub">Isso não substitui a avaliação do comandante na Nine Box — desempenho é medido em campo, não em teste. Serve como ponto de partida para a conversa sobre função e desenvolvimento.</p>
@@ -192,18 +343,174 @@
     </div>
   </div>
 
-  <!-- RESULTS -->
+  <!-- SELF RESULT -->
   <div id="screen-result" class="hidden"></div>
+
+  <!-- COMMAND EVAL: DATA -->
+  <div id="screen-cmd-data" class="hidden">
+    <div class="eyebrow">PRISMA · Avaliação do comando</div>
+    <h1>Identificação</h1>
+    <p class="sub">Dados do avaliador e do policial avaliado. Aparecem no cabeçalho do relatório final.</p>
+
+    <div class="section-title">Avaliador</div>
+    <div class="card">
+      <div class="field-row">
+        <div class="field"><label>Nome</label><input type="text" id="cmdAvaliadorNome" placeholder="Nome do avaliador"></div>
+        <div class="field"><label>Posto/Graduação</label><input type="text" id="cmdAvaliadorPosto" placeholder="Ex.: 3° Sgt PM"></div>
+      </div>
+      <div class="field"><label>RE</label><input type="text" id="cmdAvaliadorRE" placeholder="Ex.: 000.000-0"></div>
+    </div>
+
+    <div class="section-title">Avaliado</div>
+    <div class="card">
+      <div class="field"><label>Nome</label><input type="text" id="cmdAvaliadoNome" placeholder="Nome do policial avaliado"></div>
+      <div class="field-row">
+        <div class="field"><label>Posto/Graduação atual</label><select id="cmdAvaliadoPosto"></select></div>
+        <div class="field"><label>RE</label><input type="text" id="cmdAvaliadoRE" placeholder="Ex.: 000.000-0"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Equipe/Viatura</label><input type="text" id="cmdEquipe" placeholder="Ex.: ROCAM 12"></div>
+        <div class="field"><label>Data</label><input type="text" id="cmdDataCampo" placeholder="dd/mm/aaaa"></div>
+      </div>
+    </div>
+
+    <div class="navrow">
+      <button class="btn" onclick="goMenu()">← Menu</button>
+      <button class="btn primary" onclick="submitCmdData()">Continuar →</button>
+    </div>
+  </div>
+
+  <!-- COMMAND EVAL: FORM -->
+  <div id="screen-cmd-form" class="hidden"></div>
+
+  <!-- COMMAND EVAL: RESULT -->
+  <div id="screen-cmd-result" class="hidden"></div>
 
   <footer>
     MODELO ILUSTRATIVO DE APOIO À DECISÃO — NÃO SUBSTITUI AVALIAÇÃO FORMAL DE DESEMPENHO OU POTENCIAL PELO COMANDO.<br>
-    BASEADO NA APOSTILA DE LIDERANÇA MILITAR (TEMPERAMENTOS · HARD/SOFT SKILLS · PERFIS DE CONHECIMENTO · NINE BOX · PIPELINE).
+    BASEADO NA APOSTILA DE LIDERANÇA MILITAR (TEMPERAMENTOS · HARD/SOFT SKILLS · PERFIS DE CONHECIMENTO · NINE BOX · PIPELINE).<br>
+    PRISMA — Perfil de Risco e Inteligência para Seleção Militar e Atuação · desenvolvido pelo 3° Sgt PM Éric — 46°BPM/M.
   </footer>
 </div>
 
 <script>
 
-/* ============================= DATA ============================= */
+/* ============================= SHARED DATA ============================= */
+
+const RANK_ORDER = ["Soldado","Cabo","3º Sargento","2º Sargento/1º Sargento","Subtenente",
+  "Aspirante/2º Tenente","1º Tenente","Capitão","Major","Tenente-Coronel"];
+
+function todayBR(){
+  const d = new Date();
+  const p = n => String(n).padStart(2,'0');
+  return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()}`;
+}
+
+function fillRankSelect(sel){
+  sel.innerHTML = RANK_ORDER.map(r => `<option value="${r}">${r}</option>`).join('');
+}
+
+// Reads a resolved CSS custom property off <html>. During window.print(), the browser
+// has already applied the @media print rules by the time 'beforeprint' fires, so this
+// picks up the print-safe palette automatically — charts are canvas pixels, so they
+// need their colors re-read and redrawn explicitly; CSS alone can't repaint them.
+function cssVar(name){
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+function chartScales(labelSize){
+  return {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{enabled:false}},
+    scales:{ r:{ min:0, max:10,
+      angleLines:{color:cssVar('--chart-angle')}, grid:{color:cssVar('--chart-grid')},
+      pointLabels:{color:cssVar('--chart-label'), font:{family:"'JetBrains Mono', monospace", size:labelSize}},
+      ticks:{display:false}
+    }}
+  };
+}
+let tempChartInstance = null, opChartInstance = null;
+function repaintChartsForMedia(){
+  [tempChartInstance, opChartInstance].forEach(ch => {
+    if(!ch) return;
+    const cc = cssVar('--amber'), gg = cssVar('--green');
+    ch.data.datasets[0].backgroundColor = cc+'33';
+    ch.data.datasets[0].borderColor = cc;
+    ch.data.datasets[0].pointBackgroundColor = cc;
+    if(ch.data.datasets[1]){
+      ch.data.datasets[1].backgroundColor = gg+'22';
+      ch.data.datasets[1].borderColor = gg;
+      ch.data.datasets[1].pointBackgroundColor = gg;
+    }
+    ch.options.scales.r.angleLines.color = cssVar('--chart-angle');
+    ch.options.scales.r.grid.color = cssVar('--chart-grid');
+    ch.options.scales.r.pointLabels.color = cssVar('--chart-label');
+    ch.update('none');
+  });
+}
+window.addEventListener('beforeprint', repaintChartsForMedia);
+window.addEventListener('afterprint', repaintChartsForMedia);
+
+/* ============================= NAV: MENU / DATA SCREENS ============================= */
+
+function showScreen(id){
+  ["screen-menu","screen-self-data","screen-intro","screen-quiz","screen-result",
+   "screen-cmd-data","screen-cmd-form","screen-cmd-result"].forEach(s => {
+    document.getElementById(s).classList.toggle('hidden', s !== id);
+  });
+  window.scrollTo(0,0);
+}
+
+function goMenu(){ showScreen('screen-menu'); }
+
+function chooseSelf(){
+  const rSel = document.getElementById('selfPosto');
+  if(!rSel.options.length) fillRankSelect(rSel);
+  const dEl = document.getElementById('selfData_');
+  if(!dEl.value) dEl.value = todayBR();
+  showScreen('screen-self-data');
+}
+
+let selfData = {};
+function submitSelfData(){
+  const nome = document.getElementById('selfNome').value.trim();
+  if(!nome){ alert('Preencha ao menos o nome antes de continuar.'); return; }
+  selfData = {
+    nome,
+    posto: document.getElementById('selfPosto').value,
+    re: document.getElementById('selfRE').value.trim(),
+    opm: document.getElementById('selfOPM').value.trim(),
+    data: document.getElementById('selfData_').value.trim() || todayBR(),
+  };
+  showScreen('screen-intro');
+}
+
+function chooseCmd(){
+  const rSel = document.getElementById('cmdAvaliadoPosto');
+  if(!rSel.options.length) fillRankSelect(rSel);
+  const dEl = document.getElementById('cmdDataCampo');
+  if(!dEl.value) dEl.value = todayBR();
+  showScreen('screen-cmd-data');
+}
+
+let cmdData = {};
+function submitCmdData(){
+  const nome = document.getElementById('cmdAvaliadoNome').value.trim();
+  if(!nome){ alert('Preencha ao menos o nome do avaliado antes de continuar.'); return; }
+  cmdData = {
+    avaliadorNome: document.getElementById('cmdAvaliadorNome').value.trim(),
+    avaliadorPosto: document.getElementById('cmdAvaliadorPosto').value.trim(),
+    avaliadorRE: document.getElementById('cmdAvaliadorRE').value.trim(),
+    avaliadoNome: nome,
+    avaliadoPosto: document.getElementById('cmdAvaliadoPosto').value,
+    avaliadoRE: document.getElementById('cmdAvaliadoRE').value.trim(),
+    equipe: document.getElementById('cmdEquipe').value.trim(),
+    data: document.getElementById('cmdDataCampo').value.trim() || todayBR(),
+  };
+  renderCmdForm();
+  showScreen('screen-cmd-form');
+}
+
+/* ============================= FRENTE 1: DATA (autoavaliação) ============================= */
 
 // Three fronts, all scored with the SAME forced-choice (ipsative) method:
 // each round shows N statements, the person picks the one MOST like them
@@ -340,32 +647,32 @@ const OP_BLOCKS = AXES_ORDER.map((_, i) => {
 });
 
 const TEMPERAMENTOS = {
-  C: {nome:"Colérico", disc:"D — Dominância", cor:"#d9a441",
+  C: {nome:"Colérico", disc:"D — Dominância", cor:"var(--c-colerico)",
       como:"Decidido, rápido, dominante, objetivo.",
       rende:"Comando de ocorrência, liderança de equipe, decisões sob pressão, operações táticas.",
       sofre:"Rotina administrativa detalhista, trabalho repetitivo, excesso de regras."},
-  S: {nome:"Sanguíneo", disc:"I — Influência", cor:"#6fae7c",
+  S: {nome:"Sanguíneo", disc:"I — Influência", cor:"var(--c-sanguineo)",
       como:"Comunicador, articulado, entusiástico.",
       rende:"Atendimento ao público, instrução, integração da equipe, motivação de tropa.",
       sofre:"Organização rigorosa, prazos longos, tarefas solitárias."},
-  F: {nome:"Fleumático", disc:"S — Estabilidade", cor:"#5b7fa6",
+  F: {nome:"Fleumático", disc:"S — Estabilidade", cor:"var(--c-fleumatico)",
       como:"Calmo, estável, conciliador, paciente.",
       rende:"ROCAM, viatura em rotina, mediação de conflitos, trabalho em dupla ou equipe.",
       sofre:"Confronto direto, urgência extrema, pressão alta e constante."},
-  M: {nome:"Melancólico", disc:"C — Conformidade", cor:"#8b98ac",
+  M: {nome:"Melancólico", disc:"C — Conformidade", cor:"var(--c-melancolico)",
       como:"Analítico, detalhista, perfeccionista.",
       rende:"Planejamento operacional (P3/P5), análise de dados, instrução técnica, relatórios.",
       sofre:"Improviso, pressão caótica, ambientes desorganizados."},
 };
 
 const CONHECIMENTO = {
-  E: {nome:"Especialista", cor:"#d9a441", risco:"Isolamento, dificuldade de trabalhar em equipe, rigidez.",
+  E: {nome:"Especialista", alt:"Executor", cor:"var(--c-especialista)", risco:"Isolamento, dificuldade de trabalhar em equipe, rigidez.",
       uso:"Instrutor, planejamento operacional (P3/P5), referência técnica, análise de ocorrências complexas.",
       exemplo:"Policial de Tiro, operador de sistemas do COPOM, mecânico de viatura, especialista em drones."},
-  G: {nome:"Generalista", cor:"#6fae7c", risco:"Superficialidade, dificuldade em aprofundar temas complexos.",
+  G: {nome:"Generalista", alt:"Gestor", cor:"var(--c-generalista)", risco:"Superficialidade, dificuldade em aprofundar temas complexos.",
       uso:"Coordenação de turno, atendimento ao público, suporte operacional, integração entre setores.",
       exemplo:"Policial de radiopatrulha, auxiliar de pelotão, base de apoio."},
-  N: {nome:"Nexialista", cor:"#5b7fa6", risco:"Sobrecarga, dispersão de foco, burnout.",
+  N: {nome:"Nexialista", alt:"Negociador", cor:"var(--c-nexialista)", risco:"Sobrecarga, dispersão de foco, burnout.",
       uso:"Comando de equipe, projetos especiais, operações complexas, articulação intersetorial.",
       exemplo:"Coordenador de grandes eventos, líder de equipe em ocorrência de múltiplas viaturas."},
 };
@@ -411,7 +718,7 @@ const GU_PROFILES = [
    why:"Precisão e conformidade às normas, com firmeza para autuações em confronto."},
 ];
 
-/* ============================= STATE ============================= */
+/* ============================= STATE (autoavaliação) ============================= */
 let answers = {};
 let currentQ = 0;
 const ALL_QUESTIONS = [
@@ -422,9 +729,9 @@ const ALL_QUESTIONS = [
 const TOTAL = ALL_QUESTIONS.length;
 
 function startTest(){
-  document.getElementById('screen-intro').classList.add('hidden');
-  document.getElementById('screen-quiz').classList.remove('hidden');
+  answers = {}; currentQ = 0;
   renderQuestion();
+  showScreen('screen-quiz');
 }
 
 function renderQuestion(){
@@ -581,9 +888,8 @@ function computeResults(){
   return {tempScore: tempNorm, tempRank, knowScore: knowNorm, knowRank, userVec, ranked: scored};
 }
 
-/* ============================= RESULTS UI ============================= */
+/* ============================= RESULTS UI (autoavaliação) ============================= */
 function showResults(){
-  document.getElementById('screen-quiz').classList.add('hidden');
   const {tempScore, tempRank, knowScore, knowRank, userVec, ranked} = computeResults();
   const dom = tempRank[0], sec = tempRank[1];
   const domT = TEMPERAMENTOS[dom], secT = TEMPERAMENTOS[sec];
@@ -592,16 +898,22 @@ function showResults(){
   const top = ranked[0];
 
   const el = document.getElementById('screen-result');
-  el.classList.remove('hidden');
 
   const axisLegendHtml = AXES_ORDER.map(a =>
     `<span><b style="color:var(--amber)">${a}</b> ${AXES_FULL[a]}</span>`
   ).join('');
 
   el.innerHTML = `
-    <div class="eyebrow">Relatório de perfil · Comando 190</div>
+    <div class="eyebrow">PRISMA · Relatório de autoavaliação</div>
     <div class="result-header">
       <h1 style="margin:0;">Seu perfil <span>operacional</span></h1>
+    </div>
+    <div class="ident-block">
+      <div><b>Nome:</b> ${selfData.nome || '—'}</div>
+      <div><b>Posto/Graduação:</b> ${selfData.posto || '—'}</div>
+      <div><b>RE:</b> ${selfData.re || '—'}</div>
+      <div><b>OPM/Unidade:</b> ${selfData.opm || '—'}</div>
+      <div><b>Data:</b> ${selfData.data || todayBR()}</div>
     </div>
     <p class="sub">Este relatório cruza três frentes — temperamento, forma de usar o conhecimento e preferência operacional direta — todas medidas pelo mesmo método de escolha forçada, para que o resultado reflita como você realmente se diferencia, não apenas o que você concorda em geral.</p>
 
@@ -638,8 +950,8 @@ function showResults(){
     <div class="card">
       <div class="chart-box"><canvas id="opChart"></canvas></div>
       <div style="display:flex;gap:18px;margin:8px 0 14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">
-        <span><span style="display:inline-block;width:9px;height:9px;background:#d9a441;border-radius:2px;margin-right:5px;"></span>Sua autoavaliação</span>
-        <span><span style="display:inline-block;width:9px;height:9px;background:#6fae7c;border-radius:2px;margin-right:5px;"></span>${top.code} · perfil ideal</span>
+        <span><span style="display:inline-block;width:9px;height:9px;background:var(--amber);border-radius:1px;margin-right:5px;"></span>Sua autoavaliação</span>
+        <span><span style="display:inline-block;width:9px;height:9px;background:var(--green);border-radius:1px;margin-right:5px;"></span>${top.code} · perfil ideal</span>
       </div>
       <div class="axis-legend">${axisLegendHtml}</div>
       <div class="temp-bars" id="opBars" style="margin-top:16px;"></div>
@@ -656,7 +968,7 @@ function showResults(){
     <div class="note">Isto não substitui a Nine Box do comandante — desempenho é medido em campo, ao longo do tempo, não em um teste de autopercepção. Use este relatório como abertura de conversa com o comando sobre função e desenvolvimento, não como decisão final.</div>
 
     <div class="navrow" style="margin-top:24px;">
-      <button class="btn ghost" onclick="location.reload()">↺ Refazer teste</button>
+      <button class="btn ghost" onclick="goMenu()">← Menu</button>
       <button class="btn primary" onclick="window.print()">Gerar PDF do relatório</button>
     </div>
     <p class="sub no-print" style="font-size:12px;margin-top:10px;">O botão abre a janela de impressão do navegador — escolha "Salvar como PDF" como destino para baixar o relatório.</p>
@@ -701,63 +1013,51 @@ function showResults(){
     row.className = 'temp-row';
     row.innerHTML = `
       <div class="temp-name">${AXES_FULL[a]}</div>
-      <div class="temp-track"><div class="temp-fill" style="width:${pct}%;background:#d9a441;"></div></div>
+      <div class="temp-track"><div class="temp-fill" style="width:${pct}%;background:var(--amber);"></div></div>
       <div class="temp-val">${pct}%</div>
     `;
     opBarsWrap.appendChild(row);
   });
 
-  // temperament radar
+  // temperament radar — colors resolved from CSS vars so print (@media print)
+  // gets its own dark, print-safe palette instead of the screen's light-on-dark one
+  const cc = cssVar('--amber'), gg = cssVar('--green');
+  if(tempChartInstance) tempChartInstance.destroy();
   const ctx = document.getElementById('tempChart').getContext('2d');
-  new Chart(ctx, {
+  tempChartInstance = new Chart(ctx, {
     type:'radar',
     data:{
       labels:['Colérico','Sanguíneo','Fleumático','Melancólico'],
       datasets:[{
         data:[tempScore.C,tempScore.S,tempScore.F,tempScore.M].map(v=>Math.round(v*10*10)/10),
-        backgroundColor:'#d9a44133', borderColor:'#d9a441', borderWidth:2,
-        pointBackgroundColor:'#d9a441', pointRadius:3
+        backgroundColor:cc+'33', borderColor:cc, borderWidth:2,
+        pointBackgroundColor:cc, pointRadius:3
       }]
     },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false}, tooltip:{enabled:false}},
-      scales:{ r:{ min:0, max:10,
-        angleLines:{color:'#223148'}, grid:{color:'#1a2538'},
-        pointLabels:{color:'#8b98ac', font:{family:"'JetBrains Mono', monospace", size:11}},
-        ticks:{display:false}
-      }}
-    }
+    options: chartScales(11)
   });
 
   // operational radar: user vs top matched profile, full axis names in point labels
+  if(opChartInstance) opChartInstance.destroy();
   const opCtx = document.getElementById('opChart').getContext('2d');
-  new Chart(opCtx, {
+  opChartInstance = new Chart(opCtx, {
     type:'radar',
     data:{
       labels:AXES_ORDER.map(a => `${a} · ${AXES_FULL[a]}`),
       datasets:[
         {
           label:'Você', data:userVec,
-          backgroundColor:'#d9a44133', borderColor:'#d9a441', borderWidth:2,
-          pointBackgroundColor:'#d9a441', pointRadius:3
+          backgroundColor:cc+'33', borderColor:cc, borderWidth:2,
+          pointBackgroundColor:cc, pointRadius:3
         },
         {
           label:top.code, data:top.vec,
-          backgroundColor:'#6fae7c22', borderColor:'#6fae7c', borderWidth:2,
-          borderDash:[4,3], pointBackgroundColor:'#6fae7c', pointRadius:3
+          backgroundColor:gg+'22', borderColor:gg, borderWidth:2,
+          borderDash:[4,3], pointBackgroundColor:gg, pointRadius:3
         }
       ]
     },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false}, tooltip:{enabled:false}},
-      scales:{ r:{ min:0, max:10,
-        angleLines:{color:'#223148'}, grid:{color:'#1a2538'},
-        pointLabels:{color:'#8b98ac', font:{family:"'JetBrains Mono', monospace", size:9.5}},
-        ticks:{display:false}
-      }}
-    }
+    options: chartScales(9.5)
   });
 
   // recommendations (top 3), now showing the per-front contribution
@@ -780,6 +1080,562 @@ function showResults(){
     `;
     recWrap.appendChild(card);
   });
+
+  showScreen('screen-result');
+}
+
+/* ============================= FRENTE 2: AVALIAÇÃO DO COMANDO ============================= */
+// Baseado na "Avaliação Individual Rápida do Policial em Serviço" e na
+// Apostila de Liderança Militar (temperamentos, hard/soft skills, Nine Box, Pipeline).
+
+const CHECKLIST_OP = [
+  "Mantém postura e controle emocional",
+  "Comunica-se com clareza no rádio",
+  "Cumpre exatamente a missão recebida",
+  "Mantém atenção situacional",
+  "Usa corretamente os equipamentos",
+  "Demonstra iniciativa sem quebrar a cadeia de comando",
+  "Trabalha em equipe",
+  "Mantém disciplina e segurança",
+];
+
+const CHECKLIST_POSTURA = [
+  "Pontualidade",
+  "Uniforme e EPI em ordem",
+  "Respeito aos superiores e pares",
+  "Organização do material",
+  "Proatividade nas tarefas",
+  "Zelo pelo patrimônio",
+  "Cumprimento das normas",
+];
+
+const CHECKLIST_LID = [
+  "Distribui bem as tarefas",
+  "Dá exemplo pessoal",
+  "Mantém a equipe informada",
+  "Corrige sem humilhar",
+  "Mantém o moral da equipe",
+  "Decide no tempo correto",
+  "Assume responsabilidade",
+];
+
+const METHOD_30S = [
+  "Ele fez o que foi mandado?",
+  "Ele fez do jeito certo?",
+  "Ele ajudou a equipe (não atrapalhou)?",
+  "Não foi necessário chamar sua atenção?",
+];
+
+// Nine Box: eixo X = desempenho atual, eixo Y = potencial. Fonte: Apostila de Liderança, cap. 5.
+const NINE_BOX = {
+  "Alto|Alto": {nome:"Top Talent / Futuro líder", leitura:"Excelente operacional + forte perfil de liderança.",
+    acao:"Preparar para promoções, desafios maiores e funções de comando."},
+  "Alto|Médio": {nome:"Talento em desenvolvimento", leitura:"Tem garra e capacidade, mas ainda não entrega no nível máximo.",
+    acao:"Investir fortemente (mentoria, treinamento, feedback)."},
+  "Alto|Baixo": {nome:"Diamante bruto", leitura:"Tem potencial, mas está rendendo abaixo do esperado.",
+    acao:"Investir urgentemente (treinamento, mudança de função, mentoria próxima)."},
+  "Médio|Alto": {nome:"Sólido / Expert", leitura:"Muito bom no que faz, mas com limite de crescimento.",
+    acao:"Manter em função estratégica, valorizar, dar reconhecimento."},
+  "Médio|Médio": {nome:"Core / Padrão", leitura:"Policial médio da tropa.",
+    acao:"Acompanhar, dar oportunidades proporcionais."},
+  "Médio|Baixo": {nome:"Problema gerenciável", leitura:"Baixa entrega sem grande perspectiva.",
+    acao:"Plano de melhoria ou realocação."},
+  "Baixo|Alto": {nome:"Operacional Expert", leitura:"Excelente executor, mas sem perfil para chefiar.",
+    acao:"Não colocar em comando de equipe. Manter em função técnica ou operacional de alto impacto."},
+  "Baixo|Médio": {nome:"Questão de atenção", leitura:"Entrega pouco e tem pouca chance de evoluir.",
+    acao:"Definir metas claras e prazo. Possível realocação se não melhorar."},
+  "Baixo|Baixo": {nome:"Desalinhado", leitura:"Não entrega e não demonstra potencial.",
+    acao:"Realocar de função ou processo de desligamento interno."},
+};
+const NB_POT_ORDER = ["Alto","Médio","Baixo"];   // linhas (potencial, de cima pra baixo)
+const NB_PERF_ORDER = ["Baixo","Médio","Alto"];  // colunas (desempenho, da esquerda pra direita)
+
+// Pipeline de Liderança — Praças e Oficiais. Fonte: Apostila de Liderança, cap. 6.
+const PIPELINE = {
+  "Soldado": {para:"Cabo",
+    mudanca:"Continua executor principal, mas começa a orientar Soldados.",
+    erros:"Querer \"mandar\" sem credibilidade · Centralizar tudo."},
+  "Cabo": {para:"3º Sargento",
+    mudanca:"Deixa de ser apenas operador e passa a ser responsável por pessoas.",
+    erros:"Continuar como o melhor operacional · Não corrigir subordinados."},
+  "3º Sargento": {para:"2º/1º Sargento",
+    mudanca:"Continua líder de equipe, mas ganha obrigação de formar outros sargentos.",
+    erros:"Fazer papel de 3º Sgt · Microgerenciar."},
+  "2º Sargento/1º Sargento": {para:"Subtenente",
+    mudanca:"Torna-se referência máxima de liderança entre as praças, responsável por garantir o padrão de comando da fração/subunidade e atuar como elo com os oficiais.",
+    erros:"Continuar agindo como Sargento · Resolver ocorrências na mão · Perder o foco estratégico · Desmotivação por \"já ter chegado ao topo\", cair na rotina."},
+  "Subtenente": {para:null,
+    mudanca:"É o \"Coronel das praças\": seu papel não é mais liderar uma viatura ou equipe específica, mas elevar o nível de todos os líderes à sua volta.",
+    erros:"Continuar indo pra rua resolver ocorrência como Sargento é desperdiçar o posto."},
+  "Aspirante/2º Tenente": {para:"1º Tenente",
+    mudanca:"De chefiar fração (equipe) para gerir pessoas (desenvolver subordinados, clima da fração e tomada de decisão).",
+    erros:"Centralizar todas as decisões · Continuar agindo como Aspirante/2º Ten · Ficar só na operação."},
+  "1º Tenente": {para:"Capitão",
+    mudanca:"De gerir fração/pelotão para gerir a Companhia (liderar líderes, administrar recursos e processos).",
+    erros:"Continuar resolvendo problema de pelotão · Entrar na ocorrência · Microgerenciar sargentos."},
+  "Capitão": {para:"Major",
+    mudanca:"De gestão da Companhia para visão de Batalhão/RMS (planejamento, articulação institucional e resultados sistêmicos).",
+    erros:"Interferir na rotina operacional · Decidir como Capitão · Focar excessivamente em detalhes."},
+  "Major": {para:"Tenente-Coronel",
+    mudanca:"De comando tático para comando estratégico (gestão de grandes unidades, políticas e visão de longo prazo).",
+    erros:"Continuar atuando como Major · Perder contato com a tropa · Focar apenas no operacional."},
+  "Tenente-Coronel": {para:null,
+    mudanca:"Comando estratégico de grande unidade.",
+    erros:""},
+};
+
+let cmdAssess = {
+  op: CHECKLIST_OP.map(()=>false),
+  postura: CHECKLIST_POSTURA.map(()=>false),
+  comandaEquipe: null,
+  lid: CHECKLIST_LID.map(()=>false),
+  m30: METHOD_30S.map(()=>null),
+  temperamento: null,
+  perfil: null,
+  nineBoxPot: null,
+  nineBoxPerf: null,
+  funcaoAdequada: null,
+  plano: "",
+};
+
+function renderCmdForm(){
+  cmdAssess = {
+    op: CHECKLIST_OP.map(()=>false),
+    postura: CHECKLIST_POSTURA.map(()=>false),
+    comandaEquipe: null,
+    lid: CHECKLIST_LID.map(()=>false),
+    m30: METHOD_30S.map(()=>null),
+    temperamento: null,
+    perfil: null,
+    nineBoxPot: null,
+    nineBoxPerf: null,
+    funcaoAdequada: null,
+    plano: "",
+  };
+
+  const el = document.getElementById('screen-cmd-form');
+  el.innerHTML = `
+    <div class="eyebrow">PRISMA · Avaliação do comando</div>
+    <h1>Ficha de <span>avaliação</span></h1>
+    <p class="sub">Avaliando <b style="color:var(--text)">${cmdData.avaliadoNome}</b> (${cmdData.avaliadoPosto}). Baseie-se apenas no que você observou em serviço — a regra é: você não avalia a pessoa, avalia o que ela FAZ.</p>
+
+    <div class="section-title">Checklist operacional (durante a ocorrência)</div>
+    <div class="card">
+      <div class="checklist" id="cl-op"></div>
+      <div class="interp-box" id="interp-op"></div>
+    </div>
+
+    <div class="section-title">Checklist de postura profissional (rotina e quartel)</div>
+    <div class="card">
+      <p class="form-hint" style="margin-top:0;">O comportamento na rotina prevê o comportamento na ocorrência.</p>
+      <div class="checklist" id="cl-postura"></div>
+    </div>
+
+    <div class="section-title">Liderança de equipe</div>
+    <div class="card">
+      <div class="qtext" style="font-size:15px;margin-bottom:10px;">Este policial comanda equipe/fração?</div>
+      <div class="options row" id="comandaEquipeOpts">
+        <button class="opt" data-v="sim">Sim</button>
+        <button class="opt" data-v="nao">Não</button>
+      </div>
+      <div id="cl-lid-wrap" class="hidden" style="margin-top:16px;">
+        <div class="checklist" id="cl-lid"></div>
+      </div>
+    </div>
+
+    <div class="section-title">Método de avaliação em 30 segundos</div>
+    <div class="card">
+      <div id="m30-wrap"></div>
+      <div class="interp-box" id="interp-m30"></div>
+    </div>
+
+    <div class="section-title">Temperamento observado</div>
+    <div class="card">
+      <div class="options" id="temperamentoOpts"></div>
+    </div>
+
+    <div class="section-title">Perfil predominante (uso do conhecimento)</div>
+    <div class="card">
+      <div class="options" id="perfilOpts"></div>
+    </div>
+
+    <div class="section-title">Nine Box — desempenho × potencial</div>
+    <div class="card">
+      <p class="form-hint" style="margin-top:0;">Eixo horizontal: desempenho atual (entrega, execução). Eixo vertical: potencial (postura, liderança, capacidade de crescer). Selecione a posição que melhor descreve o avaliado.</p>
+      <div id="nineboxHolder"></div>
+      <div class="nb-detail hidden" id="nb-detail"></div>
+    </div>
+
+    <div class="section-title">Função atual</div>
+    <div class="card">
+      <div class="qtext" style="font-size:15px;margin-bottom:10px;">A função atual é adequada ao perfil observado?</div>
+      <div class="options row" id="funcaoOpts">
+        <button class="opt" data-v="sim">Sim</button>
+        <button class="opt" data-v="nao">Não</button>
+      </div>
+    </div>
+
+    <div class="section-title">Pipeline de liderança — próxima passagem</div>
+    <div class="card">
+      <div id="pipelineHolder"></div>
+    </div>
+
+    <div class="section-title">Plano de desenvolvimento (próximos 3 meses)</div>
+    <div class="card">
+      <div class="field">
+        <label>O que desenvolver — orientação objetiva e prática</label>
+        <textarea id="cmdPlano" placeholder="Ex.: treinar comunicação assertiva em abordagem, preparar para a próxima passagem do pipeline, reforçar procedimento X..."></textarea>
+      </div>
+    </div>
+
+    <div id="cmdFormMsg" class="interp-box warn hidden" style="margin-bottom:16px;"></div>
+
+    <div class="navrow">
+      <button class="btn" onclick="showScreen('screen-cmd-data')">← Voltar</button>
+      <button class="btn primary" onclick="generateCmdReport()">Gerar relatório →</button>
+    </div>
+  `;
+
+  // checklist: operacional
+  const clOp = document.getElementById('cl-op');
+  CHECKLIST_OP.forEach((label, i) => {
+    const row = document.createElement('div');
+    row.className = 'check-item';
+    row.innerHTML = `<div class="box"></div><div>${label}</div>`;
+    row.onclick = () => {
+      cmdAssess.op[i] = !cmdAssess.op[i];
+      row.classList.toggle('checked', cmdAssess.op[i]);
+      row.querySelector('.box').textContent = cmdAssess.op[i] ? '✓' : '';
+      updateOpInterp();
+    };
+    clOp.appendChild(row);
+  });
+  function updateOpInterp(){
+    const falhas = cmdAssess.op.filter(v => !v).length;
+    const box = document.getElementById('interp-op');
+    if(falhas >= 3){
+      box.className = 'interp-box warn';
+      box.textContent = `${falhas} item(ns) não observado(s) — existe um problema comportamental claro a ser trabalhado.`;
+    } else {
+      box.className = 'interp-box ok';
+      box.textContent = `${falhas} item(ns) não observado(s) — sem sinal de problema comportamental claro neste checklist.`;
+    }
+  }
+  updateOpInterp();
+
+  // checklist: postura
+  const clPostura = document.getElementById('cl-postura');
+  CHECKLIST_POSTURA.forEach((label, i) => {
+    const row = document.createElement('div');
+    row.className = 'check-item';
+    row.innerHTML = `<div class="box"></div><div>${label}</div>`;
+    row.onclick = () => {
+      cmdAssess.postura[i] = !cmdAssess.postura[i];
+      row.classList.toggle('checked', cmdAssess.postura[i]);
+      row.querySelector('.box').textContent = cmdAssess.postura[i] ? '✓' : '';
+    };
+    clPostura.appendChild(row);
+  });
+
+  // comanda equipe toggle
+  document.querySelectorAll('#comandaEquipeOpts .opt').forEach(btn => {
+    btn.onclick = () => {
+      cmdAssess.comandaEquipe = btn.dataset.v === 'sim';
+      document.querySelectorAll('#comandaEquipeOpts .opt').forEach(b => b.classList.toggle('selected', b === btn));
+      document.getElementById('cl-lid-wrap').classList.toggle('hidden', !cmdAssess.comandaEquipe);
+    };
+  });
+  const clLid = document.getElementById('cl-lid');
+  CHECKLIST_LID.forEach((label, i) => {
+    const row = document.createElement('div');
+    row.className = 'check-item';
+    row.innerHTML = `<div class="box"></div><div>${label}</div>`;
+    row.onclick = () => {
+      cmdAssess.lid[i] = !cmdAssess.lid[i];
+      row.classList.toggle('checked', cmdAssess.lid[i]);
+      row.querySelector('.box').textContent = cmdAssess.lid[i] ? '✓' : '';
+    };
+    clLid.appendChild(row);
+  });
+
+  // método 30 segundos
+  const m30Wrap = document.getElementById('m30-wrap');
+  METHOD_30S.forEach((q, i) => {
+    const row = document.createElement('div');
+    row.style.marginBottom = '14px';
+    row.innerHTML = `
+      <div class="qtext" style="font-size:14.5px;margin-bottom:8px;">${i+1}. ${q}</div>
+      <div class="options row" data-m30idx="${i}">
+        <button class="opt" data-v="sim">Sim</button>
+        <button class="opt" data-v="nao">Não</button>
+      </div>
+    `;
+    m30Wrap.appendChild(row);
+  });
+  m30Wrap.querySelectorAll('[data-m30idx]').forEach(group => {
+    const idx = Number(group.dataset.m30idx);
+    group.querySelectorAll('.opt').forEach(btn => {
+      btn.onclick = () => {
+        cmdAssess.m30[idx] = btn.dataset.v === 'sim';
+        group.querySelectorAll('.opt').forEach(b => b.classList.toggle('selected', b === btn));
+        updateM30Interp();
+      };
+    });
+  });
+  function updateM30Interp(){
+    const answered = cmdAssess.m30.filter(v => v !== null).length;
+    const box = document.getElementById('interp-m30');
+    if(answered < METHOD_30S.length){ box.classList.add('hidden'); return; }
+    box.classList.remove('hidden');
+    const positivos = cmdAssess.m30.filter(v => v === true).length;
+    if(positivos >= 3){
+      box.className = 'interp-box ok';
+      box.textContent = `${positivos}/4 respostas positivas — bom desempenho.`;
+    } else {
+      box.className = 'interp-box warn';
+      box.textContent = `${positivos}/4 respostas positivas — precisa de orientação.`;
+    }
+  }
+
+  // temperamento
+  const tempOpts = document.getElementById('temperamentoOpts');
+  ["C","S","F","M"].forEach(k => {
+    const t = TEMPERAMENTOS[k];
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.innerHTML = `<b style="color:${t.cor}">${t.nome}</b> — ${t.como}`;
+    b.onclick = () => {
+      cmdAssess.temperamento = k;
+      tempOpts.querySelectorAll('.opt').forEach(x => x.classList.toggle('selected', x === b));
+    };
+    tempOpts.appendChild(b);
+  });
+
+  // perfil
+  const perfilOpts = document.getElementById('perfilOpts');
+  ["E","G","N"].forEach(k => {
+    const c = CONHECIMENTO[k];
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.innerHTML = `<b style="color:${c.cor}">${k} — ${c.nome}</b> <span style="color:var(--faint)">(${c.alt})</span>`;
+    b.onclick = () => {
+      cmdAssess.perfil = k;
+      perfilOpts.querySelectorAll('.opt').forEach(x => x.classList.toggle('selected', x === b));
+    };
+    perfilOpts.appendChild(b);
+  });
+
+  // nine box
+  function onNbSelect(pot, perf){
+    cmdAssess.nineBoxPot = pot;
+    cmdAssess.nineBoxPerf = perf;
+    renderNineBoxGrid(document.getElementById('nineboxHolder'), {pot,perf}, onNbSelect);
+    showNbDetail(pot, perf);
+  }
+  renderNineBoxGrid(document.getElementById('nineboxHolder'), null, onNbSelect);
+  function showNbDetail(pot, perf){
+    const d = NINE_BOX[`${pot}|${perf}`];
+    const box = document.getElementById('nb-detail');
+    box.classList.remove('hidden');
+    box.innerHTML = `<b>${d.nome}</b> — ${d.leitura}<br><b>Ação recomendada:</b> ${d.acao}`;
+  }
+
+  // função adequada
+  document.querySelectorAll('#funcaoOpts .opt').forEach(btn => {
+    btn.onclick = () => {
+      cmdAssess.funcaoAdequada = btn.dataset.v === 'sim';
+      document.querySelectorAll('#funcaoOpts .opt').forEach(b => b.classList.toggle('selected', b === btn));
+    };
+  });
+
+  // pipeline (auto, based on avaliado's current rank)
+  const pipelineHolder = document.getElementById('pipelineHolder');
+  const pStep = PIPELINE[cmdData.avaliadoPosto];
+  if(pStep && pStep.para){
+    pipelineHolder.innerHTML = `
+      <div class="pipeline-card">
+        <div class="pc-title">${cmdData.avaliadoPosto} → ${pStep.para}</div>
+        <div><b>O que muda:</b> ${pStep.mudanca}</div>
+        <div style="margin-top:6px;"><b>Erros comuns nessa passagem:</b> ${pStep.erros}</div>
+      </div>
+    `;
+  } else if(pStep){
+    pipelineHolder.innerHTML = `
+      <div class="pipeline-card">
+        <div class="pc-title">${cmdData.avaliadoPosto} — topo do roteiro</div>
+        <div>${pStep.mudanca}</div>
+        ${pStep.erros ? `<div style="margin-top:6px;"><b>Atenção:</b> ${pStep.erros}</div>` : ''}
+      </div>
+    `;
+  }
+
+  document.getElementById('cmdPlano').addEventListener('input', e => { cmdAssess.plano = e.target.value; });
+}
+
+function renderNineBoxGrid(container, selected, onSelect){
+  const rows = NB_POT_ORDER.map(pot => {
+    const cells = NB_PERF_ORDER.map(perf => {
+      const d = NINE_BOX[`${pot}|${perf}`];
+      const isSel = selected && selected.pot === pot && selected.perf === perf;
+      return `<div class="nb-cell${isSel?' selected':''}${onSelect?'':' readonly'}" data-pot="${pot}" data-perf="${perf}">${d.nome}</div>`;
+    }).join('');
+    return `<div class="nb-row"><div class="nb-row-label">${pot}</div>${cells}</div>`;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="ninebox">
+      <div class="nb-axis-y">POTENCIAL</div>
+      <div class="nb-body">
+        ${rows}
+        <div class="nb-xlabels"><div class="sp"></div>${NB_PERF_ORDER.map(p=>`<span>${p}</span>`).join('')}</div>
+        <div class="nb-xcaption">DESEMPENHO →</div>
+      </div>
+    </div>
+  `;
+
+  if(onSelect){
+    container.querySelectorAll('.nb-cell').forEach(cell => {
+      cell.onclick = () => onSelect(cell.dataset.pot, cell.dataset.perf);
+    });
+  }
+}
+
+function generateCmdReport(){
+  const msg = document.getElementById('cmdFormMsg');
+  const missing = [];
+  if(cmdAssess.comandaEquipe === null) missing.push('se o policial comanda equipe');
+  if(cmdAssess.m30.some(v => v === null)) missing.push('o método dos 30 segundos (4 perguntas)');
+  if(!cmdAssess.temperamento) missing.push('o temperamento observado');
+  if(!cmdAssess.perfil) missing.push('o perfil predominante');
+  if(!cmdAssess.nineBoxPot || !cmdAssess.nineBoxPerf) missing.push('a posição na Nine Box');
+  if(cmdAssess.funcaoAdequada === null) missing.push('se a função atual é adequada');
+
+  if(missing.length){
+    msg.classList.remove('hidden');
+    msg.textContent = 'Antes de gerar o relatório, preencha: ' + missing.join('; ') + '.';
+    msg.scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+  msg.classList.add('hidden');
+  showCmdResult();
+}
+
+function showCmdResult(){
+  const el = document.getElementById('screen-cmd-result');
+  const t = TEMPERAMENTOS[cmdAssess.temperamento];
+  const c = CONHECIMENTO[cmdAssess.perfil];
+  const nb = NINE_BOX[`${cmdAssess.nineBoxPot}|${cmdAssess.nineBoxPerf}`];
+  const pStep = PIPELINE[cmdData.avaliadoPosto];
+  const falhasOp = cmdAssess.op.filter(v=>!v).length;
+  const positivosM30 = cmdAssess.m30.filter(v=>v===true).length;
+
+  const opRows = CHECKLIST_OP.map((label,i) =>
+    `<div class="check-result-row"><span>${label}</span><span class="mark ${cmdAssess.op[i]?'yes':'no'}">${cmdAssess.op[i]?'✔':'✖'}</span></div>`
+  ).join('');
+  const posturaRows = CHECKLIST_POSTURA.map((label,i) =>
+    `<div class="check-result-row"><span>${label}</span><span class="mark ${cmdAssess.postura[i]?'yes':'no'}">${cmdAssess.postura[i]?'✔':'✖'}</span></div>`
+  ).join('');
+  const lidRows = cmdAssess.comandaEquipe ? CHECKLIST_LID.map((label,i) =>
+    `<div class="check-result-row"><span>${label}</span><span class="mark ${cmdAssess.lid[i]?'yes':'no'}">${cmdAssess.lid[i]?'✔':'✖'}</span></div>`
+  ).join('') : '';
+  const m30Rows = METHOD_30S.map((q,i) =>
+    `<div class="check-result-row"><span>${q}</span><span class="mark ${cmdAssess.m30[i]?'yes':'no'}">${cmdAssess.m30[i]?'Sim':'Não'}</span></div>`
+  ).join('');
+
+  el.innerHTML = `
+    <div class="eyebrow">PRISMA · Relatório de avaliação do comando</div>
+    <h1 style="margin:0 0 14px;">Avaliação <span>individual</span></h1>
+    <div class="ident-block">
+      <div><b>Avaliado:</b> ${cmdData.avaliadoNome}</div>
+      <div><b>Posto/Graduação:</b> ${cmdData.avaliadoPosto}</div>
+      <div><b>RE:</b> ${cmdData.avaliadoRE || '—'}</div>
+      <div><b>Equipe/Viatura:</b> ${cmdData.equipe || '—'}</div>
+      <div><b>Avaliador:</b> ${cmdData.avaliadorNome || '—'} ${cmdData.avaliadorPosto ? '('+cmdData.avaliadorPosto+')' : ''}</div>
+      <div><b>Data:</b> ${cmdData.data}</div>
+    </div>
+
+    <div class="section-title">Checklist operacional (durante a ocorrência)</div>
+    <div class="card">
+      <div class="check-result-list">${opRows}</div>
+      <div class="interp-box ${falhasOp>=3?'warn':'ok'}">${falhasOp} item(ns) não observado(s) — ${falhasOp>=3?'existe um problema comportamental claro a ser trabalhado.':'sem sinal de problema comportamental claro neste checklist.'}</div>
+    </div>
+
+    <div class="section-title">Checklist de postura profissional (rotina e quartel)</div>
+    <div class="card">
+      <div class="check-result-list">${posturaRows}</div>
+    </div>
+
+    ${cmdAssess.comandaEquipe ? `
+    <div class="section-title">Checklist de liderança</div>
+    <div class="card">
+      <div class="check-result-list">${lidRows}</div>
+    </div>` : ''}
+
+    <div class="section-title">Método de avaliação em 30 segundos</div>
+    <div class="card">
+      <div class="check-result-list">${m30Rows}</div>
+      <div class="interp-box ${positivosM30>=3?'ok':'warn'}">${positivosM30}/4 respostas positivas — ${positivosM30>=3?'bom desempenho.':'precisa de orientação.'}</div>
+    </div>
+
+    <div class="section-title">Temperamento observado</div>
+    <div class="card">
+      <div class="desc-block"><b>${t.nome}</b> <span style="color:var(--faint)">(${t.disc})</span></div>
+      <div class="desc-block"><b>Como é:</b> ${t.como}</div>
+      <div class="desc-block"><b>Onde rende mais:</b> ${t.rende}</div>
+      <div class="desc-block"><b>Onde mais sofre:</b> ${t.sofre}</div>
+    </div>
+
+    <div class="section-title">Perfil predominante</div>
+    <div class="card">
+      <div class="desc-block"><b>${cmdAssess.perfil} — ${c.nome}</b> <span style="color:var(--faint)">(${c.alt})</span></div>
+      <div class="desc-block"><b>Melhor uso pelo comandante:</b> ${c.uso}</div>
+      <div class="desc-block"><b>Risco principal:</b> ${c.risco}</div>
+    </div>
+
+    <div class="section-title">Nine Box</div>
+    <div class="card">
+      <div id="nbResultHolder"></div>
+      <div class="nb-detail"><b>${nb.nome}</b> — ${nb.leitura}<br><b>Ação recomendada:</b> ${nb.acao}</div>
+    </div>
+
+    <div class="section-title">Função atual</div>
+    <div class="card">
+      <div class="desc-block">A função atual é adequada ao perfil observado: <b>${cmdAssess.funcaoAdequada ? 'Sim' : 'Não'}</b></div>
+    </div>
+
+    <div class="section-title">Pipeline de liderança — próxima passagem</div>
+    <div class="card">
+      ${pStep && pStep.para ? `
+        <div class="pipeline-card">
+          <div class="pc-title">${cmdData.avaliadoPosto} → ${pStep.para}</div>
+          <div><b>O que muda:</b> ${pStep.mudanca}</div>
+          <div style="margin-top:6px;"><b>Erros comuns nessa passagem:</b> ${pStep.erros}</div>
+        </div>` : `
+        <div class="pipeline-card">
+          <div class="pc-title">${cmdData.avaliadoPosto}</div>
+          <div>${pStep ? pStep.mudanca : ''}</div>
+        </div>`}
+    </div>
+
+    <div class="section-title">Plano de desenvolvimento (próximos 3 meses)</div>
+    <div class="card">
+      <div class="desc-block">${cmdAssess.plano ? cmdAssess.plano.replace(/\n/g,'<br>') : '<span style="color:var(--faint)">Nenhuma observação registrada.</span>'}</div>
+    </div>
+
+    <div class="note">Esta ficha é um instrumento de apoio à decisão do comando — registra observação comportamental estruturada, não substitui os processos formais de avaliação de desempenho da corporação.</div>
+
+    <div class="sig-line">Assinatura do avaliador: <span class="line"></span></div>
+
+    <div class="navrow" style="margin-top:24px;">
+      <button class="btn ghost" onclick="goMenu()">← Menu</button>
+      <button class="btn primary" onclick="window.print()">Gerar PDF do relatório</button>
+    </div>
+    <p class="sub no-print" style="font-size:12px;margin-top:10px;">O botão abre a janela de impressão do navegador — escolha "Salvar como PDF" como destino para baixar o relatório.</p>
+  `;
+
+  renderNineBoxGrid(document.getElementById('nbResultHolder'), {pot:cmdAssess.nineBoxPot, perf:cmdAssess.nineBoxPerf}, null);
+
+  showScreen('screen-cmd-result');
 }
 
 </script>
