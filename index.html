@@ -1958,6 +1958,29 @@ function buildAutoSuggestion(t, c, nb, pStep){
         ? `A autoavaliação do próprio policial <b>converge</b> com a observação do comando: ele também se percebe como ${selfTempNome}.`
         : `<b>Divergência de autopercepção:</b> o policial se autoavalia como ${selfTempNome}, enquanto o comando observou ${t.nome} — vale explorar essa diferença na conversa de feedback.`);
     }
+
+    // Mistura de temperamento: a autoavaliação carrega um percentual pra CADA temperamento, não
+    // só o dominante. Usar o 2º colocado é o que permite o relatório variar mesmo quando o
+    // comando marca o mesmo temperamento primário em avaliados diferentes — a mistura de cada um
+    // costuma ser diferente, mesmo com o mesmo traço no topo.
+    if(importedSelf.tempScore && importedSelf.tempRank && importedSelf.tempRank.length > 1){
+      const domKey = importedSelf.tempRank[0];
+      const secKey = importedSelf.tempRank[1];
+      const domScore = importedSelf.tempScore[domKey];
+      const secScore = importedSelf.tempScore[secKey];
+      if(TEMPERAMENTOS[secKey] && typeof domScore === 'number' && typeof secScore === 'number'){
+        const secT = TEMPERAMENTOS[secKey];
+        const gap = domScore - secScore;
+        const seed = (weakest ? weakest.label : cmdData.avaliadoNome || 'x') + '·sec';
+        const gi = hashIndex(seed, secT.gerenciamento.length);
+        if(gap < 0.15){
+          parts.push(`<b>Mistura de temperamento (autoavaliação):</b> a diferença entre ${TEMPERAMENTOS[domKey].nome} (${Math.round(domScore*100)}%) e ${secT.nome} (${Math.round(secScore*100)}%) é pequena — vale considerar também, na abordagem, uma estratégia típica de ${secT.nome}: ${secT.gerenciamento[gi]}`);
+        } else {
+          parts.push(`Como traço secundário mais discreto, a autoavaliação aponta ${secT.nome} (${Math.round(secScore*100)}%) — tende a aparecer pontualmente em ${lowerFirst(secT.rende)}`);
+        }
+      }
+    }
+
     const selfKnowKey = importedSelf.knowRank && importedSelf.knowRank[0];
     if(selfKnowKey && CONHECIMENTO[selfKnowKey]){
       const selfKnowNome = CONHECIMENTO[selfKnowKey].nome;
