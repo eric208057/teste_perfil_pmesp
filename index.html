@@ -127,15 +127,15 @@
   select option{background:var(--panel2);color:var(--text);}
   .form-hint{font-size:12.5px;color:var(--faint);margin-top:-8px;margin-bottom:16px;}
 
-  /* checklist */
-  .checklist{display:flex;flex-direction:column;gap:8px;margin-top:6px;}
-  .check-item{display:flex;align-items:center;gap:11px;background:var(--panel2);border:1px solid var(--line);
-    border-radius:2px;padding:12px 14px;cursor:pointer;font-size:13.5px;line-height:1.4;transition:.15s ease;}
-  .check-item:hover{border-color:var(--amber-dim);}
-  .check-item .box{width:18px;height:18px;flex:none;border:1px solid var(--line);border-radius:2px;
-    display:flex;align-items:center;justify-content:center;font-size:12px;color:transparent;background:var(--bg);}
-  .check-item.checked{border-color:var(--green);background:rgba(124,143,109,0.09);}
-  .check-item.checked .box{background:var(--green);border-color:var(--green);color:var(--bg);}
+  /* likert (used by the command-evaluation checklists) */
+  .likert-item{margin-bottom:16px;}
+  .likert-item:last-child{margin-bottom:0;}
+  .anchor-hint{font-size:11.5px;color:var(--faint);line-height:1.5;margin-bottom:8px;}
+  .evidence-wrap{margin-top:8px;}
+  .evidence-input{width:100%;background:var(--panel2);border:1px solid var(--amber-dim);border-radius:2px;
+    padding:9px 11px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;}
+  .evidence-input:focus{outline:none;border-color:var(--amber);}
+  .evidence-input::placeholder{color:var(--faint);}
   .interp-box{margin-top:14px;padding:12px 14px;border-radius:2px;border:1px solid var(--line);
     font-size:13px;line-height:1.5;background:var(--panel2);}
   .interp-box.warn{border-color:var(--amber-dim);color:var(--warn-text);}
@@ -145,9 +145,14 @@
   .check-result-row{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;padding:8px 0;
     border-bottom:1px solid var(--line);}
   .check-result-row:last-child{border-bottom:none;}
-  .check-result-row .mark{font-family:'JetBrains Mono',monospace;font-weight:700;}
+  .check-result-row .mark{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:11.5px;text-align:right;}
   .check-result-row .mark.yes{color:var(--green);}
   .check-result-row .mark.no{color:var(--danger);}
+  .check-result-row .mark.neu{color:var(--muted);}
+  .check-result-block{border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:2px;}
+  .check-result-block:last-child{border-bottom:none;}
+  .check-result-block .check-result-row{border-bottom:none;padding:8px 0 2px;}
+  .evidence-note{font-size:12px;color:var(--muted);font-style:italic;padding-bottom:6px;}
 
   /* nine box */
   .ninebox{display:flex;gap:10px;margin-top:16px;}
@@ -273,15 +278,15 @@
 
   <!-- MENU -->
   <div id="screen-menu">
-    <div class="eyebrow">Sistema de perfil e avaliação · PMESP</div>
+    <div class="eyebrow">Sistema de perfil e avaliação</div>
     <h1><span class="brand-mark">PRISMA</span><br><span>Perfil de Risco e Inteligência para Seleção Militar e Atuação</span></h1>
-    <p class="sub">Duas frentes de diagnóstico com a mesma base conceitual — temperamentos, hard/soft skills, perfis de conhecimento e os 12 perfis operacionais do 190 — usadas de formas diferentes conforme quem está respondendo.</p>
+    <p class="sub">Duas frentes de diagnóstico com a mesma base conceitual — temperamentos, hard/soft skills, perfis de conhecimento e os 12 perfis operacionais — usadas de formas diferentes conforme quem está respondendo.</p>
     <p class="creator-line">Desenvolvido pelo 3° Sgt PM Éric — 46°BPM/M</p>
 
     <div class="menu-cards">
       <button class="menu-card" onclick="chooseSelf()">
         <div class="mc-title"><b>01</b>Autoavaliação</div>
-        <div class="mc-desc">O próprio policial responde 24 rodadas de escolha forçada. O sistema mapeia temperamento, forma de usar o conhecimento e preferência operacional, indicando as funções do 190 onde ele tende a render mais.</div>
+        <div class="mc-desc">O próprio policial responde 24 rodadas de escolha forçada. O sistema mapeia temperamento, forma de usar o conhecimento e preferência operacional, indicando as funções onde ele tende a render mais.</div>
         <div class="mc-arrow">Começar autoavaliação →</div>
       </button>
 
@@ -321,7 +326,7 @@
   <div id="screen-intro" class="hidden">
     <div class="eyebrow">PRISMA · Autoavaliação</div>
     <h1>Teste de perfil<br><span>temperamento &amp; função ideal</span></h1>
-    <p class="sub">24 rodadas de escolha forçada cobrem três frentes com o mesmo método: temperamento (8 rodadas — modelo dos 4 temperamentos / DISC), forma de usar o conhecimento (8 rodadas — Especialista, Generalista, Nexialista) e preferência operacional (8 rodadas cobrindo os oito eixos usados nos perfis do 190: físico, tiro, abordagem, comunicação, jurídico, socorros, direção, liderança). Em cada rodada você escolhe o que mais e o que menos te representa — isso evita que tudo fique parecido no resultado final.</p>
+    <p class="sub">24 rodadas de escolha forçada cobrem três frentes com o mesmo método: temperamento (8 rodadas — modelo dos 4 temperamentos / DISC), forma de usar o conhecimento (8 rodadas — Especialista, Generalista, Nexialista) e preferência operacional (8 rodadas cobrindo os oito eixos dos perfis operacionais: físico, tiro, abordagem, comunicação, jurídico, socorros, direção, liderança). Em cada rodada você escolhe o que mais e o que menos te representa — isso evita que tudo fique parecido no resultado final.</p>
     <p class="sub">Isso não substitui a avaliação do comandante na Nine Box — desempenho é medido em campo, não em teste. Serve como ponto de partida para a conversa sobre função e desenvolvimento.</p>
     <div class="card" style="margin-top:26px;">
       <div class="qtext" style="margin-bottom:14px;">Responda com sinceridade, pensando em como você realmente age em serviço — não em como gostaria de agir.</div>
@@ -372,6 +377,14 @@
         <div class="field"><label>Equipe/Viatura</label><input type="text" id="cmdEquipe" placeholder="Ex.: ROCAM 12"></div>
         <div class="field"><label>Data</label><input type="text" id="cmdDataCampo" placeholder="dd/mm/aaaa"></div>
       </div>
+    </div>
+
+    <div class="section-title">Autoavaliação do policial (opcional)</div>
+    <div class="card">
+      <p class="form-hint" style="margin-top:0;">Se o policial já fez a autoavaliação e exportou o arquivo .json, importe aqui para cruzar os dois resultados e refinar a sugestão automática. Não é obrigatório — a avaliação roda normalmente sem isso.</p>
+      <input type="file" id="selfImportInput" accept="application/json,.json" style="display:none;" onchange="handleSelfImport(event)">
+      <button class="btn" onclick="document.getElementById('selfImportInput').click()">Importar autoavaliação (.json)</button>
+      <div id="selfImportStatus" class="form-hint" style="margin-top:10px;margin-bottom:0;"></div>
     </div>
 
     <div class="navrow">
@@ -489,7 +502,29 @@ function chooseCmd(){
   if(!rSel.options.length) fillRankSelect(rSel);
   const dEl = document.getElementById('cmdDataCampo');
   if(!dEl.value) dEl.value = todayBR();
+  importedSelf = null;
+  document.getElementById('selfImportInput').value = '';
+  document.getElementById('selfImportStatus').textContent = '';
   showScreen('screen-cmd-data');
+}
+
+function handleSelfImport(e){
+  const file = e.target.files[0];
+  const status = document.getElementById('selfImportStatus');
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try{
+      const data = JSON.parse(ev.target.result);
+      if(data.kind !== 'prisma-autoavaliacao') throw new Error('arquivo não reconhecido como autoavaliação PRISMA');
+      importedSelf = data;
+      status.textContent = `Autoavaliação de ${(data.selfData && data.selfData.nome) || 'policial'} carregada (${(data.selfData && data.selfData.data) || '—'}).`;
+    } catch(err){
+      importedSelf = null;
+      status.textContent = 'Não foi possível ler este arquivo: ' + err.message;
+    }
+  };
+  reader.readAsText(file);
 }
 
 let cmdData = {};
@@ -889,6 +924,7 @@ function computeResults(){
 }
 
 /* ============================= RESULTS UI (autoavaliação) ============================= */
+let lastSelfResult = null;
 function showResults(){
   const {tempScore, tempRank, knowScore, knowRank, userVec, ranked} = computeResults();
   const dom = tempRank[0], sec = tempRank[1];
@@ -896,6 +932,7 @@ function showResults(){
   const knowDom = knowRank[0], knowSec = knowRank[1];
   const know = CONHECIMENTO[knowDom];
   const top = ranked[0];
+  lastSelfResult = {tempScore, tempRank, knowScore, knowRank, userVec, ranked};
 
   const el = document.getElementById('screen-result');
 
@@ -959,7 +996,7 @@ function showResults(){
 
     <div class="section-title">Como o resultado foi calculado</div>
     <div class="card">
-      <div class="desc-block">As 24 respostas viram três perfis numéricos (temperamento, conhecimento, eixos operacionais). Cada um dos 12 perfis do 190 também tem esses três perfis pré-definidos. O sistema compara o <i>formato</i> do seu perfil com o de cada função — não o nível geral das respostas — e calcula quanto eles se parecem. A frente operacional pesa mais (50%) por ser o sinal mais direto; temperamento (28%) e forma de usar o conhecimento (22%) refinam o resultado.</div>
+      <div class="desc-block">As 24 respostas viram três perfis numéricos (temperamento, conhecimento, eixos operacionais). Cada um dos 12 perfis operacionais também tem esses três perfis pré-definidos. O sistema compara o <i>formato</i> do seu perfil com o de cada função — não o nível geral das respostas — e calcula quanto eles se parecem. A frente operacional pesa mais (50%) por ser o sinal mais direto; temperamento (28%) e forma de usar o conhecimento (22%) refinam o resultado.</div>
     </div>
 
     <div class="section-title">Funções onde você tende a render mais</div>
@@ -971,7 +1008,8 @@ function showResults(){
       <button class="btn ghost" onclick="goMenu()">← Menu</button>
       <button class="btn primary" onclick="window.print()">Gerar PDF do relatório</button>
     </div>
-    <p class="sub no-print" style="font-size:12px;margin-top:10px;">O botão abre a janela de impressão do navegador — escolha "Salvar como PDF" como destino para baixar o relatório.</p>
+    <button class="btn ghost no-print" style="margin-top:10px;" onclick="downloadSelfJSON()">⇩ Baixar dados da autoavaliação (.json)</button>
+    <p class="sub no-print" style="font-size:12px;margin-top:10px;">O botão de PDF abre a janela de impressão do navegador — escolha "Salvar como PDF" como destino. O arquivo .json pode ser entregue ao comando para cruzar com a Avaliação do Comando.</p>
   `;
 
   // temperament bars
@@ -1084,46 +1122,118 @@ function showResults(){
   showScreen('screen-result');
 }
 
+// Exports a small JSON summary of the autoavaliação so the command evaluation flow can
+// optionally import it later and cross-reference the two (see importedSelf / handleSelfImport).
+function downloadSelfJSON(){
+  if(!lastSelfResult) return;
+  const payload = {
+    kind: 'prisma-autoavaliacao', version: 1,
+    selfData,
+    tempScore: lastSelfResult.tempScore, tempRank: lastSelfResult.tempRank,
+    knowScore: lastSelfResult.knowScore, knowRank: lastSelfResult.knowRank,
+    userVec: lastSelfResult.userVec,
+    top3: lastSelfResult.ranked.slice(0,3).map(p => ({code:p.code, title:p.title, pct:p.pct})),
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `autoavaliacao-${(selfData.nome || 'policial').trim().replace(/\s+/g,'-').toLowerCase()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
 /* ============================= FRENTE 2: AVALIAÇÃO DO COMANDO ============================= */
 // Baseado na "Avaliação Individual Rápida do Policial em Serviço" e na
 // Apostila de Liderança Militar (temperamentos, hard/soft skills, Nine Box, Pipeline).
+// Documento de uso interno do avaliador — não é entregue ao avaliado.
 
+const LIKERT_LABELS = ["Discordo totalmente","Discordo","Neutro","Concordo","Concordo totalmente"];
+
+// Cada item tem âncoras comportamentais (nota 1 e nota 5) — reduz efeito halo e
+// tendência central ao dar ao avaliador uma referência concreta em vez de uma impressão geral.
 const CHECKLIST_OP = [
-  "Mantém postura e controle emocional",
-  "Comunica-se com clareza no rádio",
-  "Cumpre exatamente a missão recebida",
-  "Mantém atenção situacional",
-  "Usa corretamente os equipamentos",
-  "Demonstra iniciativa sem quebrar a cadeia de comando",
-  "Trabalha em equipe",
-  "Mantém disciplina e segurança",
+  {label:"Mantém postura e controle emocional",
+   lo:"Perde a compostura ou reage de forma desproporcional sob pressão.",
+   hi:"Mantém-se sereno e no controle mesmo em ocorrências de forte tensão."},
+  {label:"Comunica-se com clareza no rádio",
+   lo:"Transmissões confusas, incompletas ou fora do padrão de procedimento.",
+   hi:"Transmite informação clara, objetiva e no padrão correto, mesmo sob pressão."},
+  {label:"Cumpre exatamente a missão recebida",
+   lo:"Executa de forma diferente do combinado ou ignora parte da missão.",
+   hi:"Executa exatamente o que foi determinado, sem desvios não combinados."},
+  {label:"Mantém atenção situacional",
+   lo:"É pego de surpresa por riscos que já eram perceptíveis no ambiente.",
+   hi:"Antecipa riscos e percebe mudanças no ambiente antes que virem problema."},
+  {label:"Usa corretamente os equipamentos",
+   lo:"Erra o manuseio ou usa o equipamento fora do procedimento padrão.",
+   hi:"Domina o manuseio de todos os equipamentos com segurança e correção."},
+  {label:"Demonstra iniciativa sem quebrar a cadeia de comando",
+   lo:"É passivo demais esperando ordem, ou age por conta própria sem informar o comando.",
+   hi:"Toma iniciativa nos momentos certos, sempre mantendo o comando informado."},
+  {label:"Trabalha em equipe",
+   lo:"Atua de forma isolada, atrapalha ou gera atrito com o restante da guarnição.",
+   hi:"Se integra bem, apoia os colegas e facilita o trabalho conjunto."},
+  {label:"Mantém disciplina e segurança",
+   lo:"Ignora procedimentos de segurança ou normas disciplinares em serviço.",
+   hi:"Segue rigorosamente os protocolos de segurança e disciplina em toda a atuação."},
 ];
 
 const CHECKLIST_POSTURA = [
-  "Pontualidade",
-  "Uniforme e EPI em ordem",
-  "Respeito aos superiores e pares",
-  "Organização do material",
-  "Proatividade nas tarefas",
-  "Zelo pelo patrimônio",
-  "Cumprimento das normas",
+  {label:"Pontualidade",
+   lo:"Chega atrasado ou sai antes do horário com frequência.",
+   hi:"Está sempre no horário, pronto para o início do serviço."},
+  {label:"Uniforme e EPI em ordem",
+   lo:"Uniforme ou equipamento de proteção incompleto, sujo ou fora do padrão.",
+   hi:"Uniforme e EPI sempre completos, limpos e dentro do padrão."},
+  {label:"Respeito aos superiores e pares",
+   lo:"Trata superiores ou colegas com grosseria, desrespeito ou insubordinação.",
+   hi:"Trata todos com respeito e mantém boa relação hierárquica e de equipe."},
+  {label:"Organização do material",
+   lo:"Material pessoal ou da viatura desorganizado, faltando itens ou fora de lugar.",
+   hi:"Mantém material e equipamentos sempre organizados e conferidos."},
+  {label:"Proatividade nas tarefas",
+   lo:"Só faz o mínimo, espera ser cobrado para executar tarefas de rotina.",
+   hi:"Antecipa tarefas e se oferece para ajudar sem precisar ser cobrado."},
+  {label:"Zelo pelo patrimônio",
+   lo:"Danifica ou usa mal viatura, armamento ou material da unidade.",
+   hi:"Cuida do patrimônio como se fosse próprio, evitando desgaste evitável."},
+  {label:"Cumprimento das normas",
+   lo:"Descumpre normas internas com frequência, mesmo após orientação.",
+   hi:"Segue as normas internas de forma consistente, mesmo sem supervisão direta."},
 ];
 
 const CHECKLIST_LID = [
-  "Distribui bem as tarefas",
-  "Dá exemplo pessoal",
-  "Mantém a equipe informada",
-  "Corrige sem humilhar",
-  "Mantém o moral da equipe",
-  "Decide no tempo correto",
-  "Assume responsabilidade",
+  {label:"Distribui bem as tarefas",
+   lo:"Sobrecarrega uns e deixa outros ociosos, ou distribui sem critério.",
+   hi:"Distribui tarefas de forma equilibrada, considerando o perfil de cada um."},
+  {label:"Dá exemplo pessoal",
+   lo:"Exige da equipe o que ele mesmo não cumpre.",
+   hi:"Faz o que cobra dos outros — a equipe o vê como referência de conduta."},
+  {label:"Mantém a equipe informada",
+   lo:"Deixa a equipe no escuro sobre decisões ou mudanças que a afetam.",
+   hi:"Comunica decisões e mudanças com clareza e antecedência à equipe."},
+  {label:"Corrige sem humilhar",
+   lo:"Corrige expondo o subordinado ou de forma agressiva na frente de outros.",
+   hi:"Corrige de forma firme e respeitosa, preservando a dignidade do subordinado."},
+  {label:"Mantém o moral da equipe",
+   lo:"A equipe se mostra desmotivada ou desgastada sob o comando dele.",
+   hi:"A equipe se mantém motivada e coesa mesmo em momentos difíceis."},
+  {label:"Decide no tempo correto",
+   lo:"Demora demais para decidir, ou decide de forma precipitada sem necessidade.",
+   hi:"Decide no momento certo, nem cedo nem tarde demais, considerando a situação."},
+  {label:"Assume responsabilidade",
+   lo:"Transfere a culpa para subordinados ou terceiros diante de um erro da equipe.",
+   hi:"Assume a responsabilidade pelas decisões e resultados da equipe, inclusive falhas."},
 ];
 
 const METHOD_30S = [
-  "Ele fez o que foi mandado?",
-  "Ele fez do jeito certo?",
-  "Ele ajudou a equipe (não atrapalhou)?",
-  "Não foi necessário chamar sua atenção?",
+  "Ele fez o que foi mandado",
+  "Ele fez do jeito certo",
+  "Ele ajudou a equipe (não atrapalhou)",
+  "Não foi necessário chamar sua atenção",
 ];
 
 // Nine Box: eixo X = desempenho atual, eixo Y = potencial. Fonte: Apostila de Liderança, cap. 5.
@@ -1184,51 +1294,93 @@ const PIPELINE = {
     erros:""},
 };
 
-let cmdAssess = {
-  op: CHECKLIST_OP.map(()=>false),
-  postura: CHECKLIST_POSTURA.map(()=>false),
-  comandaEquipe: null,
-  lid: CHECKLIST_LID.map(()=>false),
-  m30: METHOD_30S.map(()=>null),
-  temperamento: null,
-  perfil: null,
-  nineBoxPot: null,
-  nineBoxPerf: null,
-  funcaoAdequada: null,
-  plano: "",
-};
-
-function renderCmdForm(){
-  cmdAssess = {
-    op: CHECKLIST_OP.map(()=>false),
-    postura: CHECKLIST_POSTURA.map(()=>false),
+function freshCmdAssess(){
+  return {
+    op: CHECKLIST_OP.map(()=>null),
+    opEvidence: CHECKLIST_OP.map(()=>""),
+    opHighlight: {forte:null, atencao:null},
+    postura: CHECKLIST_POSTURA.map(()=>null),
+    posturaEvidence: CHECKLIST_POSTURA.map(()=>""),
+    posturaHighlight: {forte:null, atencao:null},
     comandaEquipe: null,
-    lid: CHECKLIST_LID.map(()=>false),
+    lid: CHECKLIST_LID.map(()=>null),
+    lidEvidence: CHECKLIST_LID.map(()=>""),
+    lidHighlight: {forte:null, atencao:null},
     m30: METHOD_30S.map(()=>null),
     temperamento: null,
     perfil: null,
-    nineBoxPot: null,
-    nineBoxPerf: null,
     funcaoAdequada: null,
-    plano: "",
+    observacoes: "",
   };
+}
+let cmdAssess = freshCmdAssess();
+
+// autoavaliação importada (opcional) do arquivo .json exportado pelo próprio policial
+let importedSelf = null;
+
+function likertAvgNorm(arr){
+  const answered = arr.filter(v => v !== null);
+  if(!answered.length) return null;
+  return (answered.reduce((s,v)=>s+v,0) / answered.length - 1) / 4; // 1..5 -> 0..1
+}
+function nbLevel(v){ return v === null ? null : (v < 0.4 ? "Baixo" : v < 0.7 ? "Médio" : "Alto"); }
+
+// Nine Box é calculado a partir das respostas de concordância — não é mais escolhido manualmente.
+// Desempenho <- checklist operacional + método dos 30 segundos. Potencial <- postura (+ liderança, se aplicável).
+function computeNineBoxAuto(){
+  const opN = likertAvgNorm(cmdAssess.op);
+  const m30N = likertAvgNorm(cmdAssess.m30);
+  const posturaN = likertAvgNorm(cmdAssess.postura);
+  const lidN = cmdAssess.comandaEquipe ? likertAvgNorm(cmdAssess.lid) : null;
+
+  let desempenho = null;
+  const dParts = [];
+  if(opN !== null) dParts.push([opN, 0.65]);
+  if(m30N !== null) dParts.push([m30N, 0.35]);
+  if(dParts.length){
+    const w = dParts.reduce((s,[,x])=>s+x,0);
+    desempenho = dParts.reduce((s,[v,x])=>s+v*x,0) / w;
+  }
+
+  let potencial = null;
+  const pParts = [];
+  if(posturaN !== null) pParts.push([posturaN, (cmdAssess.comandaEquipe && lidN !== null) ? 0.4 : 1]);
+  if(cmdAssess.comandaEquipe && lidN !== null) pParts.push([lidN, 0.6]);
+  if(pParts.length){
+    const w = pParts.reduce((s,[,x])=>s+x,0);
+    potencial = pParts.reduce((s,[v,x])=>s+v*x,0) / w;
+  }
+
+  return { desempenho, potencial, perf: nbLevel(desempenho), pot: nbLevel(potencial) };
+}
+
+function lowerFirst(s){ return s ? s.charAt(0).toLowerCase() + s.slice(1) : s; }
+
+function renderCmdForm(){
+  cmdAssess = freshCmdAssess();
+
+  const legend = LIKERT_LABELS.map((l,i) => `${i+1} ${l}`).join(' · ');
 
   const el = document.getElementById('screen-cmd-form');
   el.innerHTML = `
     <div class="eyebrow">PRISMA · Avaliação do comando</div>
     <h1>Ficha de <span>avaliação</span></h1>
     <p class="sub">Avaliando <b style="color:var(--text)">${cmdData.avaliadoNome}</b> (${cmdData.avaliadoPosto}). Baseie-se apenas no que você observou em serviço — a regra é: você não avalia a pessoa, avalia o que ela FAZ.</p>
+    <div class="note" style="border-left-color:var(--danger);">Documento de uso interno do avaliador — não deve ser entregue ao avaliado.</div>
 
     <div class="section-title">Checklist operacional (durante a ocorrência)</div>
     <div class="card">
-      <div class="checklist" id="cl-op"></div>
-      <div class="interp-box" id="interp-op"></div>
+      <p class="form-hint" style="margin-top:0;">${legend} — notas 1 e 5 pedem um exemplo concreto; ao final, indique o ponto mais forte e o que mais precisa de atenção.</p>
+      <div id="cl-op"></div>
+      <div class="interp-box hidden" id="interp-op"></div>
+      <div id="op-highlight" class="hidden" style="margin-top:16px;"></div>
     </div>
 
     <div class="section-title">Checklist de postura profissional (rotina e quartel)</div>
     <div class="card">
-      <p class="form-hint" style="margin-top:0;">O comportamento na rotina prevê o comportamento na ocorrência.</p>
-      <div class="checklist" id="cl-postura"></div>
+      <p class="form-hint" style="margin-top:0;">O comportamento na rotina prevê o comportamento na ocorrência. ${legend}</p>
+      <div id="cl-postura"></div>
+      <div id="postura-highlight" class="hidden" style="margin-top:16px;"></div>
     </div>
 
     <div class="section-title">Liderança de equipe</div>
@@ -1239,14 +1391,17 @@ function renderCmdForm(){
         <button class="opt" data-v="nao">Não</button>
       </div>
       <div id="cl-lid-wrap" class="hidden" style="margin-top:16px;">
-        <div class="checklist" id="cl-lid"></div>
+        <p class="form-hint">${legend}</p>
+        <div id="cl-lid"></div>
+        <div id="lid-highlight" class="hidden" style="margin-top:16px;"></div>
       </div>
     </div>
 
     <div class="section-title">Método de avaliação em 30 segundos</div>
     <div class="card">
+      <p class="form-hint" style="margin-top:0;">${legend}</p>
       <div id="m30-wrap"></div>
-      <div class="interp-box" id="interp-m30"></div>
+      <div class="interp-box hidden" id="interp-m30"></div>
     </div>
 
     <div class="section-title">Temperamento observado</div>
@@ -1259,11 +1414,11 @@ function renderCmdForm(){
       <div class="options" id="perfilOpts"></div>
     </div>
 
-    <div class="section-title">Nine Box — desempenho × potencial</div>
+    <div class="section-title">Nine Box — calculado automaticamente</div>
     <div class="card">
-      <p class="form-hint" style="margin-top:0;">Eixo horizontal: desempenho atual (entrega, execução). Eixo vertical: potencial (postura, liderança, capacidade de crescer). Selecione a posição que melhor descreve o avaliado.</p>
-      <div id="nineboxHolder"></div>
-      <div class="nb-detail hidden" id="nb-detail"></div>
+      <p class="form-hint" style="margin-top:0;">Eixo horizontal (desempenho): checklist operacional + método dos 30 segundos. Eixo vertical (potencial): postura profissional ${cmdAssess.comandaEquipe ? '+ liderança' : '(e liderança, se aplicável)'}. A posição é recalculada a cada resposta acima.</p>
+      <div id="nineboxAutoHolder"></div>
+      <div class="nb-detail" id="nb-auto-detail">Responda os checklists acima para calcular a posição.</div>
     </div>
 
     <div class="section-title">Função atual</div>
@@ -1280,11 +1435,11 @@ function renderCmdForm(){
       <div id="pipelineHolder"></div>
     </div>
 
-    <div class="section-title">Plano de desenvolvimento (próximos 3 meses)</div>
+    <div class="section-title">Observações adicionais do avaliador (opcional)</div>
     <div class="card">
       <div class="field">
-        <label>O que desenvolver — orientação objetiva e prática</label>
-        <textarea id="cmdPlano" placeholder="Ex.: treinar comunicação assertiva em abordagem, preparar para a próxima passagem do pipeline, reforçar procedimento X..."></textarea>
+        <label>Complementos além da sugestão automática</label>
+        <textarea id="cmdObs" placeholder="Ex.: contexto específico da ocorrência, histórico recente, combinados já feitos com o policial..."></textarea>
       </div>
     </div>
 
@@ -1296,46 +1451,116 @@ function renderCmdForm(){
     </div>
   `;
 
-  // checklist: operacional
-  const clOp = document.getElementById('cl-op');
-  CHECKLIST_OP.forEach((label, i) => {
-    const row = document.createElement('div');
-    row.className = 'check-item';
-    row.innerHTML = `<div class="box"></div><div>${label}</div>`;
-    row.onclick = () => {
-      cmdAssess.op[i] = !cmdAssess.op[i];
-      row.classList.toggle('checked', cmdAssess.op[i]);
-      row.querySelector('.box').textContent = cmdAssess.op[i] ? '✓' : '';
-      updateOpInterp();
-    };
-    clOp.appendChild(row);
-  });
-  function updateOpInterp(){
-    const falhas = cmdAssess.op.filter(v => !v).length;
-    const box = document.getElementById('interp-op');
-    if(falhas >= 3){
-      box.className = 'interp-box warn';
-      box.textContent = `${falhas} item(ns) não observado(s) — existe um problema comportamental claro a ser trabalhado.`;
+  // Checklists com âncoras comportamentais (op/postura/liderança): nota extrema (1 ou 5) exige
+  // um exemplo concreto, e ao final o avaliador aponta o ponto mais forte e o de maior atenção —
+  // isso quebra o "marquei tudo 5 sem pensar" sem exigir reordenar a lista inteira.
+  function renderChecklistSection(containerId, highlightId, items, valuesArr, evidenceArr, highlightState, onChange){
+    const container = document.getElementById(containerId);
+    items.forEach((item, i) => {
+      const row = document.createElement('div');
+      row.className = 'likert-item';
+      row.innerHTML = `
+        <div class="qtext" style="font-size:14px;margin-bottom:4px;">${item.label}</div>
+        <div class="anchor-hint">1 — ${item.lo} &nbsp;·&nbsp; 5 — ${item.hi}</div>
+        <div class="likert" data-idx="${i}">
+          ${[1,2,3,4,5].map(v => `<button data-v="${v}">${v}</button>`).join('')}
+        </div>
+        <div class="evidence-wrap hidden">
+          <input type="text" class="evidence-input" placeholder="Exemplo/evidência concreta para essa nota (obrigatório)">
+        </div>
+      `;
+      const evWrap = row.querySelector('.evidence-wrap');
+      const evInput = row.querySelector('.evidence-input');
+      evInput.value = evidenceArr[i];
+      evInput.addEventListener('input', () => { evidenceArr[i] = evInput.value; });
+      row.querySelectorAll('.likert button').forEach(btn => {
+        btn.onclick = () => {
+          const v = Number(btn.dataset.v);
+          valuesArr[i] = v;
+          evidenceArr[i] = "";
+          evInput.value = "";
+          row.querySelectorAll('.likert button').forEach(b => b.classList.toggle('selected', b === btn));
+          evWrap.classList.toggle('hidden', v !== 1 && v !== 5);
+          onChange();
+          refreshHighlight();
+        };
+      });
+      container.appendChild(row);
+    });
+
+    function refreshHighlight(){
+      const holder = document.getElementById(highlightId);
+      if(valuesArr.some(v => v === null)){
+        holder.classList.add('hidden');
+        return;
+      }
+      holder.classList.remove('hidden');
+      renderHighlightPicker(holder, items, highlightState, onChange);
+    }
+    refreshHighlight();
+  }
+
+  function renderHighlightPicker(container, items, state, onChange){
+    if(state.forte === null){
+      container.innerHTML = `
+        <div class="section-title" style="margin:0 0 8px;">Qual desses é o ponto mais forte?</div>
+        <div class="options" id="hl-forte"></div>
+      `;
+      const wrap = container.querySelector('#hl-forte');
+      items.forEach((item, idx) => {
+        const b = document.createElement('button');
+        b.className = 'opt';
+        b.textContent = item.label;
+        b.onclick = () => { state.forte = idx; renderHighlightPicker(container, items, state, onChange); onChange(); };
+        wrap.appendChild(b);
+      });
+    } else if(state.atencao === null){
+      container.innerHTML = `
+        <div class="section-title" style="margin:0 0 8px;">Qual precisa de mais atenção?</div>
+        <div class="options" id="hl-atencao"></div>
+        <button class="btn ghost" id="hl-back" style="margin-top:8px;">← trocar o ponto forte</button>
+      `;
+      const wrap = container.querySelector('#hl-atencao');
+      items.forEach((item, idx) => {
+        if(idx === state.forte) return;
+        const b = document.createElement('button');
+        b.className = 'opt';
+        b.textContent = item.label;
+        b.onclick = () => { state.atencao = idx; renderHighlightPicker(container, items, state, onChange); onChange(); };
+        wrap.appendChild(b);
+      });
+      container.querySelector('#hl-back').onclick = () => { state.forte = null; renderHighlightPicker(container, items, state, onChange); onChange(); };
     } else {
-      box.className = 'interp-box ok';
-      box.textContent = `${falhas} item(ns) não observado(s) — sem sinal de problema comportamental claro neste checklist.`;
+      container.innerHTML = `
+        <div class="interp-box ok">
+          Ponto forte: <b>${items[state.forte].label}</b><br>
+          Ponto de atenção: <b>${items[state.atencao].label}</b>
+        </div>
+        <button class="btn ghost" id="hl-redo" style="margin-top:8px;">← refazer essa escolha</button>
+      `;
+      container.querySelector('#hl-redo').onclick = () => { state.forte = null; state.atencao = null; renderHighlightPicker(container, items, state, onChange); onChange(); };
     }
   }
-  updateOpInterp();
+
+  // checklist: operacional
+  renderChecklistSection('cl-op', 'op-highlight', CHECKLIST_OP, cmdAssess.op, cmdAssess.opEvidence, cmdAssess.opHighlight, () => { updateOpInterp(); refreshNineBoxPreview(); });
+  function updateOpInterp(){
+    const answered = cmdAssess.op.filter(v => v !== null).length;
+    const box = document.getElementById('interp-op');
+    if(answered < CHECKLIST_OP.length){ box.classList.add('hidden'); return; }
+    box.classList.remove('hidden');
+    const falhas = cmdAssess.op.filter(v => v <= 2).length;
+    if(falhas >= 3){
+      box.className = 'interp-box warn';
+      box.textContent = `${falhas} item(ns) com discordância — existe um problema comportamental claro a ser trabalhado.`;
+    } else {
+      box.className = 'interp-box ok';
+      box.textContent = `${falhas} item(ns) com discordância — sem sinal de problema comportamental claro neste checklist.`;
+    }
+  }
 
   // checklist: postura
-  const clPostura = document.getElementById('cl-postura');
-  CHECKLIST_POSTURA.forEach((label, i) => {
-    const row = document.createElement('div');
-    row.className = 'check-item';
-    row.innerHTML = `<div class="box"></div><div>${label}</div>`;
-    row.onclick = () => {
-      cmdAssess.postura[i] = !cmdAssess.postura[i];
-      row.classList.toggle('checked', cmdAssess.postura[i]);
-      row.querySelector('.box').textContent = cmdAssess.postura[i] ? '✓' : '';
-    };
-    clPostura.appendChild(row);
-  });
+  renderChecklistSection('cl-postura', 'postura-highlight', CHECKLIST_POSTURA, cmdAssess.postura, cmdAssess.posturaEvidence, cmdAssess.posturaHighlight, refreshNineBoxPreview);
 
   // comanda equipe toggle
   document.querySelectorAll('#comandaEquipeOpts .opt').forEach(btn => {
@@ -1343,57 +1568,45 @@ function renderCmdForm(){
       cmdAssess.comandaEquipe = btn.dataset.v === 'sim';
       document.querySelectorAll('#comandaEquipeOpts .opt').forEach(b => b.classList.toggle('selected', b === btn));
       document.getElementById('cl-lid-wrap').classList.toggle('hidden', !cmdAssess.comandaEquipe);
+      refreshNineBoxPreview();
     };
   });
-  const clLid = document.getElementById('cl-lid');
-  CHECKLIST_LID.forEach((label, i) => {
-    const row = document.createElement('div');
-    row.className = 'check-item';
-    row.innerHTML = `<div class="box"></div><div>${label}</div>`;
-    row.onclick = () => {
-      cmdAssess.lid[i] = !cmdAssess.lid[i];
-      row.classList.toggle('checked', cmdAssess.lid[i]);
-      row.querySelector('.box').textContent = cmdAssess.lid[i] ? '✓' : '';
-    };
-    clLid.appendChild(row);
-  });
+  renderChecklistSection('cl-lid', 'lid-highlight', CHECKLIST_LID, cmdAssess.lid, cmdAssess.lidEvidence, cmdAssess.lidHighlight, refreshNineBoxPreview);
 
-  // método 30 segundos
-  const m30Wrap = document.getElementById('m30-wrap');
-  METHOD_30S.forEach((q, i) => {
-    const row = document.createElement('div');
-    row.style.marginBottom = '14px';
-    row.innerHTML = `
-      <div class="qtext" style="font-size:14.5px;margin-bottom:8px;">${i+1}. ${q}</div>
-      <div class="options row" data-m30idx="${i}">
-        <button class="opt" data-v="sim">Sim</button>
-        <button class="opt" data-v="nao">Não</button>
-      </div>
-    `;
-    m30Wrap.appendChild(row);
-  });
-  m30Wrap.querySelectorAll('[data-m30idx]').forEach(group => {
-    const idx = Number(group.dataset.m30idx);
-    group.querySelectorAll('.opt').forEach(btn => {
-      btn.onclick = () => {
-        cmdAssess.m30[idx] = btn.dataset.v === 'sim';
-        group.querySelectorAll('.opt').forEach(b => b.classList.toggle('selected', b === btn));
-        updateM30Interp();
-      };
+  // método 30 segundos (sem âncoras/destaque — é um recall pontual de uma ocorrência, não um inventário de competências)
+  function renderSimpleLikertList(container, items, arr, onChange){
+    items.forEach((label, i) => {
+      const row = document.createElement('div');
+      row.className = 'likert-item';
+      row.innerHTML = `
+        <div class="qtext" style="font-size:14px;margin-bottom:8px;">${label}</div>
+        <div class="likert" data-idx="${i}">
+          ${[1,2,3,4,5].map(v => `<button data-v="${v}">${v}</button>`).join('')}
+        </div>
+      `;
+      row.querySelectorAll('.likert button').forEach(btn => {
+        btn.onclick = () => {
+          arr[i] = Number(btn.dataset.v);
+          row.querySelectorAll('.likert button').forEach(b => b.classList.toggle('selected', b === btn));
+          onChange();
+        };
+      });
+      container.appendChild(row);
     });
-  });
+  }
+  renderSimpleLikertList(document.getElementById('m30-wrap'), METHOD_30S, cmdAssess.m30, () => { updateM30Interp(); refreshNineBoxPreview(); });
   function updateM30Interp(){
     const answered = cmdAssess.m30.filter(v => v !== null).length;
     const box = document.getElementById('interp-m30');
     if(answered < METHOD_30S.length){ box.classList.add('hidden'); return; }
     box.classList.remove('hidden');
-    const positivos = cmdAssess.m30.filter(v => v === true).length;
+    const positivos = cmdAssess.m30.filter(v => v >= 4).length;
     if(positivos >= 3){
       box.className = 'interp-box ok';
-      box.textContent = `${positivos}/4 respostas positivas — bom desempenho.`;
+      box.textContent = `${positivos}/4 respostas concordantes — bom desempenho.`;
     } else {
       box.className = 'interp-box warn';
-      box.textContent = `${positivos}/4 respostas positivas — precisa de orientação.`;
+      box.textContent = `${positivos}/4 respostas concordantes — precisa de orientação.`;
     }
   }
 
@@ -1425,20 +1638,20 @@ function renderCmdForm(){
     perfilOpts.appendChild(b);
   });
 
-  // nine box
-  function onNbSelect(pot, perf){
-    cmdAssess.nineBoxPot = pot;
-    cmdAssess.nineBoxPerf = perf;
-    renderNineBoxGrid(document.getElementById('nineboxHolder'), {pot,perf}, onNbSelect);
-    showNbDetail(pot, perf);
-  }
-  renderNineBoxGrid(document.getElementById('nineboxHolder'), null, onNbSelect);
-  function showNbDetail(pot, perf){
+  function refreshNineBoxPreview(){
+    const { perf, pot } = computeNineBoxAuto();
+    const holder = document.getElementById('nineboxAutoHolder');
+    const detail = document.getElementById('nb-auto-detail');
+    if(!perf || !pot){
+      renderNineBoxGrid(holder, null, null);
+      detail.textContent = 'Responda os checklists acima para calcular a posição.';
+      return;
+    }
+    renderNineBoxGrid(holder, {pot, perf}, null);
     const d = NINE_BOX[`${pot}|${perf}`];
-    const box = document.getElementById('nb-detail');
-    box.classList.remove('hidden');
-    box.innerHTML = `<b>${d.nome}</b> — ${d.leitura}<br><b>Ação recomendada:</b> ${d.acao}`;
+    detail.innerHTML = `<b>${d.nome}</b> — ${d.leitura}<br><b>Ação recomendada:</b> ${d.acao}`;
   }
+  refreshNineBoxPreview();
 
   // função adequada
   document.querySelectorAll('#funcaoOpts .opt').forEach(btn => {
@@ -1469,7 +1682,7 @@ function renderCmdForm(){
     `;
   }
 
-  document.getElementById('cmdPlano').addEventListener('input', e => { cmdAssess.plano = e.target.value; });
+  document.getElementById('cmdObs').addEventListener('input', e => { cmdAssess.observacoes = e.target.value; });
 }
 
 function renderNineBoxGrid(container, selected, onSelect){
@@ -1477,7 +1690,7 @@ function renderNineBoxGrid(container, selected, onSelect){
     const cells = NB_PERF_ORDER.map(perf => {
       const d = NINE_BOX[`${pot}|${perf}`];
       const isSel = selected && selected.pot === pot && selected.perf === perf;
-      return `<div class="nb-cell${isSel?' selected':''}${onSelect?'':' readonly'}" data-pot="${pot}" data-perf="${perf}">${d.nome}</div>`;
+      return `<div class="nb-cell readonly${isSel?' selected':''}" data-pot="${pot}" data-perf="${perf}">${d.nome}</div>`;
     }).join('');
     return `<div class="nb-row"><div class="nb-row-label">${pot}</div>${cells}</div>`;
   }).join('');
@@ -1492,22 +1705,68 @@ function renderNineBoxGrid(container, selected, onSelect){
       </div>
     </div>
   `;
+}
 
-  if(onSelect){
-    container.querySelectorAll('.nb-cell').forEach(cell => {
-      cell.onclick = () => onSelect(cell.dataset.pot, cell.dataset.perf);
-    });
+// Monta o texto de "como trabalhar esse perfil", combinando temperamento, perfil de
+// conhecimento, posição na Nine Box e próxima passagem do pipeline — e, se disponível,
+// cruzando com a autoavaliação importada do próprio policial.
+function buildAutoSuggestion(t, c, nb, pStep){
+  const parts = [];
+  parts.push(`Pelo temperamento <b>${t.nome}</b> observado, tende a render mais em ${lowerFirst(t.rende)} Já ${lowerFirst(t.sofre)} tende a desgastá-lo mais — evite manter esse perfil preso demais nessas situações.`);
+  parts.push(`Como perfil <b>${c.nome}</b> (${c.alt}), o melhor uso pelo comando é: ${lowerFirst(c.uso)} Atenção ao risco de ${lowerFirst(c.risco)}`);
+  parts.push(`Na Nine Box, está posicionado como <b>${nb.nome}</b>: ${nb.leitura} <b>Ação recomendada:</b> ${nb.acao}`);
+  if(pStep && pStep.para){
+    parts.push(`Rumo à próxima passagem (${cmdData.avaliadoPosto} → ${pStep.para}), o foco de desenvolvimento é: ${lowerFirst(pStep.mudanca)} Erros comuns a evitar nessa transição: ${lowerFirst(pStep.erros)}`);
+  } else if(pStep){
+    parts.push(pStep.mudanca);
   }
+
+  if(importedSelf && importedSelf.selfData){
+    const selfTempKey = importedSelf.tempRank && importedSelf.tempRank[0];
+    if(selfTempKey && TEMPERAMENTOS[selfTempKey]){
+      const selfTempNome = TEMPERAMENTOS[selfTempKey].nome;
+      parts.push(selfTempKey === cmdAssess.temperamento
+        ? `A autoavaliação do próprio policial <b>converge</b> com a observação do comando: ele também se percebe como ${selfTempNome}.`
+        : `<b>Divergência de autopercepção:</b> o policial se autoavalia como ${selfTempNome}, enquanto o comando observou ${t.nome} — vale explorar essa diferença na conversa de feedback.`);
+    }
+    const selfKnowKey = importedSelf.knowRank && importedSelf.knowRank[0];
+    if(selfKnowKey && CONHECIMENTO[selfKnowKey]){
+      const selfKnowNome = CONHECIMENTO[selfKnowKey].nome;
+      parts.push(selfKnowKey === cmdAssess.perfil
+        ? `Também há convergência no perfil de uso do conhecimento (${selfKnowNome}).`
+        : `No perfil de conhecimento há divergência: a autoavaliação aponta ${selfKnowNome}, o comando observou ${c.nome}.`);
+    }
+    if(importedSelf.top3 && importedSelf.top3[0]){
+      const top = importedSelf.top3[0];
+      parts.push(`Na autoavaliação, a função de melhor aderência apontada foi <b>${top.code} — ${top.title}</b> (${top.pct}% de aderência) — vale considerar isso ao decidir sobre a função atual.`);
+    }
+  }
+  return parts;
+}
+
+// Notas extremas (1 ou 5) exigem uma evidência de uma linha — sem isso o relatório não é gerado.
+function missingEvidence(valuesArr, evidenceArr){
+  return valuesArr.some((v,i) => (v === 1 || v === 5) && !evidenceArr[i].trim());
 }
 
 function generateCmdReport(){
   const msg = document.getElementById('cmdFormMsg');
+  const { perf, pot } = computeNineBoxAuto();
   const missing = [];
+  if(cmdAssess.op.some(v => v === null)) missing.push('o checklist operacional');
+  if(missingEvidence(cmdAssess.op, cmdAssess.opEvidence)) missing.push('a evidência das notas extremas no checklist operacional');
+  if(cmdAssess.op.every(v => v !== null) && (cmdAssess.opHighlight.forte === null || cmdAssess.opHighlight.atencao === null)) missing.push('o ponto forte e o ponto de atenção do checklist operacional');
+  if(cmdAssess.postura.some(v => v === null)) missing.push('o checklist de postura profissional');
+  if(missingEvidence(cmdAssess.postura, cmdAssess.posturaEvidence)) missing.push('a evidência das notas extremas no checklist de postura');
+  if(cmdAssess.postura.every(v => v !== null) && (cmdAssess.posturaHighlight.forte === null || cmdAssess.posturaHighlight.atencao === null)) missing.push('o ponto forte e o ponto de atenção do checklist de postura');
   if(cmdAssess.comandaEquipe === null) missing.push('se o policial comanda equipe');
-  if(cmdAssess.m30.some(v => v === null)) missing.push('o método dos 30 segundos (4 perguntas)');
+  if(cmdAssess.comandaEquipe && cmdAssess.lid.some(v => v === null)) missing.push('o checklist de liderança');
+  if(cmdAssess.comandaEquipe && missingEvidence(cmdAssess.lid, cmdAssess.lidEvidence)) missing.push('a evidência das notas extremas no checklist de liderança');
+  if(cmdAssess.comandaEquipe && cmdAssess.lid.every(v => v !== null) && (cmdAssess.lidHighlight.forte === null || cmdAssess.lidHighlight.atencao === null)) missing.push('o ponto forte e o ponto de atenção do checklist de liderança');
+  if(cmdAssess.m30.some(v => v === null)) missing.push('o método dos 30 segundos');
   if(!cmdAssess.temperamento) missing.push('o temperamento observado');
   if(!cmdAssess.perfil) missing.push('o perfil predominante');
-  if(!cmdAssess.nineBoxPot || !cmdAssess.nineBoxPerf) missing.push('a posição na Nine Box');
+  if(!perf || !pot) missing.push('dados suficientes para calcular a Nine Box');
   if(cmdAssess.funcaoAdequada === null) missing.push('se a função atual é adequada');
 
   if(missing.length){
@@ -1524,27 +1783,35 @@ function showCmdResult(){
   const el = document.getElementById('screen-cmd-result');
   const t = TEMPERAMENTOS[cmdAssess.temperamento];
   const c = CONHECIMENTO[cmdAssess.perfil];
-  const nb = NINE_BOX[`${cmdAssess.nineBoxPot}|${cmdAssess.nineBoxPerf}`];
+  const { perf, pot } = computeNineBoxAuto();
+  const nb = NINE_BOX[`${pot}|${perf}`];
   const pStep = PIPELINE[cmdData.avaliadoPosto];
-  const falhasOp = cmdAssess.op.filter(v=>!v).length;
-  const positivosM30 = cmdAssess.m30.filter(v=>v===true).length;
+  const falhasOp = cmdAssess.op.filter(v=>v<=2).length;
+  const positivosM30 = cmdAssess.m30.filter(v=>v>=4).length;
 
-  const opRows = CHECKLIST_OP.map((label,i) =>
-    `<div class="check-result-row"><span>${label}</span><span class="mark ${cmdAssess.op[i]?'yes':'no'}">${cmdAssess.op[i]?'✔':'✖'}</span></div>`
-  ).join('');
-  const posturaRows = CHECKLIST_POSTURA.map((label,i) =>
-    `<div class="check-result-row"><span>${label}</span><span class="mark ${cmdAssess.postura[i]?'yes':'no'}">${cmdAssess.postura[i]?'✔':'✖'}</span></div>`
-  ).join('');
-  const lidRows = cmdAssess.comandaEquipe ? CHECKLIST_LID.map((label,i) =>
-    `<div class="check-result-row"><span>${label}</span><span class="mark ${cmdAssess.lid[i]?'yes':'no'}">${cmdAssess.lid[i]?'✔':'✖'}</span></div>`
-  ).join('') : '';
-  const m30Rows = METHOD_30S.map((q,i) =>
-    `<div class="check-result-row"><span>${q}</span><span class="mark ${cmdAssess.m30[i]?'yes':'no'}">${cmdAssess.m30[i]?'Sim':'Não'}</span></div>`
-  ).join('');
+  const likertRow = (label, v) =>
+    `<div class="check-result-row"><span>${label}</span><span class="mark ${v<=2?'no':v>=4?'yes':'neu'}">${LIKERT_LABELS[v-1]}</span></div>`;
+  const likertRowEv = (label, v, evidence) => `
+    <div class="check-result-block">
+      <div class="check-result-row"><span>${label}</span><span class="mark ${v<=2?'no':v>=4?'yes':'neu'}">${LIKERT_LABELS[v-1]}</span></div>
+      ${evidence ? `<div class="evidence-note">"${evidence}"</div>` : ''}
+    </div>`;
+  const highlightNote = (items, state) => `
+    <div class="interp-box ok" style="margin-top:10px;">
+      Ponto forte: <b>${items[state.forte].label}</b><br>
+      Ponto de atenção: <b>${items[state.atencao].label}</b>
+    </div>`;
+  const opRows = CHECKLIST_OP.map((item,i) => likertRowEv(item.label, cmdAssess.op[i], cmdAssess.opEvidence[i])).join('');
+  const posturaRows = CHECKLIST_POSTURA.map((item,i) => likertRowEv(item.label, cmdAssess.postura[i], cmdAssess.posturaEvidence[i])).join('');
+  const lidRows = cmdAssess.comandaEquipe ? CHECKLIST_LID.map((item,i) => likertRowEv(item.label, cmdAssess.lid[i], cmdAssess.lidEvidence[i])).join('') : '';
+  const m30Rows = METHOD_30S.map((q,i) => likertRow(q, cmdAssess.m30[i])).join('');
+
+  const suggestionParts = buildAutoSuggestion(t, c, nb, pStep);
 
   el.innerHTML = `
     <div class="eyebrow">PRISMA · Relatório de avaliação do comando</div>
     <h1 style="margin:0 0 14px;">Avaliação <span>individual</span></h1>
+    <div class="note" style="border-left-color:var(--danger);">Documento de uso interno do avaliador — não deve ser entregue ao avaliado.</div>
     <div class="ident-block">
       <div><b>Avaliado:</b> ${cmdData.avaliadoNome}</div>
       <div><b>Posto/Graduação:</b> ${cmdData.avaliadoPosto}</div>
@@ -1557,24 +1824,27 @@ function showCmdResult(){
     <div class="section-title">Checklist operacional (durante a ocorrência)</div>
     <div class="card">
       <div class="check-result-list">${opRows}</div>
-      <div class="interp-box ${falhasOp>=3?'warn':'ok'}">${falhasOp} item(ns) não observado(s) — ${falhasOp>=3?'existe um problema comportamental claro a ser trabalhado.':'sem sinal de problema comportamental claro neste checklist.'}</div>
+      <div class="interp-box ${falhasOp>=3?'warn':'ok'}">${falhasOp} item(ns) com discordância — ${falhasOp>=3?'existe um problema comportamental claro a ser trabalhado.':'sem sinal de problema comportamental claro neste checklist.'}</div>
+      ${highlightNote(CHECKLIST_OP, cmdAssess.opHighlight)}
     </div>
 
     <div class="section-title">Checklist de postura profissional (rotina e quartel)</div>
     <div class="card">
       <div class="check-result-list">${posturaRows}</div>
+      ${highlightNote(CHECKLIST_POSTURA, cmdAssess.posturaHighlight)}
     </div>
 
     ${cmdAssess.comandaEquipe ? `
     <div class="section-title">Checklist de liderança</div>
     <div class="card">
       <div class="check-result-list">${lidRows}</div>
+      ${highlightNote(CHECKLIST_LID, cmdAssess.lidHighlight)}
     </div>` : ''}
 
     <div class="section-title">Método de avaliação em 30 segundos</div>
     <div class="card">
       <div class="check-result-list">${m30Rows}</div>
-      <div class="interp-box ${positivosM30>=3?'ok':'warn'}">${positivosM30}/4 respostas positivas — ${positivosM30>=3?'bom desempenho.':'precisa de orientação.'}</div>
+      <div class="interp-box ${positivosM30>=3?'ok':'warn'}">${positivosM30}/4 respostas concordantes — ${positivosM30>=3?'bom desempenho.':'precisa de orientação.'}</div>
     </div>
 
     <div class="section-title">Temperamento observado</div>
@@ -1592,7 +1862,7 @@ function showCmdResult(){
       <div class="desc-block"><b>Risco principal:</b> ${c.risco}</div>
     </div>
 
-    <div class="section-title">Nine Box</div>
+    <div class="section-title">Nine Box (calculado automaticamente)</div>
     <div class="card">
       <div id="nbResultHolder"></div>
       <div class="nb-detail"><b>${nb.nome}</b> — ${nb.leitura}<br><b>Ação recomendada:</b> ${nb.acao}</div>
@@ -1601,6 +1871,17 @@ function showCmdResult(){
     <div class="section-title">Função atual</div>
     <div class="card">
       <div class="desc-block">A função atual é adequada ao perfil observado: <b>${cmdAssess.funcaoAdequada ? 'Sim' : 'Não'}</b></div>
+    </div>
+
+    ${importedSelf ? `
+    <div class="section-title">Cruzamento com a autoavaliação do policial</div>
+    <div class="card">
+      <div class="desc-block">Arquivo importado: autoavaliação de <b>${(importedSelf.selfData && importedSelf.selfData.nome) || '—'}</b> (${(importedSelf.selfData && importedSelf.selfData.data) || '—'}).</div>
+    </div>` : ''}
+
+    <div class="section-title">Sugestão automática de desenvolvimento</div>
+    <div class="card">
+      ${suggestionParts.map(p => `<div class="desc-block">${p}</div>`).join('')}
     </div>
 
     <div class="section-title">Pipeline de liderança — próxima passagem</div>
@@ -1617,9 +1898,9 @@ function showCmdResult(){
         </div>`}
     </div>
 
-    <div class="section-title">Plano de desenvolvimento (próximos 3 meses)</div>
+    <div class="section-title">Observações adicionais do avaliador</div>
     <div class="card">
-      <div class="desc-block">${cmdAssess.plano ? cmdAssess.plano.replace(/\n/g,'<br>') : '<span style="color:var(--faint)">Nenhuma observação registrada.</span>'}</div>
+      <div class="desc-block">${cmdAssess.observacoes ? cmdAssess.observacoes.replace(/\n/g,'<br>') : '<span style="color:var(--faint)">Nenhuma observação adicional registrada.</span>'}</div>
     </div>
 
     <div class="note">Esta ficha é um instrumento de apoio à decisão do comando — registra observação comportamental estruturada, não substitui os processos formais de avaliação de desempenho da corporação.</div>
@@ -1633,7 +1914,7 @@ function showCmdResult(){
     <p class="sub no-print" style="font-size:12px;margin-top:10px;">O botão abre a janela de impressão do navegador — escolha "Salvar como PDF" como destino para baixar o relatório.</p>
   `;
 
-  renderNineBoxGrid(document.getElementById('nbResultHolder'), {pot:cmdAssess.nineBoxPot, perf:cmdAssess.nineBoxPerf}, null);
+  renderNineBoxGrid(document.getElementById('nbResultHolder'), {pot, perf}, null);
 
   showScreen('screen-cmd-result');
 }
