@@ -442,8 +442,10 @@ function chartScales(labelSize){
   };
 }
 let tempChartInstance = null, opChartInstance = null;
+let opFcChartInstance = null, posturaFcChartInstance = null, lidFcChartInstance = null;
+let envChartInstance = null;
 function repaintChartsForMedia(){
-  [tempChartInstance, opChartInstance].forEach(ch => {
+  [tempChartInstance, opChartInstance, opFcChartInstance, posturaFcChartInstance, lidFcChartInstance, envChartInstance].forEach(ch => {
     if(!ch) return;
     const cc = cssVar('--amber'), gg = cssVar('--green');
     ch.data.datasets[0].backgroundColor = cc+'33';
@@ -685,31 +687,142 @@ const TEMPERAMENTOS = {
   C: {nome:"Colérico", disc:"D — Dominância", cor:"var(--c-colerico)",
       como:"Decidido, rápido, dominante, objetivo.",
       rende:"Comando de ocorrência, liderança de equipe, decisões sob pressão, operações táticas.",
-      sofre:"Rotina administrativa detalhista, trabalho repetitivo, excesso de regras."},
+      sofre:"Rotina administrativa detalhista, trabalho repetitivo, excesso de regras.",
+      resumo:"Colérico é o temperamento da ação: decide rápido, assume a frente e não recua diante do difícil. Onde outros hesitam, ele já está executando. O preço dessa velocidade é que a decisão pode sair antes de ouvir todo mundo — e a urgência que o move pode soar como impaciência ou dureza para quem trabalha ao lado dele.",
+      palavras:["Decidido","Direto","Competitivo","Independente","Impaciente","Assertivo"],
+      sugestoes:[
+        "Antes de bater o martelo numa decisão que afeta a equipe, faça uma pergunta a mais do que o instinto pede.",
+        "Peça a alguém de confiança para avisar quando o tom estiver pesado demais — ele raramente percebe sozinho.",
+        "Transforme parte do controle em delegação: escolher o que soltar é tão estratégico quanto decidir sozinho."],
+      gerenciamento:[
+        "Estabeleça metas desafiadoras e dê autonomia real para chegar lá — microgerenciamento o desmotiva rápido.",
+        "Comunique-se em tópicos, não em rodeios; ele decide o que fazer com a informação, não como recebê-la.",
+        "Elogie o resultado, não o esforço — reconhecimento genérico soa vazio para esse perfil.",
+        "Renove o desafio periodicamente; rotina sem meta nova é o caminho mais curto para o desengajamento dele."],
+      alerta:[
+        "Sob pressão, pode tomar decisões unilaterais que deveriam passar pela equipe.",
+        "Tende a ver processo e burocracia como obstáculo, não como proteção — risco em normas de segurança.",
+        "Pode confundir liderança com controle, sufocando a iniciativa de quem está junto."],
+      ambiente:{preferido:["Ritmo acelerado","Autonomia de decisão","Metas claras e desafiadoras","Liberdade de ação"],
+                pressao:"Acelera ainda mais e assume o controle sozinho — o risco é atropelar um consenso que seria necessário."},
+      envChart:{Estrutura:3, Autonomia:9, Ritmo:9, "Supervisão":2}},
   S: {nome:"Sanguíneo", disc:"I — Influência", cor:"var(--c-sanguineo)",
       como:"Comunicador, articulado, entusiástico.",
       rende:"Atendimento ao público, instrução, integração da equipe, motivação de tropa.",
-      sofre:"Organização rigorosa, prazos longos, tarefas solitárias."},
+      sofre:"Organização rigorosa, prazos longos, tarefas solitárias.",
+      resumo:"Sanguíneo entra numa sala e muda o clima dela. É o tipo de policial que a comunidade lembra pelo nome, que destrava um clima tenso com uma frase certa. A mesma energia que atrai as pessoas, porém, também dispersa: tarefa que exige silêncio e repetição tende a perder a atenção dele antes da hora.",
+      palavras:["Extrovertido","Caloroso","Convincente","Otimista","Espontâneo","Sociável"],
+      sugestoes:[
+        "Feche o ciclo: pegue uma tarefa administrativa pendente esta semana e leve até o fim, sem pular pra próxima novidade.",
+        "Anote compromissos assim que forem combinados — não confie só na memória para prazos.",
+        "Reserve alguns minutos por plantão sem gente ao redor, só para revisar o que ainda falta fazer."],
+      gerenciamento:[
+        "Reconheça publicamente — é o combustível principal desse perfil, mais até que remuneração ou cargo.",
+        "Combine prazos junto com ele, não apenas comunique; envolvimento aumenta o comprometimento.",
+        "Acompanhe entregas de perto, mas sem parecer fiscalização — enquadre como parceria.",
+        "Use a rede de relacionamento dele a favor da equipe: ele conecta gente como poucos."],
+      alerta:[
+        "Pode assumir mais compromissos do que consegue cumprir no prazo combinado.",
+        "Evita dar feedback duro por medo de desagradar, deixando problemas se arrastarem.",
+        "Em tarefa solitária e repetitiva, o rendimento cai visivelmente."],
+      ambiente:{preferido:["Contato constante com pessoas","Variedade de tarefas","Reconhecimento visível","Clima leve de equipe"],
+                pressao:"Busca apoio verbalizando com a equipe; isolado, tende a se dispersar ainda mais."},
+      envChart:{Estrutura:3, Autonomia:6, Ritmo:7, "Supervisão":5}},
   F: {nome:"Fleumático", disc:"S — Estabilidade", cor:"var(--c-fleumatico)",
       como:"Calmo, estável, conciliador, paciente.",
       rende:"ROCAM, viatura em rotina, mediação de conflitos, trabalho em dupla ou equipe.",
-      sofre:"Confronto direto, urgência extrema, pressão alta e constante."},
+      sofre:"Confronto direto, urgência extrema, pressão alta e constante.",
+      resumo:"Fleumático é o chão firme da equipe: não se abala fácil, não cria clima, e costuma ser o primeiro que os colegas procuram quando algo desanda. Essa estabilidade tem contrapartida — ele evita fricção mesmo quando ela é necessária, e pode carregar insatisfação em silêncio até o ponto de transbordar.",
+      palavras:["Calmo","Paciente","Leal","Discreto","Constante","Conciliador"],
+      sugestoes:[
+        "Treinar dizer \"eu discordo\" no momento da discordância — guardar para depois só aumenta o desgaste.",
+        "Definir uma meta pessoal nova a cada poucos meses; sem estímulo externo, tende a estagnar na zona confortável.",
+        "Praticar decidir com prazo apertado de vez em quando, mesmo sem urgência real, para não travar quando ela aparecer de verdade."],
+      gerenciamento:[
+        "Avise mudanças de plano com antecedência; decisão de última hora o desestabiliza mais que a outros perfis.",
+        "Corrija em particular, nunca na frente do grupo — exposição pública pesa muito para ele.",
+        "Reconheça a consistência dele com a mesma força que se reconhece um resultado espalhafatoso de outros.",
+        "Puxe a opinião dele ativamente em reunião — ele raramente vai se impor sozinho, mesmo discordando."],
+      alerta:[
+        "Evita confronto necessário para não gerar atrito, mesmo quando a situação pede posicionamento.",
+        "Demora para se posicionar em decisões urgentes, o que pode custar tempo em ocorrência.",
+        "Acumula insatisfação sem verbalizar, até atingir um ponto de ruptura difícil de prever."],
+      ambiente:{preferido:["Rotina previsível","Equipe fixa e estável","Baixo nível de conflito","Ritmo constante"],
+                pressao:"Fica mais quieto e estável na superfície, mas pode se fechar por completo se pressionado além do limite."},
+      envChart:{Estrutura:7, Autonomia:4, Ritmo:3, "Supervisão":5}},
   M: {nome:"Melancólico", disc:"C — Conformidade", cor:"var(--c-melancolico)",
       como:"Analítico, detalhista, perfeccionista.",
       rende:"Planejamento operacional (P3/P5), análise de dados, instrução técnica, relatórios.",
-      sofre:"Improviso, pressão caótica, ambientes desorganizados."},
+      sofre:"Improviso, pressão caótica, ambientes desorganizados.",
+      resumo:"Melancólico entrega o trabalho mais bem-feito do plantão — o relatório sem furo, o procedimento seguido à risca, o detalhe que ninguém mais notou. O contraponto é a dificuldade de avançar sem ter certeza suficiente: enquanto ele analisa, o relógio corre, e o padrão que impõe a si mesmo pode se voltar contra ele em forma de autocrítica.",
+      palavras:["Analítico","Preciso","Criterioso","Reservado","Disciplinado","Perfeccionista"],
+      sugestoes:[
+        "Estabelecer um prazo-limite pessoal de análise antes de decidir, mesmo sem 100% dos dados.",
+        "Compartilhar o raciocínio ainda parcial com a equipe antes de fechar a conclusão — ganha-se velocidade coletiva.",
+        "Tratar pequenos erros como parte esperada do trabalho operacional, não como falha pessoal."],
+      gerenciamento:[
+        "Explique o porquê por trás da ordem — regra sem lógica visível gera resistência silenciosa dele.",
+        "Dê prazo e dados suficientes antes de cobrar posição; pressioná-lo a improvisar reduz a qualidade da entrega.",
+        "Valorize a exatidão do trabalho entregue, mesmo quando o volume for menor que o de outros.",
+        "Evite mudança de última hora sem explicação — ele precisa reorganizar o raciocínio, não só a agenda."],
+      alerta:[
+        "Pode travar diante de ambiente caótico ou pouco estruturado, perdendo tempo de reação.",
+        "Tende à autocrítica desproporcional diante de erros pequenos.",
+        "Corre risco de isolamento ao mergulhar fundo demais em detalhe técnico, afastando-se da equipe."],
+      ambiente:{preferido:["Critérios explícitos","Tempo hábil para planejar","Baixo nível de improviso","Reconhecimento pela qualidade técnica"],
+                pressao:"Fica mais cauteloso e analítico — pode travar diante de uma decisão que exige dado que ele ainda não tem."},
+      envChart:{Estrutura:9, Autonomia:4, Ritmo:2, "Supervisão":6}},
 };
 
 const CONHECIMENTO = {
   E: {nome:"Especialista", alt:"Executor", cor:"var(--c-especialista)", risco:"Isolamento, dificuldade de trabalhar em equipe, rigidez.",
       uso:"Instrutor, planejamento operacional (P3/P5), referência técnica, análise de ocorrências complexas.",
-      exemplo:"Policial de Tiro, operador de sistemas do COPOM, mecânico de viatura, especialista em drones."},
+      exemplo:"Policial de Tiro, operador de sistemas do COPOM, mecânico de viatura, especialista em drones.",
+      resumo:"O Especialista é quem a unidade chama quando ninguém mais sabe resolver aquele problema específico. Anos de prática concentrada viraram domínio técnico real — mas esse mesmo foco pode se fechar em torno de si, deixando-o menos à vontade fora do próprio terreno.",
+      palavras:["Técnico","Profundo","Preciso","Meticuloso","Referência"],
+      sugestoes:[
+        "Aceitar, de vez em quando, uma tarefa fora da própria área de domínio, mesmo que renda menos no curto prazo.",
+        "Praticar traduzir o conhecimento técnico em linguagem simples para quem não é da área.",
+        "Buscar contato regular com outros setores para não perder a visão do todo."],
+      gerenciamento:[
+        "Use-o como referência técnica e formador — instrutor interno, multiplicador de conhecimento.",
+        "Não o desloque constantemente da área de especialização sem necessidade real.",
+        "Reconheça o domínio técnico publicamente; é o que mais motiva esse perfil."],
+      alerta:[
+        "Pode resistir a mudanças que fujam do próprio domínio técnico.",
+        "Risco de isolamento e dificuldade de integração com equipes fora da especialidade."]},
   G: {nome:"Generalista", alt:"Gestor", cor:"var(--c-generalista)", risco:"Superficialidade, dificuldade em aprofundar temas complexos.",
       uso:"Coordenação de turno, atendimento ao público, suporte operacional, integração entre setores.",
-      exemplo:"Policial de radiopatrulha, auxiliar de pelotão, base de apoio."},
+      exemplo:"Policial de radiopatrulha, auxiliar de pelotão, base de apoio.",
+      resumo:"O Generalista é quem resolve o que aparece, sem travar esperando o especialista certo. Circula bem entre frentes diferentes e mantém a engrenagem girando — mas a versatilidade tem custo: raramente vai ao fundo de um problema complexo, e pode se sentir perdido quando a situação exige profundidade técnica real.",
+      palavras:["Versátil","Adaptável","Prático","Resolutivo","Multitarefa"],
+      sugestoes:[
+        "Escolher uma área recorrente da rotina e ir além do básico nela — uma âncora técnica fortalece o perfil.",
+        "Evitar acumular frentes demais ao mesmo tempo; a qualidade cai quando a atenção se espalha.",
+        "Buscar formação complementar nos temas que mais aparecem no dia a dia."],
+      gerenciamento:[
+        "Use-o para coordenação e integração entre setores — ponto de contato entre áreas diferentes.",
+        "Não exija profundidade técnica extrema onde ela não é o forte dele.",
+        "Varie as tarefas atribuídas; rotina fixa e repetitiva reduz o engajamento desse perfil."],
+      alerta:[
+        "Pode entregar solução superficial diante de um problema realmente complexo.",
+        "Risco de dispersão ao assumir frentes demais ao mesmo tempo."]},
   N: {nome:"Nexialista", alt:"Negociador", cor:"var(--c-nexialista)", risco:"Sobrecarga, dispersão de foco, burnout.",
       uso:"Comando de equipe, projetos especiais, operações complexas, articulação intersetorial.",
-      exemplo:"Coordenador de grandes eventos, líder de equipe em ocorrência de múltiplas viaturas."},
+      exemplo:"Coordenador de grandes eventos, líder de equipe em ocorrência de múltiplas viaturas.",
+      resumo:"O Nexialista enxerga a ligação entre coisas que, à primeira vista, não têm nada a ver — e é por isso que vira o elo entre setores, equipes e projetos que precisam conversar entre si. É um perfil raro e valioso, mas que carrega junto o maior risco de sobrecarga: por conseguir lidar com quase tudo, tende a assumir tudo.",
+      palavras:["Articulador","Conector","Estratégico","Multifacetado","Envolvido"],
+      sugestoes:[
+        "Aprender a recusar uma frente nova quando já houver mais de duas em andamento.",
+        "Reservar tempo de descanso real na agenda — o risco de esgotamento é o mais alto entre os três perfis.",
+        "Documentar decisões e combinados por escrito; a quantidade de frentes torna a memória pouco confiável sozinha."],
+      gerenciamento:[
+        "Use-o em projetos que exigem articulação entre equipes ou setores diferentes.",
+        "Fique atento a sinais de sobrecarga e ajude a priorizar quando necessário.",
+        "Dê visibilidade do impacto do trabalho dele no conjunto — ele se motiva por ver o todo, não só a própria tarefa."],
+      alerta:[
+        "Risco real de burnout por acumular frentes demais.",
+        "Pode perder o fio de detalhes operacionais do dia a dia enquanto articula o panorama maior."]},
 };
 
 // 12 operational profiles: temperament weights (0-3), knowledge vector (0-3 each),
@@ -1294,19 +1407,44 @@ const PIPELINE = {
     erros:""},
 };
 
+// ---- Escolha forçada para os checklists do comando ----
+// Mesmo método ipsativo usado na autoavaliação (ver OP_BLOCKS/opWindow acima): em vez de notas
+// independentes (onde dá pra marcar tudo 5 sem diferenciar ninguém), cada rodada mostra um grupo
+// de comportamentos e o avaliador escolhe o que MAIS e o que MENOS representa o policial. Isso
+// obriga a hierarquizar em vez de avaliar cada item isoladamente.
+// window=4: cada item aparece em exatamente 4 rodadas (janela deslizante circular), igual ao
+// perfil operacional da autoavaliação. Quando o item cabe inteiro numa única rodada (ex.: método
+// dos 30 segundos, com só 4 afirmações), faz sentido uma rodada só — repetir o mesmo grupo de novo
+// não geraria informação nova.
+function buildForcedChoiceRounds(items, window){
+  const n = items.length;
+  const w = Math.min(window, n);
+  if(w >= n) return { rounds:[items.map((_,i)=>i)], w:1 };
+  const rounds = [];
+  for(let start=0; start<n; start++){
+    const idxs = [];
+    for(let i=0;i<w;i++) idxs.push((start+i)%n);
+    rounds.push(idxs);
+  }
+  return { rounds, w };
+}
+const OP_FC = buildForcedChoiceRounds(CHECKLIST_OP, 4);
+const POSTURA_FC = buildForcedChoiceRounds(CHECKLIST_POSTURA, 4);
+const LID_FC = buildForcedChoiceRounds(CHECKLIST_LID, 4);
+const M30_FC = buildForcedChoiceRounds(METHOD_30S, 4);
+
 function freshCmdAssess(){
   return {
-    op: CHECKLIST_OP.map(()=>null),
-    opEvidence: CHECKLIST_OP.map(()=>""),
-    opHighlight: {forte:null, atencao:null},
-    postura: CHECKLIST_POSTURA.map(()=>null),
-    posturaEvidence: CHECKLIST_POSTURA.map(()=>""),
-    posturaHighlight: {forte:null, atencao:null},
+    op: OP_FC.rounds.map(()=>({most:null, least:null})),
+    postura: POSTURA_FC.rounds.map(()=>({most:null, least:null})),
     comandaEquipe: null,
-    lid: CHECKLIST_LID.map(()=>null),
-    lidEvidence: CHECKLIST_LID.map(()=>""),
-    lidHighlight: {forte:null, atencao:null},
-    m30: METHOD_30S.map(()=>null),
+    lid: LID_FC.rounds.map(()=>({most:null, least:null})),
+    m30: M30_FC.rounds.map(()=>({most:null, least:null})),
+    // Nível geral (1-5) por checklist: a escolha forçada informa RANKING relativo entre os
+    // itens (ótimo pro radar e pro "ponto forte/atenção"), mas por construção ipsativa sua
+    // média é sempre ~a mesma número não importa quem for avaliado — não serve para medir
+    // nível absoluto. Esta pergunta extra é o que alimenta o eixo do Nine Box.
+    geral: {op:null, postura:null, lid:null, m30:null},
     temperamento: null,
     perfil: null,
     funcaoAdequada: null,
@@ -1314,24 +1452,78 @@ function freshCmdAssess(){
   };
 }
 let cmdAssess = freshCmdAssess();
+const GERAL_LABELS = ["Muito abaixo do esperado","Abaixo do esperado","Dentro do esperado","Acima do esperado","Muito acima do esperado"];
 
 // autoavaliação importada (opcional) do arquivo .json exportado pelo próprio policial
 let importedSelf = null;
 
-function likertAvgNorm(arr){
-  const answered = arr.filter(v => v !== null);
-  if(!answered.length) return null;
-  return (answered.reduce((s,v)=>s+v,0) / answered.length - 1) / 4; // 1..5 -> 0..1
+// Escore ipsativo por item: +2 quando escolhido como "mais representa" na rodada, -1 quando
+// "menos representa" — igual à pontuação de temperamento/conhecimento/eixos operacionais.
+// Cada item aparece em exatamente fc.w rodadas, então o intervalo possível é sempre
+// [-1*fc.w, +2*fc.w], o que permite normalizar para 0..1 com a mesma fórmula em qualquer checklist.
+function fcComplete(fc, answers){
+  return answers.length === fc.rounds.length && fc.rounds.every((_,r) => answers[r] && answers[r].most !== null && answers[r].least !== null);
+}
+function fcRaw(items, fc, answers){
+  const raw = items.map(()=>0);
+  fc.rounds.forEach((idxs, r) => {
+    const a = answers[r];
+    if(!a) return;
+    if(a.most !== null) raw[a.most] += 2;
+    if(a.least !== null) raw[a.least] -= 1;
+  });
+  return raw;
+}
+function fcNorm(items, fc, answers){
+  // per-item score, 0..1
+  return fcRaw(items, fc, answers).map(v => (v + fc.w) / (3*fc.w));
+}
+// NOTE: there is deliberately no "average of fcNorm across all items" helper here.
+// Because each round always distributes exactly +2/-1/0/0 across its items, that average
+// is mathematically ~constant regardless of who's being evaluated (ipsative scoring measures
+// relative ranking between items, not absolute level) — see computeNineBoxAuto/geralNorm
+// below for where the actual Nine Box level signal comes from.
+// Ranking pronto (texto + %) pro checklist inteiro — usado tanto no preview ao vivo
+// quanto no relatório final, pra não duplicar a lógica de ordenação em dois lugares.
+function fcRanked(items, fc, answers, textOf){
+  const norm = fcNorm(items, fc, answers);
+  return items.map((it,i) => ({text:textOf(it), v:norm[i], pct:Math.round(norm[i]*100)}))
+    .sort((a,b) => b.pct - a.pct);
+}
+function renderRankBars(container, ranked, colorVar){
+  container.innerHTML = ranked.map(r => `
+    <div class="temp-row">
+      <div class="temp-name">${r.text}</div>
+      <div class="temp-track"><div class="temp-fill" style="width:${r.pct}%;background:${colorVar};"></div></div>
+      <div class="temp-val">${r.pct}%</div>
+    </div>
+  `).join('');
+}
+// Pequenos helpers de apresentação pro conteúdo extra do relatório do comando (palavras-chave,
+// sugestões, estratégias de gerenciamento, pontos de alerta) — texto de referência ligado ao
+// temperamento/perfil escolhido, não calculado a partir das respostas do avaliador.
+function pillList(arr, colorVar){
+  return `<div style="display:flex;flex-wrap:wrap;gap:6px;margin:6px 0;">${arr.map(w =>
+    `<span style="font-family:'JetBrains Mono',monospace;font-size:11px;padding:3px 9px;border:1px solid ${colorVar};border-radius:20px;color:${colorVar};">${w}</span>`
+  ).join('')}</div>`;
+}
+function bulletList(arr){
+  return `<ul style="margin:6px 0 0;padding-left:18px;color:var(--text);">${arr.map(li => `<li style="margin-bottom:4px;">${li}</li>`).join('')}</ul>`;
 }
 function nbLevel(v){ return v === null ? null : (v < 0.4 ? "Baixo" : v < 0.7 ? "Médio" : "Alto"); }
+function geralNorm(v){ return v === null ? null : (v - 1) / 4; } // 1..5 -> 0..1
 
-// Nine Box é calculado a partir das respostas de concordância — não é mais escolhido manualmente.
+// Nine Box é calculado a partir do nível geral (1-5) informado ao final de cada checklist —
+// NÃO a partir da média das respostas de escolha forçada. Essa média é ipsativa (soma
+// controlada por rodada: sempre +2/-1/0/0), então seu valor médio é praticamente constante
+// não importa quem for avaliado — não carrega sinal de nível absoluto, só de ranking relativo
+// entre os itens. O nível geral é o que de fato varia de policial para policial.
 // Desempenho <- checklist operacional + método dos 30 segundos. Potencial <- postura (+ liderança, se aplicável).
 function computeNineBoxAuto(){
-  const opN = likertAvgNorm(cmdAssess.op);
-  const m30N = likertAvgNorm(cmdAssess.m30);
-  const posturaN = likertAvgNorm(cmdAssess.postura);
-  const lidN = cmdAssess.comandaEquipe ? likertAvgNorm(cmdAssess.lid) : null;
+  const opN = geralNorm(cmdAssess.geral.op);
+  const m30N = geralNorm(cmdAssess.geral.m30);
+  const posturaN = geralNorm(cmdAssess.geral.postura);
+  const lidN = cmdAssess.comandaEquipe ? geralNorm(cmdAssess.geral.lid) : null;
 
   let desempenho = null;
   const dParts = [];
@@ -1359,28 +1551,24 @@ function lowerFirst(s){ return s ? s.charAt(0).toLowerCase() + s.slice(1) : s; }
 function renderCmdForm(){
   cmdAssess = freshCmdAssess();
 
-  const legend = LIKERT_LABELS.map((l,i) => `${i+1} ${l}`).join(' · ');
-
   const el = document.getElementById('screen-cmd-form');
   el.innerHTML = `
     <div class="eyebrow">PRISMA · Avaliação do comando</div>
     <h1>Ficha de <span>avaliação</span></h1>
     <p class="sub">Avaliando <b style="color:var(--text)">${cmdData.avaliadoNome}</b> (${cmdData.avaliadoPosto}). Baseie-se apenas no que você observou em serviço — a regra é: você não avalia a pessoa, avalia o que ela FAZ.</p>
+    <p class="sub">Cada checklist abaixo é respondido em rodadas de escolha forçada: a cada rodada, escolha o comportamento que MAIS e o que MENOS representa o policial entre as opções mostradas — o mesmo método usado na autoavaliação. Isso evita marcar tudo igual e já produz o ranking de pontos fortes e fracos automaticamente, sem precisar escolher à parte.</p>
     <div class="note" style="border-left-color:var(--danger);">Documento de uso interno do avaliador — não deve ser entregue ao avaliado.</div>
 
     <div class="section-title">Checklist operacional (durante a ocorrência)</div>
     <div class="card">
-      <p class="form-hint" style="margin-top:0;">${legend} — notas 1 e 5 pedem um exemplo concreto; ao final, indique o ponto mais forte e o que mais precisa de atenção.</p>
       <div id="cl-op"></div>
       <div class="interp-box hidden" id="interp-op"></div>
-      <div id="op-highlight" class="hidden" style="margin-top:16px;"></div>
     </div>
 
     <div class="section-title">Checklist de postura profissional (rotina e quartel)</div>
     <div class="card">
-      <p class="form-hint" style="margin-top:0;">O comportamento na rotina prevê o comportamento na ocorrência. ${legend}</p>
+      <p class="form-hint" style="margin-top:0;">O comportamento na rotina prevê o comportamento na ocorrência.</p>
       <div id="cl-postura"></div>
-      <div id="postura-highlight" class="hidden" style="margin-top:16px;"></div>
     </div>
 
     <div class="section-title">Liderança de equipe</div>
@@ -1391,15 +1579,13 @@ function renderCmdForm(){
         <button class="opt" data-v="nao">Não</button>
       </div>
       <div id="cl-lid-wrap" class="hidden" style="margin-top:16px;">
-        <p class="form-hint">${legend}</p>
         <div id="cl-lid"></div>
-        <div id="lid-highlight" class="hidden" style="margin-top:16px;"></div>
       </div>
     </div>
 
     <div class="section-title">Método de avaliação em 30 segundos</div>
     <div class="card">
-      <p class="form-hint" style="margin-top:0;">${legend}</p>
+      <p class="form-hint" style="margin-top:0;">Pensando nessa ocorrência específica, escolha o que mais e o que menos representa a atuação dele.</p>
       <div id="m30-wrap"></div>
       <div class="interp-box hidden" id="interp-m30"></div>
     </div>
@@ -1451,116 +1637,138 @@ function renderCmdForm(){
     </div>
   `;
 
-  // Checklists com âncoras comportamentais (op/postura/liderança): nota extrema (1 ou 5) exige
-  // um exemplo concreto, e ao final o avaliador aponta o ponto mais forte e o de maior atenção —
-  // isso quebra o "marquei tudo 5 sem pensar" sem exigir reordenar a lista inteira.
-  function renderChecklistSection(containerId, highlightId, items, valuesArr, evidenceArr, highlightState, onChange){
+  // Rodadas de escolha forçada, compartilhado pelos 4 checklists (op/postura/liderança/30s).
+  // Mesmo padrão de duas etapas por rodada (escolhe "mais" → escolhe "menos" entre os restantes)
+  // usado no teste de autoavaliação. Quando todas as rodadas de um checklist são respondidas,
+  // mostra o ranking final (equivalente ao "ponto forte / ponto de atenção" de antes, mas
+  // automático — o forced-choice já hierarquiza tudo).
+  function renderForcedChoiceSection(containerId, items, fc, answers, textOf, onChange, geralKey){
     const container = document.getElementById(containerId);
-    items.forEach((item, i) => {
-      const row = document.createElement('div');
-      row.className = 'likert-item';
-      row.innerHTML = `
-        <div class="qtext" style="font-size:14px;margin-bottom:4px;">${item.label}</div>
-        <div class="anchor-hint">1 — ${item.lo} &nbsp;·&nbsp; 5 — ${item.hi}</div>
-        <div class="likert" data-idx="${i}">
-          ${[1,2,3,4,5].map(v => `<button data-v="${v}">${v}</button>`).join('')}
-        </div>
-        <div class="evidence-wrap hidden">
-          <input type="text" class="evidence-input" placeholder="Exemplo/evidência concreta para essa nota (obrigatório)">
-        </div>
-      `;
-      const evWrap = row.querySelector('.evidence-wrap');
-      const evInput = row.querySelector('.evidence-input');
-      evInput.value = evidenceArr[i];
-      evInput.addEventListener('input', () => { evidenceArr[i] = evInput.value; });
-      row.querySelectorAll('.likert button').forEach(btn => {
-        btn.onclick = () => {
-          const v = Number(btn.dataset.v);
-          valuesArr[i] = v;
-          evidenceArr[i] = "";
-          evInput.value = "";
-          row.querySelectorAll('.likert button').forEach(b => b.classList.toggle('selected', b === btn));
-          evWrap.classList.toggle('hidden', v !== 1 && v !== 5);
-          onChange();
-          refreshHighlight();
-        };
-      });
-      container.appendChild(row);
-    });
 
-    function refreshHighlight(){
-      const holder = document.getElementById(highlightId);
-      if(valuesArr.some(v => v === null)){
-        holder.classList.add('hidden');
+    function draw(){
+      container.innerHTML = '';
+      const total = fc.rounds.length;
+      const r = answers.findIndex(a => !(a && a.most !== null && a.least !== null));
+
+      if(r === -1){
+        const ranked = fcRanked(items, fc, answers, textOf);
+        const wrap = document.createElement('div');
+        wrap.className = 'temp-bars';
+        renderRankBars(wrap, ranked, 'var(--amber)');
+        container.appendChild(wrap);
+
+        // Nível geral (1-5): a escolha forçada acima só ordena os itens entre si — este é o
+        // único ponto do checklist que informa nível absoluto, e é o que alimenta o Nine Box.
+        const geralWrap = document.createElement('div');
+        geralWrap.style.marginTop = '16px';
+        geralWrap.style.paddingTop = '14px';
+        geralWrap.style.borderTop = '1px solid var(--line)';
+        const geralTitle = document.createElement('div');
+        geralTitle.className = 'qtext';
+        geralTitle.style.fontSize = '14px';
+        geralTitle.style.marginBottom = '8px';
+        geralTitle.textContent = 'No geral, comparado ao esperado para a função, o nível dele aqui foi:';
+        geralWrap.appendChild(geralTitle);
+        const geralBtns = document.createElement('div');
+        geralBtns.className = 'likert';
+        [1,2,3,4,5].forEach(v => {
+          const b = document.createElement('button');
+          b.textContent = v;
+          b.title = GERAL_LABELS[v-1];
+          if(cmdAssess.geral[geralKey] === v) b.classList.add('selected');
+          b.onclick = () => { cmdAssess.geral[geralKey] = v; draw(); onChange(); };
+          geralBtns.appendChild(b);
+        });
+        geralWrap.appendChild(geralBtns);
+        const geralHint = document.createElement('div');
+        geralHint.className = 'anchor-hint';
+        geralHint.textContent = `1 — ${GERAL_LABELS[0]} · 5 — ${GERAL_LABELS[4]}`;
+        geralWrap.appendChild(geralHint);
+        container.appendChild(geralWrap);
+
+        const redo = document.createElement('button');
+        redo.className = 'btn ghost';
+        redo.style.marginTop = '10px';
+        redo.textContent = '← refazer este checklist';
+        redo.onclick = () => { answers.forEach(a => { a.most = null; a.least = null; }); cmdAssess.geral[geralKey] = null; draw(); onChange(); };
+        container.appendChild(redo);
         return;
       }
-      holder.classList.remove('hidden');
-      renderHighlightPicker(holder, items, highlightState, onChange);
+
+      const idxs = fc.rounds[r];
+      const a = answers[r];
+
+      const prog = document.createElement('div');
+      prog.className = 'qnum';
+      prog.style.marginBottom = '6px';
+      prog.textContent = `RODADA ${r+1}/${total}`;
+      container.appendChild(prog);
+
+      const stepTitle = document.createElement('div');
+      stepTitle.className = 'section-title';
+      stepTitle.style.margin = '0 0 10px';
+      stepTitle.textContent = a.most === null ? 'O QUE MAIS REPRESENTA:' : 'AGORA, O QUE MENOS REPRESENTA:';
+      container.appendChild(stepTitle);
+
+      const wrap = document.createElement('div');
+      wrap.className = 'options';
+      const pool = a.most === null ? idxs : idxs.filter(k => k !== a.most);
+      pool.forEach(k => {
+        const b = document.createElement('button');
+        b.className = 'opt';
+        if(a.most !== null && a.least === k) b.classList.add('selected');
+        b.textContent = textOf(items[k]);
+        b.onclick = () => {
+          if(a.most === null){ a.most = k; }
+          else { a.least = k; onChange(); }
+          draw();
+        };
+        wrap.appendChild(b);
+      });
+      container.appendChild(wrap);
+
+      if(a.most !== null){
+        const back = document.createElement('button');
+        back.className = 'btn ghost';
+        back.style.marginTop = '10px';
+        back.textContent = '← trocar o "mais representa"';
+        back.onclick = () => { a.most = null; a.least = null; draw(); };
+        container.appendChild(back);
+      } else if(r > 0){
+        const backRound = document.createElement('button');
+        backRound.className = 'btn ghost';
+        backRound.style.marginTop = '10px';
+        backRound.textContent = '← rodada anterior';
+        backRound.onclick = () => { answers[r-1] = {most:null, least:null}; draw(); onChange(); };
+        container.appendChild(backRound);
+      }
     }
-    refreshHighlight();
+    draw();
   }
 
-  function renderHighlightPicker(container, items, state, onChange){
-    if(state.forte === null){
-      container.innerHTML = `
-        <div class="section-title" style="margin:0 0 8px;">Qual desses é o ponto mais forte?</div>
-        <div class="options" id="hl-forte"></div>
-      `;
-      const wrap = container.querySelector('#hl-forte');
-      items.forEach((item, idx) => {
-        const b = document.createElement('button');
-        b.className = 'opt';
-        b.textContent = item.label;
-        b.onclick = () => { state.forte = idx; renderHighlightPicker(container, items, state, onChange); onChange(); };
-        wrap.appendChild(b);
-      });
-    } else if(state.atencao === null){
-      container.innerHTML = `
-        <div class="section-title" style="margin:0 0 8px;">Qual precisa de mais atenção?</div>
-        <div class="options" id="hl-atencao"></div>
-        <button class="btn ghost" id="hl-back" style="margin-top:8px;">← trocar o ponto forte</button>
-      `;
-      const wrap = container.querySelector('#hl-atencao');
-      items.forEach((item, idx) => {
-        if(idx === state.forte) return;
-        const b = document.createElement('button');
-        b.className = 'opt';
-        b.textContent = item.label;
-        b.onclick = () => { state.atencao = idx; renderHighlightPicker(container, items, state, onChange); onChange(); };
-        wrap.appendChild(b);
-      });
-      container.querySelector('#hl-back').onclick = () => { state.forte = null; renderHighlightPicker(container, items, state, onChange); onChange(); };
-    } else {
-      container.innerHTML = `
-        <div class="interp-box ok">
-          Ponto forte: <b>${items[state.forte].label}</b><br>
-          Ponto de atenção: <b>${items[state.atencao].label}</b>
-        </div>
-        <button class="btn ghost" id="hl-redo" style="margin-top:8px;">← refazer essa escolha</button>
-      `;
-      container.querySelector('#hl-redo').onclick = () => { state.forte = null; state.atencao = null; renderHighlightPicker(container, items, state, onChange); onChange(); };
-    }
-  }
+  const itemStatement = it => it.hi;
+  const plainStatement = it => it;
 
   // checklist: operacional
-  renderChecklistSection('cl-op', 'op-highlight', CHECKLIST_OP, cmdAssess.op, cmdAssess.opEvidence, cmdAssess.opHighlight, () => { updateOpInterp(); refreshNineBoxPreview(); });
+  renderForcedChoiceSection('cl-op', CHECKLIST_OP, OP_FC, cmdAssess.op, itemStatement, () => { updateOpInterp(); refreshNineBoxPreview(); }, 'op');
   function updateOpInterp(){
-    const answered = cmdAssess.op.filter(v => v !== null).length;
     const box = document.getElementById('interp-op');
-    if(answered < CHECKLIST_OP.length){ box.classList.add('hidden'); return; }
+    if(!fcComplete(OP_FC, cmdAssess.op)){ box.classList.add('hidden'); return; }
     box.classList.remove('hidden');
-    const falhas = cmdAssess.op.filter(v => v <= 2).length;
-    if(falhas >= 3){
+    const norm = fcNorm(CHECKLIST_OP, OP_FC, cmdAssess.op);
+    const falhas = norm.filter(v => v < 0.4).length;
+    const warnAt = Math.ceil(CHECKLIST_OP.length/3);
+    if(falhas >= warnAt){
       box.className = 'interp-box warn';
-      box.textContent = `${falhas} item(ns) com discordância — existe um problema comportamental claro a ser trabalhado.`;
+      box.textContent = `${falhas} item(ns) no fundo do ranking — existe um problema comportamental claro a ser trabalhado.`;
     } else {
       box.className = 'interp-box ok';
-      box.textContent = `${falhas} item(ns) com discordância — sem sinal de problema comportamental claro neste checklist.`;
+      box.textContent = `${falhas} item(ns) no fundo do ranking — sem sinal de problema comportamental claro neste checklist.`;
     }
   }
 
   // checklist: postura
-  renderChecklistSection('cl-postura', 'postura-highlight', CHECKLIST_POSTURA, cmdAssess.postura, cmdAssess.posturaEvidence, cmdAssess.posturaHighlight, refreshNineBoxPreview);
+  renderForcedChoiceSection('cl-postura', CHECKLIST_POSTURA, POSTURA_FC, cmdAssess.postura, itemStatement, refreshNineBoxPreview, 'postura');
 
   // comanda equipe toggle
   document.querySelectorAll('#comandaEquipeOpts .opt').forEach(btn => {
@@ -1571,42 +1779,22 @@ function renderCmdForm(){
       refreshNineBoxPreview();
     };
   });
-  renderChecklistSection('cl-lid', 'lid-highlight', CHECKLIST_LID, cmdAssess.lid, cmdAssess.lidEvidence, cmdAssess.lidHighlight, refreshNineBoxPreview);
+  renderForcedChoiceSection('cl-lid', CHECKLIST_LID, LID_FC, cmdAssess.lid, itemStatement, refreshNineBoxPreview, 'lid');
 
-  // método 30 segundos (sem âncoras/destaque — é um recall pontual de uma ocorrência, não um inventário de competências)
-  function renderSimpleLikertList(container, items, arr, onChange){
-    items.forEach((label, i) => {
-      const row = document.createElement('div');
-      row.className = 'likert-item';
-      row.innerHTML = `
-        <div class="qtext" style="font-size:14px;margin-bottom:8px;">${label}</div>
-        <div class="likert" data-idx="${i}">
-          ${[1,2,3,4,5].map(v => `<button data-v="${v}">${v}</button>`).join('')}
-        </div>
-      `;
-      row.querySelectorAll('.likert button').forEach(btn => {
-        btn.onclick = () => {
-          arr[i] = Number(btn.dataset.v);
-          row.querySelectorAll('.likert button').forEach(b => b.classList.toggle('selected', b === btn));
-          onChange();
-        };
-      });
-      container.appendChild(row);
-    });
-  }
-  renderSimpleLikertList(document.getElementById('m30-wrap'), METHOD_30S, cmdAssess.m30, () => { updateM30Interp(); refreshNineBoxPreview(); });
+  // método 30 segundos — agora também escolha forçada, mas numa rodada só (recall de UMA ocorrência, não um inventário de competências)
+  renderForcedChoiceSection('m30-wrap', METHOD_30S, M30_FC, cmdAssess.m30, plainStatement, () => { updateM30Interp(); refreshNineBoxPreview(); }, 'm30');
   function updateM30Interp(){
-    const answered = cmdAssess.m30.filter(v => v !== null).length;
     const box = document.getElementById('interp-m30');
-    if(answered < METHOD_30S.length){ box.classList.add('hidden'); return; }
+    if(!fcComplete(M30_FC, cmdAssess.m30)){ box.classList.add('hidden'); return; }
     box.classList.remove('hidden');
-    const positivos = cmdAssess.m30.filter(v => v >= 4).length;
-    if(positivos >= 3){
+    const norm = fcNorm(METHOD_30S, M30_FC, cmdAssess.m30);
+    const positivos = norm.filter(v => v >= 0.6).length;
+    if(positivos >= Math.ceil(METHOD_30S.length/2)){
       box.className = 'interp-box ok';
-      box.textContent = `${positivos}/4 respostas concordantes — bom desempenho.`;
+      box.textContent = `${positivos}/${METHOD_30S.length} pontos fortes no método dos 30 segundos — bom desempenho.`;
     } else {
       box.className = 'interp-box warn';
-      box.textContent = `${positivos}/4 respostas concordantes — precisa de orientação.`;
+      box.textContent = `${positivos}/${METHOD_30S.length} pontos fortes no método dos 30 segundos — precisa de orientação.`;
     }
   }
 
@@ -1710,11 +1898,52 @@ function renderNineBoxGrid(container, selected, onSelect){
 // Monta o texto de "como trabalhar esse perfil", combinando temperamento, perfil de
 // conhecimento, posição na Nine Box e próxima passagem do pipeline — e, se disponível,
 // cruzando com a autoavaliação importada do próprio policial.
+// Acha, entre os checklists já respondidos, o item que ficou mais no fundo do ranking de
+// escolha forçada — é o sinal mais concreto que temos de "o que esse policial específico
+// precisa trabalhar", em vez de sempre puxar o primeiro item genérico da lista do perfil.
+function findWeakestChecklistItem(){
+  const candidates = [];
+  if(fcComplete(OP_FC, cmdAssess.op)){
+    fcNorm(CHECKLIST_OP, OP_FC, cmdAssess.op).forEach((v,i) => candidates.push({v, label:CHECKLIST_OP[i].label, origem:"checklist operacional"}));
+  }
+  if(fcComplete(POSTURA_FC, cmdAssess.postura)){
+    fcNorm(CHECKLIST_POSTURA, POSTURA_FC, cmdAssess.postura).forEach((v,i) => candidates.push({v, label:CHECKLIST_POSTURA[i].label, origem:"checklist de postura"}));
+  }
+  if(cmdAssess.comandaEquipe && fcComplete(LID_FC, cmdAssess.lid)){
+    fcNorm(CHECKLIST_LID, LID_FC, cmdAssess.lid).forEach((v,i) => candidates.push({v, label:CHECKLIST_LID[i].label, origem:"checklist de liderança"}));
+  }
+  if(!candidates.length) return null;
+  candidates.sort((a,b) => a.v - b.v);
+  return candidates[0];
+}
+// Índice determinístico a partir de um texto — mesmo item fraco sempre aponta pro mesmo
+// alerta/sugestão dentro do perfil, mas itens fracos diferentes apontam para entradas
+// diferentes da lista, variando o texto mesmo dentro do mesmo temperamento/perfil.
+function hashIndex(str, mod){
+  let h = 0;
+  for(let i=0;i<str.length;i++) h = (h*31 + str.charCodeAt(i)) % 997;
+  return mod > 0 ? ((h % mod) + mod) % mod : 0;
+}
+
 function buildAutoSuggestion(t, c, nb, pStep){
   const parts = [];
-  parts.push(`Pelo temperamento <b>${t.nome}</b> observado, tende a render mais em ${lowerFirst(t.rende)} Já ${lowerFirst(t.sofre)} tende a desgastá-lo mais — evite manter esse perfil preso demais nessas situações.`);
-  parts.push(`Como perfil <b>${c.nome}</b> (${c.alt}), o melhor uso pelo comando é: ${lowerFirst(c.uso)} Atenção ao risco de ${lowerFirst(c.risco)}`);
-  parts.push(`Na Nine Box, está posicionado como <b>${nb.nome}</b>: ${nb.leitura} <b>Ação recomendada:</b> ${nb.acao}`);
+  parts.push(t.resumo);
+
+  const weakest = findWeakestChecklistItem();
+  if(weakest){
+    const ti = hashIndex(weakest.label, t.alerta.length);
+    const si = hashIndex(weakest.label + "·dev", t.sugestoes.length);
+    parts.push(`<b>Ponto de atenção prioritário:</b> nos checklists, o item que ficou mais no fundo do ranking foi <i>"${weakest.label}"</i> (${weakest.origem}). Isso conversa com um risco típico do temperamento ${t.nome}: ${t.alerta[ti]}`);
+    parts.push(`<b>Sugestão de desenvolvimento:</b> ${t.sugestoes[si]}`);
+  } else {
+    parts.push(`<b>Ponto de atenção prioritário (temperamento):</b> ${t.alerta[0]}`);
+    parts.push(`<b>Sugestão de desenvolvimento (temperamento):</b> ${t.sugestoes[0]}`);
+  }
+
+  parts.push(c.resumo);
+  const ci = weakest ? hashIndex(weakest.label + "·conhec", c.alerta.length) : 0;
+  parts.push(`<b>Ponto de atenção prioritário (perfil de conhecimento):</b> ${c.alerta[ci]}`);
+  parts.push(`<b>Na Nine Box</b>, está posicionado como <b>${nb.nome}</b>: ${nb.leitura} <b>Ação recomendada:</b> ${nb.acao}`);
   if(pStep && pStep.para){
     parts.push(`Rumo à próxima passagem (${cmdData.avaliadoPosto} → ${pStep.para}), o foco de desenvolvimento é: ${lowerFirst(pStep.mudanca)} Erros comuns a evitar nessa transição: ${lowerFirst(pStep.erros)}`);
   } else if(pStep){
@@ -1744,26 +1973,19 @@ function buildAutoSuggestion(t, c, nb, pStep){
   return parts;
 }
 
-// Notas extremas (1 ou 5) exigem uma evidência de uma linha — sem isso o relatório não é gerado.
-function missingEvidence(valuesArr, evidenceArr){
-  return valuesArr.some((v,i) => (v === 1 || v === 5) && !evidenceArr[i].trim());
-}
-
 function generateCmdReport(){
   const msg = document.getElementById('cmdFormMsg');
   const { perf, pot } = computeNineBoxAuto();
   const missing = [];
-  if(cmdAssess.op.some(v => v === null)) missing.push('o checklist operacional');
-  if(missingEvidence(cmdAssess.op, cmdAssess.opEvidence)) missing.push('a evidência das notas extremas no checklist operacional');
-  if(cmdAssess.op.every(v => v !== null) && (cmdAssess.opHighlight.forte === null || cmdAssess.opHighlight.atencao === null)) missing.push('o ponto forte e o ponto de atenção do checklist operacional');
-  if(cmdAssess.postura.some(v => v === null)) missing.push('o checklist de postura profissional');
-  if(missingEvidence(cmdAssess.postura, cmdAssess.posturaEvidence)) missing.push('a evidência das notas extremas no checklist de postura');
-  if(cmdAssess.postura.every(v => v !== null) && (cmdAssess.posturaHighlight.forte === null || cmdAssess.posturaHighlight.atencao === null)) missing.push('o ponto forte e o ponto de atenção do checklist de postura');
+  if(!fcComplete(OP_FC, cmdAssess.op)) missing.push('o checklist operacional');
+  if(cmdAssess.geral.op === null) missing.push('o nível geral do checklist operacional');
+  if(!fcComplete(POSTURA_FC, cmdAssess.postura)) missing.push('o checklist de postura profissional');
+  if(cmdAssess.geral.postura === null) missing.push('o nível geral do checklist de postura');
   if(cmdAssess.comandaEquipe === null) missing.push('se o policial comanda equipe');
-  if(cmdAssess.comandaEquipe && cmdAssess.lid.some(v => v === null)) missing.push('o checklist de liderança');
-  if(cmdAssess.comandaEquipe && missingEvidence(cmdAssess.lid, cmdAssess.lidEvidence)) missing.push('a evidência das notas extremas no checklist de liderança');
-  if(cmdAssess.comandaEquipe && cmdAssess.lid.every(v => v !== null) && (cmdAssess.lidHighlight.forte === null || cmdAssess.lidHighlight.atencao === null)) missing.push('o ponto forte e o ponto de atenção do checklist de liderança');
-  if(cmdAssess.m30.some(v => v === null)) missing.push('o método dos 30 segundos');
+  if(cmdAssess.comandaEquipe && !fcComplete(LID_FC, cmdAssess.lid)) missing.push('o checklist de liderança');
+  if(cmdAssess.comandaEquipe && cmdAssess.geral.lid === null) missing.push('o nível geral do checklist de liderança');
+  if(!fcComplete(M30_FC, cmdAssess.m30)) missing.push('o método dos 30 segundos');
+  if(cmdAssess.geral.m30 === null) missing.push('o nível geral do método dos 30 segundos');
   if(!cmdAssess.temperamento) missing.push('o temperamento observado');
   if(!cmdAssess.perfil) missing.push('o perfil predominante');
   if(!perf || !pot) missing.push('dados suficientes para calcular a Nine Box');
@@ -1786,25 +2008,15 @@ function showCmdResult(){
   const { perf, pot } = computeNineBoxAuto();
   const nb = NINE_BOX[`${pot}|${perf}`];
   const pStep = PIPELINE[cmdData.avaliadoPosto];
-  const falhasOp = cmdAssess.op.filter(v=>v<=2).length;
-  const positivosM30 = cmdAssess.m30.filter(v=>v>=4).length;
 
-  const likertRow = (label, v) =>
-    `<div class="check-result-row"><span>${label}</span><span class="mark ${v<=2?'no':v>=4?'yes':'neu'}">${LIKERT_LABELS[v-1]}</span></div>`;
-  const likertRowEv = (label, v, evidence) => `
-    <div class="check-result-block">
-      <div class="check-result-row"><span>${label}</span><span class="mark ${v<=2?'no':v>=4?'yes':'neu'}">${LIKERT_LABELS[v-1]}</span></div>
-      ${evidence ? `<div class="evidence-note">"${evidence}"</div>` : ''}
-    </div>`;
-  const highlightNote = (items, state) => `
-    <div class="interp-box ok" style="margin-top:10px;">
-      Ponto forte: <b>${items[state.forte].label}</b><br>
-      Ponto de atenção: <b>${items[state.atencao].label}</b>
-    </div>`;
-  const opRows = CHECKLIST_OP.map((item,i) => likertRowEv(item.label, cmdAssess.op[i], cmdAssess.opEvidence[i])).join('');
-  const posturaRows = CHECKLIST_POSTURA.map((item,i) => likertRowEv(item.label, cmdAssess.postura[i], cmdAssess.posturaEvidence[i])).join('');
-  const lidRows = cmdAssess.comandaEquipe ? CHECKLIST_LID.map((item,i) => likertRowEv(item.label, cmdAssess.lid[i], cmdAssess.lidEvidence[i])).join('') : '';
-  const m30Rows = METHOD_30S.map((q,i) => likertRow(q, cmdAssess.m30[i])).join('');
+  const opRanked = fcRanked(CHECKLIST_OP, OP_FC, cmdAssess.op, it => it.label);
+  const posturaRanked = fcRanked(CHECKLIST_POSTURA, POSTURA_FC, cmdAssess.postura, it => it.label);
+  const lidRanked = cmdAssess.comandaEquipe ? fcRanked(CHECKLIST_LID, LID_FC, cmdAssess.lid, it => it.label) : [];
+  const m30Ranked = fcRanked(METHOD_30S, M30_FC, cmdAssess.m30, it => it);
+
+  const falhasOp = opRanked.filter(r => r.pct < 40).length;
+  const warnAtOp = Math.ceil(CHECKLIST_OP.length/3);
+  const positivosM30 = m30Ranked.filter(r => r.pct >= 60).length;
 
   const suggestionParts = buildAutoSuggestion(t, c, nb, pStep);
 
@@ -1823,29 +2035,34 @@ function showCmdResult(){
 
     <div class="section-title">Checklist operacional (durante a ocorrência)</div>
     <div class="card">
-      <div class="check-result-list">${opRows}</div>
-      <div class="interp-box ${falhasOp>=3?'warn':'ok'}">${falhasOp} item(ns) com discordância — ${falhasOp>=3?'existe um problema comportamental claro a ser trabalhado.':'sem sinal de problema comportamental claro neste checklist.'}</div>
-      ${highlightNote(CHECKLIST_OP, cmdAssess.opHighlight)}
+      <div class="chart-box"><canvas id="opFcChart"></canvas></div>
+      <div class="temp-bars" id="opFcBars"></div>
+      <div class="interp-box ${falhasOp>=warnAtOp?'warn':'ok'}" style="margin-top:12px;">${falhasOp} item(ns) no fundo do ranking — ${falhasOp>=warnAtOp?'existe um problema comportamental claro a ser trabalhado.':'sem sinal de problema comportamental claro neste checklist.'}</div>
+      <div class="desc-block" style="margin-top:8px;"><b>Nível geral informado:</b> ${cmdAssess.geral.op}/5 — ${GERAL_LABELS[cmdAssess.geral.op-1]}</div>
     </div>
 
     <div class="section-title">Checklist de postura profissional (rotina e quartel)</div>
     <div class="card">
-      <div class="check-result-list">${posturaRows}</div>
-      ${highlightNote(CHECKLIST_POSTURA, cmdAssess.posturaHighlight)}
+      <div class="chart-box"><canvas id="posturaFcChart"></canvas></div>
+      <div class="temp-bars" id="posturaFcBars"></div>
+      <div class="desc-block" style="margin-top:8px;"><b>Nível geral informado:</b> ${cmdAssess.geral.postura}/5 — ${GERAL_LABELS[cmdAssess.geral.postura-1]}</div>
     </div>
 
     ${cmdAssess.comandaEquipe ? `
     <div class="section-title">Checklist de liderança</div>
     <div class="card">
-      <div class="check-result-list">${lidRows}</div>
-      ${highlightNote(CHECKLIST_LID, cmdAssess.lidHighlight)}
+      <div class="chart-box"><canvas id="lidFcChart"></canvas></div>
+      <div class="temp-bars" id="lidFcBars"></div>
+      <div class="desc-block" style="margin-top:8px;"><b>Nível geral informado:</b> ${cmdAssess.geral.lid}/5 — ${GERAL_LABELS[cmdAssess.geral.lid-1]}</div>
     </div>` : ''}
 
     <div class="section-title">Método de avaliação em 30 segundos</div>
     <div class="card">
-      <div class="check-result-list">${m30Rows}</div>
-      <div class="interp-box ${positivosM30>=3?'ok':'warn'}">${positivosM30}/4 respostas concordantes — ${positivosM30>=3?'bom desempenho.':'precisa de orientação.'}</div>
+      <div class="temp-bars" id="m30FcBars"></div>
+      <div class="interp-box ${positivosM30>=Math.ceil(METHOD_30S.length/2)?'ok':'warn'}" style="margin-top:12px;">${positivosM30}/${METHOD_30S.length} pontos fortes — ${positivosM30>=Math.ceil(METHOD_30S.length/2)?'bom desempenho.':'precisa de orientação.'}</div>
+      <div class="desc-block" style="margin-top:8px;"><b>Nível geral informado:</b> ${cmdAssess.geral.m30}/5 — ${GERAL_LABELS[cmdAssess.geral.m30-1]}</div>
     </div>
+
 
     <div class="section-title">Temperamento observado</div>
     <div class="card">
@@ -1853,6 +2070,33 @@ function showCmdResult(){
       <div class="desc-block"><b>Como é:</b> ${t.como}</div>
       <div class="desc-block"><b>Onde rende mais:</b> ${t.rende}</div>
       <div class="desc-block"><b>Onde mais sofre:</b> ${t.sofre}</div>
+      <div class="desc-block" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line);">
+        <b>Características em palavras</b>
+        ${pillList(t.palavras, t.cor)}
+      </div>
+    </div>
+
+    <div class="section-title">Ambiente de trabalho ideal</div>
+    <div class="card">
+      <div class="chart-box" style="height:180px;"><canvas id="envChart"></canvas></div>
+      <div class="desc-block"><b>Ambiente preferido:</b> ${t.ambiente.preferido.join(' · ')}</div>
+      <div class="desc-block"><b>Sob pressão:</b> ${t.ambiente.pressao}</div>
+    </div>
+
+    <div class="section-title">Sugestões de desenvolvimento pessoal</div>
+    <div class="card">
+      ${bulletList(t.sugestoes)}
+    </div>
+
+    <div class="section-title">Estratégias de gerenciamento eficazes</div>
+    <div class="card">
+      <div class="desc-block">Como o comando pode extrair o melhor de <b>${cmdData.avaliadoNome}</b>:</div>
+      ${bulletList(t.gerenciamento)}
+    </div>
+
+    <div class="section-title">Pontos de alerta</div>
+    <div class="card">
+      ${bulletList(t.alerta)}
     </div>
 
     <div class="section-title">Perfil predominante</div>
@@ -1860,6 +2104,13 @@ function showCmdResult(){
       <div class="desc-block"><b>${cmdAssess.perfil} — ${c.nome}</b> <span style="color:var(--faint)">(${c.alt})</span></div>
       <div class="desc-block"><b>Melhor uso pelo comandante:</b> ${c.uso}</div>
       <div class="desc-block"><b>Risco principal:</b> ${c.risco}</div>
+      <div class="desc-block" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line);">
+        <b>Características em palavras</b>
+        ${pillList(c.palavras, c.cor)}
+      </div>
+      <div class="desc-block" style="margin-top:10px;"><b>Sugestões de desenvolvimento</b>${bulletList(c.sugestoes)}</div>
+      <div class="desc-block" style="margin-top:10px;"><b>Estratégias de gerenciamento</b>${bulletList(c.gerenciamento)}</div>
+      <div class="desc-block" style="margin-top:10px;"><b>Pontos de alerta</b>${bulletList(c.alerta)}</div>
     </div>
 
     <div class="section-title">Nine Box (calculado automaticamente)</div>
@@ -1915,6 +2166,66 @@ function showCmdResult(){
   `;
 
   renderNineBoxGrid(document.getElementById('nbResultHolder'), {pot, perf}, null);
+
+  // ranking bars (mesmo padrão da autoavaliação)
+  renderRankBars(document.getElementById('opFcBars'), opRanked, 'var(--amber)');
+  renderRankBars(document.getElementById('posturaFcBars'), posturaRanked, 'var(--amber)');
+  if(cmdAssess.comandaEquipe) renderRankBars(document.getElementById('lidFcBars'), lidRanked, 'var(--amber)');
+  renderRankBars(document.getElementById('m30FcBars'), m30Ranked, 'var(--amber)');
+
+  // radares — mesma técnica do gráfico de eixos operacionais da autoavaliação: um ponto por
+  // item do checklist, escala 0-10, cor lida das variáveis CSS pra funcionar também na impressão.
+  const fcColor = cssVar('--amber');
+  function drawFcRadar(canvasId, items, fc, answers, labelSize){
+    const ctx = document.getElementById(canvasId).getContext('2d');
+    return new Chart(ctx, {
+      type:'radar',
+      data:{
+        labels: items.map(it => typeof it === 'string' ? it : it.label),
+        datasets:[{
+          data: fcNorm(items, fc, answers).map(v => Math.round(v*10*10)/10),
+          backgroundColor: fcColor+'33', borderColor: fcColor, borderWidth:2,
+          pointBackgroundColor: fcColor, pointRadius:3
+        }]
+      },
+      options: chartScales(labelSize)
+    });
+  }
+  if(opFcChartInstance) opFcChartInstance.destroy();
+  opFcChartInstance = drawFcRadar('opFcChart', CHECKLIST_OP, OP_FC, cmdAssess.op, 8.5);
+  if(posturaFcChartInstance) posturaFcChartInstance.destroy();
+  posturaFcChartInstance = drawFcRadar('posturaFcChart', CHECKLIST_POSTURA, POSTURA_FC, cmdAssess.postura, 8.5);
+  if(cmdAssess.comandaEquipe){
+    if(lidFcChartInstance) lidFcChartInstance.destroy();
+    lidFcChartInstance = drawFcRadar('lidFcChart', CHECKLIST_LID, LID_FC, cmdAssess.lid, 8);
+  } else if(lidFcChartInstance){
+    lidFcChartInstance.destroy();
+    lidFcChartInstance = null;
+  }
+
+  // gráfico de ambiente ideal: valores fixos de referência por temperamento (não vêm das
+  // respostas do avaliador — são conteúdo descritivo, como o resto desta seção).
+  if(envChartInstance) envChartInstance.destroy();
+  const envCtx = document.getElementById('envChart').getContext('2d');
+  const envLabels = Object.keys(t.envChart);
+  envChartInstance = new Chart(envCtx, {
+    type:'bar',
+    data:{
+      labels: envLabels,
+      datasets:[{
+        data: envLabels.map(k => t.envChart[k]),
+        backgroundColor: fcColor+'66', borderColor: fcColor, borderWidth:2, borderRadius:3
+      }]
+    },
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:{enabled:false}},
+      scales:{
+        x:{min:0, max:10, ticks:{display:false}, grid:{color:cssVar('--chart-grid')}},
+        y:{ticks:{color:cssVar('--chart-label'), font:{family:"'JetBrains Mono', monospace", size:11}}, grid:{display:false}}
+      }
+    }
+  });
 
   showScreen('screen-cmd-result');
 }
