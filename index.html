@@ -219,6 +219,32 @@
   .axis-legend span{display:block;}
   @media(max-width:480px){ .axis-legend{grid-template-columns:1fr;} }
 
+  /* bipolar axis bars (AutoavPlus — eixos derivados A/C/R/F) */
+  .bipolar{margin-bottom:16px;}
+  .bipolar:last-child{margin-bottom:0;}
+  .bipolar-labels{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;
+    font-size:11px;color:var(--muted);margin-bottom:6px;}
+  .bipolar-labels b{color:var(--text);}
+  .bipolar-track{position:relative;height:8px;background:var(--panel2);border:1px solid var(--line);
+    border-radius:2px;margin:0 4px;}
+  .bipolar-mid{position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--faint);}
+  .bipolar-fill{position:absolute;top:-2px;bottom:-2px;width:3px;background:var(--amber);border-radius:2px;
+    box-shadow:0 0 6px 1px rgba(169,136,79,.5);}
+
+  /* index cards (Spread, Suporte Estrutural, Conflito, Ponderação, Perspectiva...) */
+  .idx-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px;}
+  .idx-card{background:var(--panel2);border:1px solid var(--line);border-radius:2px;padding:14px 16px;}
+  .idx-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--faint);margin-bottom:6px;}
+  .idx-value{font-family:'Oswald',sans-serif;font-size:16px;font-weight:600;margin-bottom:4px;color:var(--text);}
+  .idx-desc{font-size:12.5px;line-height:1.5;color:var(--muted);}
+  @media(max-width:520px){ .idx-grid{grid-template-columns:1fr;} }
+
+  /* AutoavPlus quick likert screen (Ponderação / Perspectiva) */
+  .plus-likert-item{margin-bottom:20px;}
+  .plus-likert-item:last-child{margin-bottom:0;}
+  .plus-likert-text{font-size:14px;line-height:1.45;margin-bottom:10px;color:var(--text);}
+
   .note{border-left:2px solid var(--amber-dim);padding:10px 14px;background:rgba(169,136,79,0.07);
     font-size:13px;line-height:1.55;color:var(--muted);border-radius:0 2px 2px 0;margin-top:22px;}
 
@@ -250,6 +276,8 @@
     body{background:#fff !important;}
     .wrap{max-width:100%;padding:0 6mm;}
     #screen-menu, #screen-self-data, #screen-intro, #screen-quiz, #screen-cmd-data, #screen-cmd-form,
+    #screen-plus-data, #screen-plus-intro, #screen-plus-quiz, #screen-plus-likert,
+    #screen-cmdplus-data, #screen-cmdplus-intro, #screen-cmdplus-quiz, #screen-cmdplus-form,
     .navrow, footer, .no-print{display:none !important;}
     .card, .rec-card{break-inside:avoid;box-shadow:none;border-color:var(--line);}
     .section-title{break-after:avoid;}
@@ -295,9 +323,21 @@
         <div class="mc-desc">O comandante avalia um policial sob seu comando: checklist comportamental observável, método dos 30 segundos, temperamento e perfil observados, Nine Box (desempenho × potencial) e próxima passagem no Pipeline de Liderança.</div>
         <div class="mc-arrow">Começar avaliação →</div>
       </button>
+
+      <button class="menu-card" onclick="choosePlus()">
+        <div class="mc-title"><b>03</b>Autoavaliação PLUS</div>
+        <div class="mc-desc">Versão estendida da autoavaliação: mapeia quatro eixos de comportamento estrutural (iniciativa, comunicação, ritmo de decisão e estruturação), como esses eixos se combinam entre si, o quanto seu perfil natural muda sob pressão do ambiente, orientações gerais de desenvolvimento — além de perfil de conhecimento e preferência operacional, como na autoavaliação original. Cerca de 45-50 rodadas — mais longo e mais detalhado que o módulo 01.</div>
+        <div class="mc-arrow">Começar autoavaliação PLUS →</div>
+      </button>
+
+      <button class="menu-card" onclick="chooseCmdPlus()">
+        <div class="mc-title"><b>04</b>Avaliação do Comando PLUS</div>
+        <div class="mc-desc">Versão da avaliação do comando nativa nos mesmos quatro eixos estruturais (A·C·R·F) da Autoavaliação PLUS — o comandante observa e responde, em vez de escolher um temperamento manualmente. Cruza direto com o .json da Autoavaliação PLUS (sem aproximação), mantém os checklists comportamentais e a Nine Box, e gera orientação específica de como liderar esse policial.</div>
+        <div class="mc-arrow">Começar avaliação PLUS →</div>
+      </button>
     </div>
 
-    <div class="note">Nenhuma das duas frentes substitui o julgamento do comando. São ferramentas de apoio à decisão — não instrumentos oficiais de avaliação de desempenho da corporação.</div>
+    <div class="note">Nenhuma das frentes substitui o julgamento do comando. São ferramentas de apoio à decisão — não instrumentos oficiais de avaliação de desempenho da corporação.</div>
   </div>
 
   <!-- SELF DATA -->
@@ -399,6 +439,152 @@
   <!-- COMMAND EVAL: RESULT -->
   <div id="screen-cmd-result" class="hidden"></div>
 
+  <!-- AUTOAVPLUS: DATA -->
+  <div id="screen-plus-data" class="hidden">
+    <div class="eyebrow">PRISMA · Autoavaliação PLUS</div>
+    <h1>Seus <span>dados</span></h1>
+    <p class="sub">Essas informações aparecem no cabeçalho do relatório final gerado em PDF.</p>
+    <div class="card">
+      <div class="field"><label>Nome completo</label><input type="text" id="plusNome" placeholder="Nome completo"></div>
+      <div class="field-row">
+        <div class="field"><label>Posto/Graduação</label><select id="plusPosto"></select></div>
+        <div class="field"><label>RE</label><input type="text" id="plusRE" placeholder="Ex.: 000.000-0"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>OPM/Unidade</label><input type="text" id="plusOPM" placeholder="Ex.: 46°BPM/M"></div>
+        <div class="field"><label>Data</label><input type="text" id="plusData_" placeholder="dd/mm/aaaa"></div>
+      </div>
+    </div>
+    <div class="navrow">
+      <button class="btn" onclick="goMenu()">← Menu</button>
+      <button class="btn primary" onclick="submitPlusData()">Continuar →</button>
+    </div>
+  </div>
+
+  <!-- AUTOAVPLUS: INTRO -->
+  <div id="screen-plus-intro" class="hidden">
+    <div class="eyebrow">PRISMA · Autoavaliação PLUS</div>
+    <h1>Perfil estrutural<br><span>4 eixos &amp; preferência operacional</span></h1>
+    <p class="sub">Esta versão estendida tem seis partes, todas de escolha forçada ou resposta rápida:</p>
+    <div class="card" style="margin-top:18px;">
+      <div class="desc-block"><b>Parte 1 — Perfil estrutural (16 rodadas):</b> mapeia quatro eixos de comportamento — iniciativa/análise, forma de se expressar, ritmo de decisão e relação com estrutura/regras. É o seu jeito mais natural, instintivo.</div>
+      <div class="desc-block"><b>Parte 2 — Percepção no ambiente (10 rodadas):</b> os mesmos quatro eixos, mas pensando em como você se comporta quando o ambiente de trabalho exige adaptação. A diferença entre as partes 1 e 2 mostra o quanto você precisa "se esticar" no dia a dia.</div>
+      <div class="desc-block"><b>Parte 3 — Ponderação e perspectiva (7 perguntas rápidas):</b> como você costuma decidir (razão × emoção) e como está enxergando o momento atual.</div>
+      <div class="desc-block"><b>Parte 4 — Perfil de conhecimento (8 rodadas):</b> a mesma frente da autoavaliação original — Especialista, Generalista ou Nexialista.</div>
+      <div class="desc-block"><b>Parte 5 — Preferência operacional (8 rodadas):</b> os oito eixos operacionais, cruzados com os 12 perfis GU — igual à autoavaliação original.</div>
+    </div>
+    <p class="sub" style="margin-top:16px;">Responda rápido, no impulso — sem consultar ninguém e sem tentar "acertar" uma resposta ideal. Isso não é um teste com gabarito certo ou errado.</p>
+    <div class="card">
+      <button class="btn primary" onclick="startPlusTest()">Começar →</button>
+    </div>
+  </div>
+
+  <!-- AUTOAVPLUS: QUESTIONS (ipsative — estrutural / percepção / conhecimento / operacional) -->
+  <div id="screen-plus-quiz" class="hidden">
+    <div class="progress-track"><div class="progress-fill" id="progressFillPlus"></div></div>
+    <div class="card">
+      <div class="qnum" id="qCounterPlus">PERGUNTA 1/42</div>
+      <div class="qtext" id="qTextPlus"></div>
+      <div id="qBodyPlus"></div>
+    </div>
+    <div class="navrow">
+      <button class="btn" id="btnBackPlus" onclick="goPlusBack()">← Voltar</button>
+      <button class="btn primary" id="btnNextPlus" onclick="goPlusNext()" disabled>Próxima →</button>
+    </div>
+  </div>
+
+  <!-- AUTOAVPLUS: PONDERAÇÃO / PERSPECTIVA (likert rápido) -->
+  <div id="screen-plus-likert" class="hidden">
+    <div class="eyebrow">PRISMA · Autoavaliação PLUS · Parte 3/5</div>
+    <h1>Ponderação <span>&amp; perspectiva</span></h1>
+    <p class="sub">Sete perguntas rápidas de concordância — sem escolha forçada nesta parte.</p>
+    <div class="card" id="plusLikertBody"></div>
+    <div class="navrow">
+      <button class="btn" id="btnBackPlusLikert" onclick="goPlusLikertBack()">← Voltar</button>
+      <button class="btn primary" onclick="submitPlusLikert()">Continuar →</button>
+    </div>
+  </div>
+
+  <!-- AUTOAVPLUS: RESULT -->
+  <div id="screen-plus-result" class="hidden"></div>
+
+  <!-- COMANDO PLUS: DATA -->
+  <div id="screen-cmdplus-data" class="hidden">
+    <div class="eyebrow">PRISMA · Avaliação do Comando PLUS</div>
+    <h1>Identificação</h1>
+    <p class="sub">Dados do avaliador e do policial avaliado. Aparecem no cabeçalho do relatório final.</p>
+
+    <div class="section-title">Avaliador</div>
+    <div class="card">
+      <div class="field-row">
+        <div class="field"><label>Nome</label><input type="text" id="cmdPlusAvaliadorNome" placeholder="Nome do avaliador"></div>
+        <div class="field"><label>Posto/Graduação</label><input type="text" id="cmdPlusAvaliadorPosto" placeholder="Ex.: 3° Sgt PM"></div>
+      </div>
+      <div class="field"><label>RE</label><input type="text" id="cmdPlusAvaliadorRE" placeholder="Ex.: 000.000-0"></div>
+    </div>
+
+    <div class="section-title">Avaliado</div>
+    <div class="card">
+      <div class="field"><label>Nome</label><input type="text" id="cmdPlusAvaliadoNome" placeholder="Nome do policial avaliado"></div>
+      <div class="field-row">
+        <div class="field"><label>Posto/Graduação atual</label><select id="cmdPlusAvaliadoPosto"></select></div>
+        <div class="field"><label>RE</label><input type="text" id="cmdPlusAvaliadoRE" placeholder="Ex.: 000.000-0"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Equipe/Viatura</label><input type="text" id="cmdPlusEquipe" placeholder="Ex.: ROCAM 12"></div>
+        <div class="field"><label>Data</label><input type="text" id="cmdPlusDataCampo" placeholder="dd/mm/aaaa"></div>
+      </div>
+    </div>
+
+    <div class="section-title">Autoavaliação PLUS do policial (opcional)</div>
+    <div class="card">
+      <p class="form-hint" style="margin-top:0;">Se o policial já fez a Autoavaliação PLUS e exportou o arquivo .json, importe aqui para comparar diretamente os eixos A·C·R·F (sem aproximação) e refinar a orientação de liderança. Não é obrigatório.</p>
+      <input type="file" id="selfPlusImportInput" accept="application/json,.json" style="display:none;" onchange="handleSelfPlusImport(event)">
+      <button class="btn" onclick="document.getElementById('selfPlusImportInput').click()">Importar autoavaliação PLUS (.json)</button>
+      <div id="selfPlusImportStatus" class="form-hint" style="margin-top:10px;margin-bottom:0;"></div>
+    </div>
+
+    <div class="navrow">
+      <button class="btn" onclick="goMenu()">← Menu</button>
+      <button class="btn primary" onclick="submitCmdPlusData()">Continuar →</button>
+    </div>
+  </div>
+
+  <!-- COMANDO PLUS: INTRO -->
+  <div id="screen-cmdplus-intro" class="hidden">
+    <div class="eyebrow">PRISMA · Avaliação do Comando PLUS</div>
+    <h1>Perfil estrutural <span>observado</span></h1>
+    <p class="sub">Baseie-se apenas no que você observou em serviço — a regra é: você não avalia a pessoa, avalia o que ela FAZ.</p>
+    <div class="card" style="margin-top:18px;">
+      <div class="desc-block"><b>Parte 1 — Perfil estrutural observado (12 rodadas):</b> escolha forçada, os mesmos quatro eixos A·C·R·F da Autoavaliação PLUS — mas observados por você, não autorrelatados pelo policial.</div>
+      <div class="desc-block"><b>Parte 2 — Checklists comportamentais:</b> operacional, postura profissional, liderança (se aplicável) e método dos 30 segundos — igual à Avaliação do Comando original.</div>
+      <div class="desc-block"><b>Parte 3 — Perfil de conhecimento, Nine Box, pipeline e observações finais.</b></div>
+    </div>
+    <div class="card">
+      <button class="btn primary" onclick="startCmdPlusStructQuiz()">Começar →</button>
+    </div>
+  </div>
+
+  <!-- COMANDO PLUS: STRUCT QUIZ (observado, A/C/R/F) -->
+  <div id="screen-cmdplus-quiz" class="hidden">
+    <div class="progress-track"><div class="progress-fill" id="progressFillCmdPlus"></div></div>
+    <div class="card">
+      <div class="qnum" id="qCounterCmdPlus">RODADA 1/12</div>
+      <div class="qtext" id="qTextCmdPlus"></div>
+      <div id="qBodyCmdPlus"></div>
+    </div>
+    <div class="navrow">
+      <button class="btn" id="btnBackCmdPlus" onclick="goCmdPlusBack()">← Voltar</button>
+      <button class="btn primary" id="btnNextCmdPlus" onclick="goCmdPlusNext()" disabled>Próxima →</button>
+    </div>
+  </div>
+
+  <!-- COMANDO PLUS: FORM (checklists + perfil de conhecimento + nine box + observações) -->
+  <div id="screen-cmdplus-form" class="hidden"></div>
+
+  <!-- COMANDO PLUS: RESULT -->
+  <div id="screen-cmdplus-result" class="hidden"></div>
+
   <footer>
     MODELO ILUSTRATIVO DE APOIO À DECISÃO — NÃO SUBSTITUI AVALIAÇÃO FORMAL DE DESEMPENHO OU POTENCIAL PELO COMANDO.<br>
     BASEADO NA APOSTILA DE LIDERANÇA MILITAR (TEMPERAMENTOS · HARD/SOFT SKILLS · PERFIS DE CONHECIMENTO · NINE BOX · PIPELINE).<br>
@@ -469,7 +655,9 @@ window.addEventListener('afterprint', repaintChartsForMedia);
 
 function showScreen(id){
   ["screen-menu","screen-self-data","screen-intro","screen-quiz","screen-result",
-   "screen-cmd-data","screen-cmd-form","screen-cmd-result"].forEach(s => {
+   "screen-cmd-data","screen-cmd-form","screen-cmd-result",
+   "screen-plus-data","screen-plus-intro","screen-plus-quiz","screen-plus-likert","screen-plus-result",
+   "screen-cmdplus-data","screen-cmdplus-intro","screen-cmdplus-quiz","screen-cmdplus-form","screen-cmdplus-result"].forEach(s => {
     document.getElementById(s).classList.toggle('hidden', s !== id);
   });
   window.scrollTo(0,0);
@@ -499,6 +687,28 @@ function submitSelfData(){
   showScreen('screen-intro');
 }
 
+function choosePlus(){
+  const rSel = document.getElementById('plusPosto');
+  if(!rSel.options.length) fillRankSelect(rSel);
+  const dEl = document.getElementById('plusData_');
+  if(!dEl.value) dEl.value = todayBR();
+  showScreen('screen-plus-data');
+}
+
+let plusData = {};
+function submitPlusData(){
+  const nome = document.getElementById('plusNome').value.trim();
+  if(!nome){ alert('Preencha ao menos o nome antes de continuar.'); return; }
+  plusData = {
+    nome,
+    posto: document.getElementById('plusPosto').value,
+    re: document.getElementById('plusRE').value.trim(),
+    opm: document.getElementById('plusOPM').value.trim(),
+    data: document.getElementById('plusData_').value.trim() || todayBR(),
+  };
+  showScreen('screen-plus-intro');
+}
+
 function chooseCmd(){
   const rSel = document.getElementById('cmdAvaliadoPosto');
   if(!rSel.options.length) fillRankSelect(rSel);
@@ -518,9 +728,10 @@ function handleSelfImport(e){
   reader.onload = ev => {
     try{
       const data = JSON.parse(ev.target.result);
-      if(data.kind !== 'prisma-autoavaliacao') throw new Error('arquivo não reconhecido como autoavaliação PRISMA');
+      if(data.kind !== 'prisma-autoavaliacao' && data.kind !== 'prisma-autoavplus') throw new Error('arquivo não reconhecido como autoavaliação PRISMA');
       importedSelf = data;
-      status.textContent = `Autoavaliação de ${(data.selfData && data.selfData.nome) || 'policial'} carregada (${(data.selfData && data.selfData.data) || '—'}).`;
+      const idBlock = data.selfData || data.plusData || {};
+      status.textContent = `Autoavaliação${data.kind==='prisma-autoavplus' ? ' PLUS' : ''} de ${idBlock.nome || 'policial'} carregada (${idBlock.data || '—'}).`;
     } catch(err){
       importedSelf = null;
       status.textContent = 'Não foi possível ler este arquivo: ' + err.message;
@@ -545,6 +756,54 @@ function submitCmdData(){
   };
   renderCmdForm();
   showScreen('screen-cmd-form');
+}
+
+function chooseCmdPlus(){
+  const rSel = document.getElementById('cmdPlusAvaliadoPosto');
+  if(!rSel.options.length) fillRankSelect(rSel);
+  const dEl = document.getElementById('cmdPlusDataCampo');
+  if(!dEl.value) dEl.value = todayBR();
+  importedSelfPlus = null;
+  document.getElementById('selfPlusImportInput').value = '';
+  document.getElementById('selfPlusImportStatus').textContent = '';
+  showScreen('screen-cmdplus-data');
+}
+
+function handleSelfPlusImport(e){
+  const file = e.target.files[0];
+  const status = document.getElementById('selfPlusImportStatus');
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try{
+      const data = JSON.parse(ev.target.result);
+      if(data.kind !== 'prisma-autoavplus') throw new Error('este importador aceita apenas o .json da Autoavaliação PLUS (módulo 03)');
+      importedSelfPlus = data;
+      const idBlock = data.plusData || {};
+      status.textContent = `Autoavaliação PLUS de ${idBlock.nome || 'policial'} carregada (${idBlock.data || '—'}).`;
+    } catch(err){
+      importedSelfPlus = null;
+      status.textContent = 'Não foi possível ler este arquivo: ' + err.message;
+    }
+  };
+  reader.readAsText(file);
+}
+
+let cmdPlusData = {};
+function submitCmdPlusData(){
+  const nome = document.getElementById('cmdPlusAvaliadoNome').value.trim();
+  if(!nome){ alert('Preencha ao menos o nome do avaliado antes de continuar.'); return; }
+  cmdPlusData = {
+    avaliadorNome: document.getElementById('cmdPlusAvaliadorNome').value.trim(),
+    avaliadorPosto: document.getElementById('cmdPlusAvaliadorPosto').value.trim(),
+    avaliadorRE: document.getElementById('cmdPlusAvaliadorRE').value.trim(),
+    avaliadoNome: nome,
+    avaliadoPosto: document.getElementById('cmdPlusAvaliadoPosto').value,
+    avaliadoRE: document.getElementById('cmdPlusAvaliadoRE').value.trim(),
+    equipe: document.getElementById('cmdPlusEquipe').value.trim(),
+    data: document.getElementById('cmdPlusDataCampo').value.trim() || todayBR(),
+  };
+  showScreen('screen-cmdplus-intro');
 }
 
 /* ============================= FRENTE 1: DATA (autoavaliação) ============================= */
@@ -1096,6 +1355,14 @@ function showResults(){
       </div>
     </div>
 
+    <div class="section-title">Orientações para você</div>
+    <div class="card">
+      <div class="desc-block" style="color:var(--muted);">Baseadas no seu temperamento e forma de usar o conhecimento — pontos para se policiar e se guiar no dia a dia.</div>
+      <div class="desc-block" style="margin-top:10px;"><b>Como ${domT.nome}, alguns pontos de desenvolvimento pessoal</b>${bulletList(domT.sugestoes)}</div>
+      <div class="desc-block" style="margin-top:10px;"><b>Pontos de alerta do temperamento ${domT.nome}</b>${bulletList(domT.alerta)}</div>
+      <div class="desc-block" style="margin-top:10px;"><b>Como ${know.nome}, alguns pontos de desenvolvimento pessoal</b>${bulletList(know.sugestoes)}</div>
+    </div>
+
     <div class="section-title">Frente 3 · Perfil operacional (você × ${top.title})</div>
     <div class="card">
       <div class="chart-box"><canvas id="opChart"></canvas></div>
@@ -1252,6 +1519,923 @@ function downloadSelfJSON(){
   const a = document.createElement('a');
   a.href = url;
   a.download = `autoavaliacao-${(selfData.nome || 'policial').trim().replace(/\s+/g,'-').toLowerCase()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/* ============================= AUTOAVPLUS: DADOS (perfil estrutural 4 eixos) ============================= */
+// Frente adicional, escrita do zero para uso interno da PM, inspirada em ferramentas de
+// análise comportamental de 4 fatores de base junguiana (a mesma família conceitual do
+// DISC). Mede quatro eixos bipolares — A/C/R/F — em vez das 4 categorias independentes
+// (C/S/F/M) da autoavaliação original, e complementa com o que esse modelo de 4 fatores
+// não cobre sozinho: perfil de conhecimento (Especialista/Generalista/Nexialista) e
+// preferência operacional cruzada com os 12 perfis GU, reaproveitando os blocos KNOW_BLOCKS
+// e OP_BLOCKS já usados na autoavaliação original — mesma pergunta, mesmo método.
+
+const PAT_KEYS = ["A","C","R","F"];
+const PAT_POLES = {
+  A: { nome:"Iniciativa & Análise", hi:"Intuitivo", lo:"Sensorial" },
+  C: { nome:"Fonte Motivadora", hi:"Expressão Verbal", lo:"Próprias Ideias" },
+  R: { nome:"Estratégia no Tempo", hi:"Amanhã Melhor", lo:"Hoje Melhor" },
+  F: { nome:"Conforto no Ambiente", hi:"Estruturado", lo:"Livre" },
+};
+const PAT_ARCH_LABELS = {
+  A: { hi:"Iniciativa", lo:"Observação" },
+  C: { hi:"Comunicação", lo:"Reflexão" },
+  R: { hi:"Constância", lo:"Resposta Rápida" },
+  F: { hi:"Estrutura", lo:"Flexibilidade" },
+};
+
+// ---- Parte 1: Perfil Estrutural (16 rodadas × 4 opções A/C/R/F) — jeito natural/instintivo ----
+const PAT_STRUCT_BLOCKS = [
+  { situacao:"Numa ocorrência nova, sem procedimento claro definido, o que mais e o que menos te representa:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Decido na hora, confiando no instinto, mesmo sem ter todos os dados.",
+           C:"Chamo a equipe pelo rádio e resolvemos juntos, conversando enquanto agimos.",
+           R:"Espero alguns segundos a mais, deixando a situação se definir antes de agir.",
+           F:"Busco mentalmente o procedimento ou protocolo mais parecido antes de agir." } },
+  { situacao:"Ao assumir uma viatura ou equipe nova, o que mais e o que menos te representa:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Já vou testando meu próprio jeito de trabalhar, sem esperar todo mundo se ajustar.",
+           C:"Converso bastante nos primeiros dias pra criar entrosamento rápido.",
+           R:"Prefiro observar o ritmo da equipe por um tempo antes de mudar qualquer coisa.",
+           F:"Pergunto logo quais são as regras e rotinas já estabelecidas naquela guarnição." } },
+  { situacao:"Diante de uma tarefa administrativa chata mas necessária, o que mais e o que menos te representa:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Faço rápido, do meu jeito, mesmo que não siga o passo a passo à risca.",
+           C:"Prefiro fazer conversando com alguém, nem que seja só pra não ficar monótono.",
+           R:"Faço com calma, sem pressa, no meu tempo.",
+           F:"Sigo o modelo/formulário certinho, do jeito que deve ser feito." } },
+  { situacao:"Quando um colega discorda da sua forma de agir numa ocorrência, o que mais e o que menos te representa:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Defendo minha posição com firmeza, sem duvidar muito de mim.",
+           C:"Prefiro conversar bastante até a gente entender o lado um do outro.",
+           R:"Deixo o assunto esfriar antes de continuar a conversa.",
+           F:"Busco o que está escrito no procedimento pra resolver a divergência." } },
+  { situacao:"No planejamento de uma ação com prazo curto, o que mais e o que menos te representa:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Prefiro agir logo e ajustar o plano no caminho.",
+           C:"Prefiro alinhar verbalmente com todo mundo antes de sair.",
+           R:"Prefiro esperar mais informação antes de definir qualquer coisa.",
+           F:"Prefiro montar uma checklist antes de sair, mesmo com o tempo curto." } },
+  { situacao:"Ao lidar com um equipamento ou sistema novo (rádio, app, viatura), o que mais e o que menos te representa:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Vou mexendo, testando, sem ler manual.",
+           C:"Pergunto pra alguém que já usa, ao vivo.",
+           R:"Vou usando aos poucos, sem pressa de dominar tudo de uma vez.",
+           F:"Leio o manual ou instrução antes de usar." } },
+  { situacao:"Numa reunião de passagem de serviço, o que mais e o que menos te representa:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Vou direto ao ponto, sem enrolar em detalhes.",
+           C:"Gosto de comentar e trocar impressões, não só passar a informação seca.",
+           R:"Prefiro deixar quem está mais afobado falar primeiro, e entro com calma.",
+           F:"Sigo a ordem e o formato padrão de passagem, sem pular etapas." } },
+  { situacao:"Quando percebe um erro num relatório ou procedimento de outro colega, o que mais e o que menos te representa:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Aponto na hora, direto, sem rodeio.",
+           C:"Comento com jeito, numa conversa, pra não constranger.",
+           R:"Deixo pra falar num momento mais tranquilo, sem pressa.",
+           F:"Registro formalmente / sigo o canal correto para reportar." } },
+  { situacao:"Ao encarar uma mudança de escala ou rotina de última hora, o que mais e o que menos te representa:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Me adapto na hora, sem muito questionamento.",
+           C:"Preciso conversar sobre o motivo da mudança pra me sentir bem com ela.",
+           R:"Preciso de um tempo pra me ajustar mentalmente à mudança.",
+           F:"Fico incomodado quando a mudança quebra uma rotina já organizada." } },
+  { situacao:"No meio de uma abordagem que está indo bem, o que mais e o que menos te representa:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Sigo o instinto pra decidir os próximos passos, mesmo fora do script.",
+           C:"Uso a conversa como principal ferramenta pra manter o controle da situação.",
+           R:"Mantenho o ritmo calmo, sem acelerar desnecessariamente.",
+           F:"Sigo rigorosamente a sequência de segurança que aprendi no procedimento." } },
+  { situacao:"Quando alguém pede sua opinião sobre um problema complexo, o que mais e o que menos te representa:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Dou minha visão geral rápida, mesmo sem ter pensado em todos os ângulos.",
+           C:"Prefiro pensar em voz alta, junto com a pessoa.",
+           R:"Peço um tempo pra pensar com calma antes de responder.",
+           F:"Busco dados e critérios concretos antes de opinar." } },
+  { situacao:"Ao organizar seu material/equipamento de serviço, o que mais e o que menos te representa:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Não ligo muito pra organização, contanto que funcione.",
+           C:"Gosto de comentar/mostrar como organizei pros colegas.",
+           R:"Vou arrumando aos poucos, sem me apressar.",
+           F:"Gosto de tudo no lugar certo, seguindo um padrão fixo." } },
+  { situacao:"Diante de uma ordem que não faz muito sentido pra você, o que mais e o que menos te representa:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Questiono na hora, mesmo sabendo que pode gerar atrito.",
+           C:"Busco entender conversando com quem deu a ordem.",
+           R:"Cumpro por ora e só levanto o ponto depois, com calma.",
+           F:"Cumpro porque é a ordem, mesmo sem concordar totalmente." } },
+  { situacao:"No fim de um plantão puxado, o que mais e o que menos te representa:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Já penso na próxima ação/plantão, sem parar muito pra processar o que passou.",
+           C:"Preciso comentar o plantão com alguém antes de ir embora.",
+           R:"Preciso de um tempo sozinho pra desacelerar antes de qualquer coisa.",
+           F:"Reviso e fecho certinho tudo que precisa ser registrado antes de sair." } },
+  { situacao:"Ao aprender uma nova técnica ou tática, o que mais e o que menos te representa:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Prefiro já ir pra prática, aprendendo fazendo.",
+           C:"Aprendo melhor discutindo e trocando ideia sobre a técnica.",
+           R:"Prefiro repetir várias vezes, com calma, até internalizar.",
+           F:"Prefiro entender toda a lógica/passo a passo antes de praticar." } },
+  { situacao:"Quando o comando pede uma sugestão de melhoria para a rotina da equipe, o que mais e o que menos te representa:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Sugiro algo ousado, mesmo que mude bastante o jeito atual de trabalhar.",
+           C:"Prefiro reunir a equipe pra construir a sugestão junto.",
+           R:"Prefiro uma mudança gradual, testada aos poucos.",
+           F:"Sugiro algo que melhora o controle/organização sem bagunçar o que já funciona." } },
+];
+
+// ---- Parte 2: Percepção no Ambiente (10 rodadas × 4 opções A/C/R/F) — sob adaptação/pressão ----
+const PAT_PERCEP_BLOCKS = [
+  { situacao:"Quando sente que está sendo avaliado por superiores, o que mais e o que menos passa a valer para você:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Tomo a frente e mostro iniciativa, mesmo sob os olhares de todos.",
+           C:"Procuro me comunicar mais e mostrar que estou alinhado com a equipe.",
+           R:"Fico mais cauteloso, evitando qualquer decisão precipitada.",
+           F:"Capricho ainda mais em seguir o procedimento à risca." } },
+  { situacao:"Num ambiente de trabalho novo e mais rígido, o que mais e o que menos passa a valer para você:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Seguro minha vontade de agir por conta própria até entender o terreno.",
+           C:"Procuro me expor menos até conhecer melhor as pessoas.",
+           R:"Passo a agir com ainda mais calma do que o normal.",
+           F:"Passo a seguir as regras à risca, mesmo sem concordar com todas." } },
+  { situacao:"Quando a cobrança por resultado aumenta, o que mais e o que menos passa a valer para você:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Assumo mais riscos e decido mais rápido do que faria normalmente.",
+           C:"Busco mais apoio da equipe, conversando mais que o de costume.",
+           R:"Mantenho o mesmo ritmo, resistindo à pressão pra acelerar.",
+           F:"Aumento o controle e a checagem de detalhes, com medo de errar." } },
+  { situacao:"Numa equipe que valoriza muito hierarquia e formalidade, o que mais e o que menos passa a valer para você:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Ainda assim, ajo pela própria conta quando julgo necessário.",
+           C:"Adapto minha forma de falar, ficando mais formal do que o habitual.",
+           R:"Espero mais antes de agir, respeitando os canais certos.",
+           F:"Sigo os protocolos formais rigorosamente, mesmo os que acho excessivos." } },
+  { situacao:"Quando o ambiente está tenso entre os colegas, o que mais e o que menos passa a valer para você:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Tomo posição e resolvo, mesmo correndo o risco de desagradar alguém.",
+           C:"Tento amenizar conversando com as partes envolvidas.",
+           R:"Fico mais recolhido, evitando entrar no atrito.",
+           F:"Me apoio nas normas/regras pra evitar decisão pessoal no meio do conflito." } },
+  { situacao:"Quando a rotina muda com frequência e sem aviso, o que mais e o que menos passa a valer para você:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Encaro numa boa, me adapto rápido sem muito custo.",
+           C:"Preciso comentar bastante com a equipe pra digerir cada mudança.",
+           R:"Sinto mais desgaste, precisando de mais tempo pra me ajustar.",
+           F:"Tento recriar alguma estrutura/rotina fixa, mesmo dentro da bagunça." } },
+  { situacao:"Diante de um superior mais controlador, o que mais e o que menos passa a valer para você:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Ainda tento manter minha autonomia dentro do possível.",
+           C:"Procuro manter contato e diálogo frequente pra evitar ruído.",
+           R:"Fico mais na minha, esperando orientação antes de agir.",
+           F:"Sigo à risca o que é pedido, sem questionar muito." } },
+  { situacao:"Quando precisa apresentar um resultado/relatório para pessoas de fora da equipe, o que mais e o que menos passa a valer para você:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Vou com confiança, mesmo sem ter preparado cada detalhe.",
+           C:"Invisto bastante na forma de comunicar, ensaiando o discurso.",
+           R:"Prefiro me preparar com calma e antecedência, sem pressa.",
+           F:"Capricho na formatação/organização do material apresentado." } },
+  { situacao:"Num plantão de alta demanda (muitas ocorrências seguidas), o que mais e o que menos passa a valer para você:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Decido rápido e sigo pra próxima, no automático.",
+           C:"Sinto necessidade de comentar/desabafar com a equipe entre uma ocorrência e outra.",
+           R:"Sinto o cansaço acumulando e preciso desacelerar em algum momento.",
+           F:"Me policio para não pular etapas dos procedimentos mesmo com pressa." } },
+  { situacao:"Quando percebe que o ambiente está cobrando um comportamento diferente do seu natural, o que mais e o que menos passa a valer para você:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Insisto no meu jeito, mesmo indo um pouco contra a corrente.",
+           C:"Tento me adaptar através da conversa, buscando entender a expectativa.",
+           R:"Levo um tempo pra aceitar e me ajustar à cobrança.",
+           F:"Me ajusto seguindo a régua/padrão que está sendo pedido." } },
+];
+
+// ---- Parte 3: Ponderação & Perspectiva (7 itens likert, resposta única — sem escolha forçada) ----
+const LIKERT_LABELS_PLUS = ["Discordo totalmente","Discordo","Neutro","Concordo","Concordo totalmente"];
+const PONDERACAO_ITEMS = [
+  { text:"Ao decidir algo importante no serviço, me baseio mais nos fatos e nos dados concretos da situação do que no que as pessoas envolvidas estão sentindo.", reverse:false },
+  { text:"Antes de aplicar uma medida mais dura, considero bastante o impacto emocional que isso vai ter na pessoa.", reverse:true },
+  { text:"Consigo manter uma decisão mesmo sabendo que ela vai desagradar ou magoar alguém.", reverse:false },
+  { text:"Tenho dificuldade de ser totalmente objetivo quando a situação envolve alguém que já conheço ou tenho afeto.", reverse:true },
+];
+const PERSPECTIVA_ITEMS = [
+  { text:"Hoje, consigo enxergar soluções para os principais desafios que estou enfrentando no serviço.", reverse:false },
+  { text:"Meus objetivos dentro da corporação parecem alcançáveis no médio prazo.", reverse:false },
+  { text:"Estou desanimado(a) em relação ao que vem pela frente na corporação.", reverse:true },
+];
+
+// ---- Eixos derivados (combinação simples entre pares de A/C/R/F) ----
+const PAT_AXES = [
+  { name:"Orientação", a:"A", b:"C", aLabel:"Tecnicamente Orientado", bLabel:"Socialmente Orientado",
+    desc:"Ênfase técnica e em tarefa versus ênfase em pessoas e relacionamento." },
+  { name:"Preferência de Foco", a:"A", b:"F", aLabel:"Generalista", bLabel:"Especialista",
+    desc:"Autonomia e abrangência versus exigência de regra, detalhe e conformidade." },
+  { name:"Estilo de Ação", a:"A", b:"R", aLabel:"Promovedor de Ações", bLabel:"Mantenedor de Ações",
+    desc:"Iniciativa e ritmo próprio versus paciência e colaboração no ritmo do grupo." },
+  { name:"Estilo de Conexão", a:"C", b:"R", aLabel:"Rápida", bLabel:"Ponderada",
+    desc:"Comunicação espontânea e rápida versus conexão mais analítica e cautelosa." },
+  { name:"Tendência no Estilo Relacional", a:"C", b:"F", aLabel:"Mais Informal", bLabel:"Mais Formal",
+    desc:"Informalidade e espontaneidade versus formalidade e protocolo." },
+  { name:"Como Lida com as Regras", a:"R", b:"F", aLabel:"Casual", bLabel:"Cuidadosa",
+    desc:"Flexibilidade com regras versus rigor e controle de detalhe." },
+];
+
+const PLUS_MUDANCAS_DESC = {
+  "Fácil":"Nenhum dos quatro eixos muda de lado da média entre o jeito natural e o jeito adaptado ao ambiente — o ajuste existe, mas dentro do mesmo perfil, com baixo gasto de energia.",
+  "Difícil":"Até dois eixos mudam de lado da média entre o estrutural e a percepção — sustentar essa adaptação por muito tempo exige energia real.",
+  "Muito Difícil":"Mais de dois eixos mudam de lado da média — o ambiente está exigindo um comportamento bem distante do natural, o que tende a gerar desgaste se mantido por muito tempo.",
+  "Insustentável":"Iniciativa (A) e Estrutura (F) se invertem e ficam do mesmo lado na percepção — combinação que costuma gerar insegurança em decisões estratégicas e ambiguidade de comportamento sob pressão. Vale atenção redobrada ao nível de estresse.",
+};
+const PLUS_APROV_DESC = {
+  "Sobre Aproveitado":"Na percepção do ambiente, a intensidade do comportamento exigido está bem acima do perfil natural — sinal de que está sendo cobrado mais do que pode ou quer entregar no momento. Pode indicar cansaço, sobrecarga ou período fora do padrão.",
+  "Subaproveitado":"Na percepção do ambiente, a intensidade do comportamento exigido está bem abaixo do perfil natural — sinal de subutilização da capacidade, não necessariamente ociosidade.",
+  "Equilibrado":"A intensidade do comportamento exigido pelo ambiente está compatível com o perfil natural.",
+};
+
+// ---- Orientações por polo A/C/R/F ----
+// "self": para o próprio policial (relatório da Autoavaliação PLUS — desenvolvimento pessoal).
+// "lead": para quem lidera essa pessoa (relatório da Avaliação do Comando PLUS — como conduzir).
+// "cuidado": ponto de atenção específico daquele polo, útil nos dois relatórios.
+const PAT_GUIDANCE = {
+  A: {
+    hi: { trait:"Iniciativa alta — decide rápido, assume risco, não espera ordem pra agir.",
+      self:["Antes de decidir algo que afeta outras pessoas, force uma pausa de alguns segundos antes de agir no impulso.",
+            "Pratique ouvir uma segunda opinião mesmo quando já tiver decidido — nem sempre a primeira leitura é a certa.",
+            "Registre rapidamente o raciocínio das decisões tomadas no calor do momento — ajuda a revisar depois com mais isenção."],
+      lead:["Dê autonomia real e metas claras — microgerenciar essa pessoa gera atrito e desmotivação rápida.",
+            "Aproveite pra colocar em situações que exigem decisão sob pressão — é onde ela rende mais.",
+            "Combine, e não apenas informe, mudanças de plano — envolvimento reduz a resistência."],
+      cuidado:["Tende a decidir sem consultar a equipe em momentos que pediam consulta — reforce o canal de checagem sem sufocar a autonomia.",
+               "Pode atropelar processo e procedimento por julgar burocracia como obstáculo — reforce o porquê das normas de segurança."] },
+    lo: { trait:"Cautela e observação altas — prefere checar, confirmar e ir com calma antes de agir.",
+      self:["Pratique tomar pequenas decisões rápidas, mesmo sem 100% de certeza, pra treinar a decisão sob pressão.",
+            "Quando travar diante de uma decisão, pergunte: \"o que eu faria se tivesse só 10 segundos?\" — a resposta intuitiva geralmente já é boa o suficiente."],
+      lead:["Dê tempo pra essa pessoa se preparar antes de uma ação — decisão de última hora tende a travá-la.",
+            "Reconheça o cuidado e a consistência dela com a mesma força que se reconhece a ousadia de outros perfis.",
+            "Puxe a opinião dela ativamente — dificilmente vai se impor sozinha, mesmo tendo uma leitura boa da situação."],
+      cuidado:["Pode demorar demais pra agir numa situação que exige resposta imediata — treine cenários de decisão rápida.",
+               "Risco de ficar para trás em ambiente de ritmo acelerado — avalie se a função atual exige mais velocidade do que o perfil confortável."] },
+  },
+  C: {
+    hi: { trait:"Comunicação alta — se energiza falando, pensa em voz alta, gosta de interação constante.",
+      self:["Reserve um tempo sem gente ao redor pra revisar o que ainda falta fazer — nem tudo se resolve conversando.",
+            "Anote compromissos assim que combinados, não confie só na conversa pra lembrar depois."],
+      lead:["Reconheça publicamente — é um dos maiores motivadores pra esse perfil.",
+            "Use a facilidade de comunicação a favor da equipe — ponte entre colegas, integração de gente nova."],
+      cuidado:["Pode assumir mais compromisso verbal do que consegue entregar no prazo — confirme por escrito o que foi combinado.",
+               "Em tarefa solitária e repetitiva, o rendimento cai — evite escalar essa pessoa pra funções isoladas por muito tempo."] },
+    lo: { trait:"Reflexão alta — processa por dentro antes de falar, prefere pensar sozinho.",
+      self:["Pratique compartilhar o raciocínio ainda incompleto com a equipe antes de ter a conclusão pronta — ganha-se velocidade coletiva.",
+            "Quando a comunicação for necessária, prepare os pontos principais com antecedência — reduz o desconforto de falar de improviso."],
+      lead:["Não force exposição em grupo sem preparo prévio — dê o roteiro/pauta com antecedência.",
+            "Valorize contribuições escritas e abra espaço de fala individual, não só em grupo."],
+      cuidado:["Pode reter informação relevante por não verbalizar espontaneamente — pergunte diretamente, não espere que se ofereça."] },
+  },
+  R: {
+    hi: { trait:"Constância alta (Amanhã Melhor) — pondera, mantém rotina, decide com calma e consistência.",
+      self:["Pratique decidir com prazo apertado de vez em quando, mesmo sem urgência real, pra não travar quando ela aparecer de verdade.",
+            "Estabeleça uma meta pessoal nova periodicamente — sem estímulo externo, tende a estagnar na zona confortável."],
+      lead:["Avise mudanças de plano com antecedência — decisão de última hora desestabiliza esse perfil mais que a outros.",
+            "Corrija em particular, nunca na frente do grupo."],
+      cuidado:["Evita confronto necessário mesmo quando a situação pede posicionamento — puxe a opinião dela ativamente.",
+               "Pode demorar pra se posicionar em decisão urgente — treine cenários de resposta rápida."] },
+    lo: { trait:"Resposta rápida (Hoje Melhor) — responde de imediato ao estímulo, tolera pouco a espera.",
+      self:["Antes de reagir no automático, conte até três — parte das reações rápidas ganha em qualidade com meio segundo a mais de pausa.",
+            "Pratique tolerar tarefa repetitiva por períodos mais longos, mesmo sem urgência — treina a paciência operacional."],
+      lead:["Dê tarefas com ação concreta e retorno rápido — rotina lenta e sem retorno visível desmotiva rápido esse perfil.",
+            "Canalize a urgência em prazos desafiadores, não em pressão constante — excesso de pressão vira ansiedade, não produtividade."],
+      cuidado:["Pode parecer impaciente ou ansioso(a) demais numa situação que exige espera — sinalize quando \"esperar\" é de fato a ação certa."] },
+  },
+  F: {
+    hi: { trait:"Estrutura alta — busca regra, padrão e controle de detalhe, se sente seguro(a) com estrutura clara.",
+      self:["Pratique tolerar uma tarefa fora do procedimento padrão de vez em quando — nem toda situação tem manual.",
+            "Quando a mudança for inevitável, busque entender o porquê — internalizar a lógica ajuda a aceitar melhor."],
+      lead:["Explique o porquê por trás da ordem — regra sem lógica visível gera resistência silenciosa.",
+            "Dê tempo e dados suficientes antes de cobrar decisão em cenário fora do script."],
+      cuidado:["Pode travar diante de ambiente pouco estruturado ou mudança de última hora — sinalize mudanças com antecedência sempre que possível.",
+               "Risco de autocrítica desproporcional diante de erro pequeno — reforce que erro operacional faz parte do trabalho."] },
+    lo: { trait:"Flexibilidade alta — delega detalhe, resiste a regra em excesso, se sente sufocado(a) com burocracia.",
+      self:["Adote uma checklist mínima só pros itens que realmente não podem falhar (segurança, procedimento crítico) — não precisa aplicar em tudo.",
+            "Antes de dispensar uma regra, pergunte por que ela existe — algumas têm motivo que não é óbvio à primeira vista."],
+      lead:["Não sobrecarregue com controle e burocracia desnecessária — foque a régua nos pontos que realmente importam.",
+            "Dê autonomia sobre o método, mantendo claro só o resultado esperado e os pontos não-negociáveis de segurança."],
+      cuidado:["Pode negligenciar detalhe ou norma que realmente importa (segurança, procedimento formal) — reforce especificamente esses pontos."] },
+  },
+};
+
+// Monta uma lista de orientações combinando os 2 eixos mais intensos do perfil com os
+// índices (Suporte Estrutural, Mudanças, Conflito, Perspectiva) — usado tanto pelo relatório
+// da Autoavaliação PLUS ("self") quanto pelo da Avaliação do Comando PLUS ("lead").
+function buildPatGuidance(r, mode){
+  const archOrder = PAT_KEYS.slice().sort((a,b)=>Math.abs(r.structNorm[b]-r.structMean)-Math.abs(r.structNorm[a]-r.structMean));
+  const items = [];
+  archOrder.slice(0,2).forEach(k => {
+    const pole = r.structNorm[k] >= r.structMean ? 'hi' : 'lo';
+    const g = PAT_GUIDANCE[k][pole];
+    items.push({title:`${PAT_POLES[k].nome} — ${pole==='hi'?PAT_POLES[k].hi:PAT_POLES[k].lo}`, trait:g.trait, tips:g[mode], cuidado:g.cuidado});
+  });
+
+  const notas = [];
+  if(r.suporteLevel === 'Baixo' || r.suporteLevel === 'Muito Baixo'){
+    notas.push(mode==='self'
+      ? "Sua capacidade de sustentar o comportamento sob estresse está mais baixa no momento — vale atenção à carga de trabalho e ao descanso."
+      : "O Suporte Estrutural está baixo — evite empilhar pressão extra nesse momento; monitore sinais de esgotamento.");
+  }
+  if(r.mudancas === 'Muito Difícil' || r.mudancas === 'Insustentável'){
+    notas.push(mode==='self'
+      ? "O ambiente está exigindo de você um comportamento bem distante do natural — pode valer conversar com o comando sobre ajuste de função ou rotina."
+      : "O ambiente atual está exigindo dessa pessoa um comportamento bem distante do natural dela — o desgaste tende a aparecer se isso não for revisto.");
+  }
+  if(r.conflito && !r.conflito.startsWith('Sem conflito')){
+    notas.push(mode==='self'
+      ? `Foi identificado um conflito estrutural no seu perfil: ${r.conflito}`
+      : `Foi identificado um conflito estrutural no perfil observado: ${r.conflito}`);
+  }
+  if(r.perspectiva === 'Baixa'){
+    notas.push(mode==='self'
+      ? "Você está enxergando o momento atual de forma mais pessimista — pode valer uma conversa sobre metas de curto prazo pra reconstruir clareza."
+      : "A perspectiva está baixa no momento — pode ser um bom momento pra uma conversa sobre metas de curto prazo e reconhecimento.");
+  }
+  return { items, notas };
+}
+
+/* ============================= AUTOAVPLUS: STATE & NAVEGAÇÃO DO QUESTIONÁRIO ============================= */
+
+let plusAnswers = {};
+let plusCurrentQ = 0;
+let plusLikertAnswers = {};
+const PLUS_ALL_QUESTIONS = [
+  ...PAT_STRUCT_BLOCKS.map(q => ({front:"pstruct", ...q})),
+  ...PAT_PERCEP_BLOCKS.map(q => ({front:"ppercep", ...q})),
+  ...KNOW_BLOCKS.map(q => ({front:"pknow", ...q})),
+  ...OP_BLOCKS.map(q => ({front:"pop", ...q})),
+];
+const PLUS_TOTAL = PLUS_ALL_QUESTIONS.length;
+
+function startPlusTest(){
+  plusAnswers = {}; plusCurrentQ = 0; plusLikertAnswers = {};
+  renderPlusQuestion();
+  showScreen('screen-plus-quiz');
+}
+
+function renderPlusQuestion(){
+  const q = PLUS_ALL_QUESTIONS[plusCurrentQ];
+  document.getElementById('qCounterPlus').textContent = `PERGUNTA ${plusCurrentQ+1}/${PLUS_TOTAL}`;
+  document.getElementById('progressFillPlus').style.width = `${(plusCurrentQ/PLUS_TOTAL)*100}%`;
+  document.getElementById('qTextPlus').textContent = q.situacao;
+  const body = document.getElementById('qBodyPlus');
+  body.innerHTML = "";
+
+  const current = plusAnswers[plusCurrentQ] || {};
+  const stepTitle = document.createElement('div');
+  stepTitle.className = 'section-title';
+  stepTitle.style.margin = '0 0 10px';
+  stepTitle.textContent = current.most ? "AGORA, O QUE MENOS TE REPRESENTA:" : "O QUE MAIS TE REPRESENTA:";
+  body.appendChild(stepTitle);
+
+  const wrap = document.createElement('div');
+  wrap.className = 'options';
+  const pool = current.most ? q.keys.filter(k => k !== current.most) : q.keys;
+  pool.forEach(k => {
+    const b = document.createElement('button');
+    b.className = 'opt';
+    const isSelected = current.most ? current.least === k : current.most === k;
+    if(isSelected) b.classList.add('selected');
+    b.textContent = q.opts[k];
+    b.onclick = () => {
+      if(!current.most){
+        plusAnswers[plusCurrentQ] = {most:k};
+      } else {
+        plusAnswers[plusCurrentQ] = {most:current.most, least:k};
+      }
+      renderPlusQuestion();
+      updatePlusNextBtn();
+    };
+    wrap.appendChild(b);
+  });
+  body.appendChild(wrap);
+
+  if(current.most){
+    const back = document.createElement('button');
+    back.className = 'btn ghost';
+    back.style.marginTop = '10px';
+    back.textContent = '← trocar o "mais te representa"';
+    back.onclick = () => { plusAnswers[plusCurrentQ] = {}; renderPlusQuestion(); updatePlusNextBtn(); };
+    body.appendChild(back);
+  }
+
+  document.getElementById('btnBackPlus').disabled = false;
+  updatePlusNextBtn();
+}
+
+function updatePlusNextBtn(){
+  const btn = document.getElementById('btnNextPlus');
+  const a = plusAnswers[plusCurrentQ];
+  const answered = !!(a && a.most && a.least);
+  btn.disabled = !answered;
+  btn.textContent = plusCurrentQ === PLUS_TOTAL - 1 ? "Continuar →" : "Próxima →";
+}
+
+function goPlusNext(){
+  const a = plusAnswers[plusCurrentQ];
+  if(!(a && a.most && a.least)) return;
+  if(plusCurrentQ === PLUS_TOTAL - 1){
+    renderPlusLikert();
+    showScreen('screen-plus-likert');
+  } else {
+    plusCurrentQ++;
+    renderPlusQuestion();
+  }
+}
+function goPlusBack(){
+  if(plusCurrentQ === 0){ showScreen('screen-plus-intro'); return; }
+  plusCurrentQ--;
+  renderPlusQuestion();
+}
+function goPlusLikertBack(){
+  plusCurrentQ = PLUS_TOTAL - 1;
+  renderPlusQuestion();
+  showScreen('screen-plus-quiz');
+}
+
+function renderPlusLikertItem(key, text){
+  return `
+    <div class="plus-likert-item">
+      <div class="plus-likert-text">${text}</div>
+      <div class="likert">
+        ${[1,2,3,4,5].map(v => `<button type="button" data-plikert="${key}" data-val="${v}" class="${plusLikertAnswers[key]===v?'selected':''}">${v}</button>`).join('')}
+      </div>
+      <div class="likert-labels"><span>${LIKERT_LABELS_PLUS[0]}</span><span>${LIKERT_LABELS_PLUS[4]}</span></div>
+    </div>
+  `;
+}
+function renderPlusLikert(){
+  const body = document.getElementById('plusLikertBody');
+  let html = '<div class="section-title" style="margin-top:0;">Ponderação — como você costuma decidir</div>';
+  PONDERACAO_ITEMS.forEach((item,i)=>{ html += renderPlusLikertItem('pond'+i, item.text); });
+  html += '<div class="section-title">Perspectiva — como você enxerga o momento atual</div>';
+  PERSPECTIVA_ITEMS.forEach((item,i)=>{ html += renderPlusLikertItem('persp'+i, item.text); });
+  body.innerHTML = html;
+  body.querySelectorAll('[data-plikert]').forEach(btn=>{
+    btn.onclick = () => {
+      const key = btn.dataset.plikert, val = Number(btn.dataset.val);
+      plusLikertAnswers[key] = val;
+      body.querySelectorAll(`[data-plikert="${key}"]`).forEach(b=>b.classList.toggle('selected', Number(b.dataset.val)===val));
+    };
+  });
+}
+function submitPlusLikert(){
+  const need = PONDERACAO_ITEMS.length + PERSPECTIVA_ITEMS.length;
+  const got = Object.keys(plusLikertAnswers).filter(k=>plusLikertAnswers[k]).length;
+  if(got < need){ alert('Responda todas as perguntas antes de continuar.'); return; }
+  showPlusResults();
+}
+
+/* ============================= AUTOAVPLUS: SCORING ============================= */
+
+// Escala o score ipsativo (2 por "mais", -1 por "menos", em rodadas onde a mesma chave
+// aparece em toda rodada) para 0..1 — igual em espírito ao usado na autoavaliação original,
+// generalizado para qualquer número de rodadas.
+function normIpsative(blocks, baseOffset, keys, answersObj){
+  const score = {}; keys.forEach(k=>score[k]=0);
+  blocks.forEach((q,i)=>{
+    const a = answersObj[baseOffset+i];
+    if(a && a.most) score[a.most] += 2;
+    if(a && a.least) score[a.least] -= 1;
+  });
+  const n = blocks.length;
+  const norm = {};
+  keys.forEach(k => { norm[k] = (score[k] + n) / (n*3); });
+  return norm;
+}
+
+// Índices calculados a partir de um único gráfico A/C/R/F (eixos derivados, Spread, Suporte
+// Estrutural, Conflito, Arquétipo) — compartilhado entre a Autoavaliação PLUS (gráfico
+// Estrutural/Percepção, autorrelato) e a Avaliação do Comando PLUS (gráfico observado pelo
+// comando), pra garantir que as duas leituras usem exatamente a mesma régua.
+function computeStructIndices(structNorm){
+  const axes = PAT_AXES.map(ax => {
+    const va = structNorm[ax.a], vb = structNorm[ax.b];
+    const total = va+vb;
+    const pctA = total>0 ? Math.round((va/total)*100) : 50;
+    const pctB = 100-pctA;
+    return {...ax, pctA, pctB, dominant: pctA>=pctB ? ax.aLabel : ax.bLabel, strength: Math.max(pctA,pctB)};
+  });
+
+  const vals = PAT_KEYS.map(k=>structNorm[k]);
+  const spreadPct = Math.round((Math.max(...vals)-Math.min(...vals))*100);
+  const spreadLevel = spreadPct>=65?"Muito Alto":spreadPct>=45?"Alto":spreadPct>=22?"Médio":spreadPct>=10?"Baixo":"Muito Baixo";
+
+  // O centro estrutural da escala ipsativa (2 por "mais", -1 por "menos", 1 vencedor e 1
+  // perdedor por rodada) NÃO é 0.5 — é ~5/12 (a soma dos 4 fatores por rodada é sempre +1,
+  // não 0). Por isso "lado da média" é calculado contra a média real do gráfico, não contra
+  // um pivô fixo — igual ao conceito original (reta vermelha da média no gráfico).
+  const structMean = PAT_KEYS.reduce((s,k)=>s+structNorm[k],0)/4;
+
+  const suporteRaw = PAT_KEYS.reduce((s,k)=>s+Math.abs(structNorm[k]-structMean),0); // 0..2
+  const suportePct = Math.round((suporteRaw/2)*100);
+  const suporteLevel = suportePct>=70?"Muito Alto":suportePct>=50?"Alto":suportePct>=30?"Médio":suportePct>=15?"Baixo":"Muito Baixo";
+
+  const dA = structNorm.A-structMean, dF = structNorm.F-structMean;
+  let conflito = "Sem conflito relevante entre Iniciativa (A) e Estrutura (F).";
+  if(Math.abs(dA-dF) < 0.08 && Math.abs(dA) > 0.06 && Math.abs(dF) > 0.06 && Math.sign(dA)===Math.sign(dF)){
+    conflito = dA>0
+      ? "Conflito do lado alto: iniciativa/ousadia (A alto) tensiona com a necessidade de controle e cautela (F alto) — pode gerar indecisão ou estresse diante do inesperado, com baixa tolerância a erro."
+      : "Conflito do lado baixo: a acomodação (A baixo) tensiona com a resistência a regras (F baixo) — combinação que pode gerar imprevisibilidade de comportamento.";
+  }
+
+  const archOrder = PAT_KEYS.slice().sort((a,b)=>Math.abs(structNorm[b]-structMean)-Math.abs(structNorm[a]-structMean));
+  const archLabel = k => PAT_ARCH_LABELS[k][structNorm[k] >= structMean ? 'hi' : 'lo'];
+  const arquetipo = `${archLabel(archOrder[0])} + ${archLabel(archOrder[1])}`;
+
+  return { axes, spreadPct, spreadLevel, suportePct, suporteLevel, suporteRaw, structMean, conflito, arquetipo };
+}
+
+function computePlusResults(){
+  const structNorm = normIpsative(PAT_STRUCT_BLOCKS, 0, PAT_KEYS, plusAnswers);
+  const percepBase = PAT_STRUCT_BLOCKS.length;
+  const percepNorm = normIpsative(PAT_PERCEP_BLOCKS, percepBase, PAT_KEYS, plusAnswers);
+
+  // ---- Parte 4: Conhecimento (E/G/N) — mesmo método e mesmas perguntas da autoavaliação original ----
+  const knowBase = percepBase + PAT_PERCEP_BLOCKS.length;
+  const knowScore = {E:0,G:0,N:0};
+  KNOW_BLOCKS.forEach((q,i)=>{
+    const a = plusAnswers[knowBase+i];
+    if(a && a.most) knowScore[a.most] += 2;
+    if(a && a.least) knowScore[a.least] -= 1;
+  });
+  const knowNorm = {};
+  Object.keys(knowScore).forEach(k => { knowNorm[k] = (knowScore[k] + 8) / 24; });
+  const knowRank = Object.keys(knowNorm).sort((a,b)=>knowNorm[b]-knowNorm[a]);
+
+  // ---- Parte 5: Operacional (8 eixos) — mesmo método e mesmas perguntas da autoavaliação original ----
+  const opBase = knowBase + KNOW_BLOCKS.length;
+  const opScore = {}; AXES_ORDER.forEach(a=>opScore[a]=0);
+  OP_BLOCKS.forEach((q,i)=>{
+    const a = plusAnswers[opBase+i];
+    if(a && a.most) opScore[a.most] += 2;
+    if(a && a.least) opScore[a.least] -= 1;
+  });
+  const userVec = AXES_ORDER.map(k => ((opScore[k] + 4) / 12) * 10);
+
+  // ---- Cruzamento com os 12 perfis GU ----
+  // Os perfis GU já usam o vocabulário C/S/F/M da autoavaliação original. Como o AutoavPlus
+  // mede A/C/R/F (não C/S/F/M), usamos a correspondência conceitual mais próxima só para
+  // esse cruzamento: A alto ~ iniciativa/decisão (Colérico), C alto ~ comunicação (Sanguíneo),
+  // R alto ~ paciência/estabilidade (Fleumático), F alto ~ estrutura/detalhe (Melancólico).
+  const approxTemp = { C: structNorm.A, S: structNorm.C, F: structNorm.R, M: structNorm.F };
+  const userTempVec = ["C","S","F","M"].map(k => approxTemp[k]);
+  const userKnowVec = ["E","G","N"].map(k => knowNorm[k]);
+
+  const scored = GU_PROFILES.map(p => {
+    const profileTempVec = ["C","S","F","M"].map(k => p.w[k]);
+    const tempComponent = to01(pearson(userTempVec, profileTempVec));
+    const profileKnowVec = ["E","G","N"].map(k => p.kv[k]);
+    const knowComponent = to01(pearson(userKnowVec, profileKnowVec));
+    const opComponent = to01(pearson(userVec, p.vec));
+    const score = 0.5*opComponent + 0.28*tempComponent + 0.22*knowComponent;
+    return {...p, score, opComponent, tempComponent, knowComponent};
+  });
+  const maxScore = Math.max(...scored.map(s => s.score));
+  const minScore = Math.min(...scored.map(s => s.score));
+  scored.forEach(s => { s.pct = Math.round(((s.score - minScore) / (maxScore - minScore || 1)) * 45 + 55); });
+  scored.sort((a,b) => b.score - a.score);
+
+  const idx = computeStructIndices(structNorm);
+  const { axes, spreadPct, spreadLevel, suportePct, suporteLevel, suporteRaw, structMean, conflito, arquetipo } = idx;
+  const percepMean = PAT_KEYS.reduce((s,k)=>s+percepNorm[k],0)/4;
+
+  // ---- Ponderação (Emocional / Racional / Equilibrado) ----
+  let pondSum = 0;
+  PONDERACAO_ITEMS.forEach((item,i)=>{
+    let v = plusLikertAnswers['pond'+i] || 3;
+    if(item.reverse) v = 6-v;
+    pondSum += v;
+  });
+  const pondAvg = pondSum / PONDERACAO_ITEMS.length;
+  const ponderacao = pondAvg < 2.4 ? "Emocional" : pondAvg > 3.6 ? "Racional" : "Equilibrado";
+
+  // ---- Perspectiva (Alta / Baixa / Equilibrada) ----
+  let perspSum = 0;
+  PERSPECTIVA_ITEMS.forEach((item,i)=>{
+    let v = plusLikertAnswers['persp'+i] || 3;
+    if(item.reverse) v = 6-v;
+    perspSum += v;
+  });
+  const perspAvg = perspSum / PERSPECTIVA_ITEMS.length;
+  const perspectiva = perspAvg < 2.4 ? "Baixa" : perspAvg > 3.6 ? "Alta" : "Equilibrada";
+
+  // ---- Mudanças (comparação Estrutural × Percepção) ----
+  let flips = 0, aFlipped=false, fFlipped=false, sameSideAfter=false;
+  PAT_KEYS.forEach(k=>{
+    const sideBefore = structNorm[k] >= structMean;
+    const sideAfter = percepNorm[k] >= percepMean;
+    if(sideBefore !== sideAfter){
+      flips++;
+      if(k==='A') aFlipped = true;
+      if(k==='F') fFlipped = true;
+    }
+  });
+  if(aFlipped && fFlipped && (percepNorm.A>=percepMean)===(percepNorm.F>=percepMean)) sameSideAfter = true;
+  let mudancas;
+  if(sameSideAfter) mudancas = "Insustentável";
+  else if(flips === 0) mudancas = "Fácil";
+  else if(flips <= 2) mudancas = "Difícil";
+  else mudancas = "Muito Difícil";
+
+  // ---- Aproveitamento do Potencial (energia total: Estrutural × Percepção) ----
+  const percepSuporteRaw = PAT_KEYS.reduce((s,k)=>s+Math.abs(percepNorm[k]-percepMean),0);
+  const energiaDiff = Math.round(((percepSuporteRaw-suporteRaw)/2)*100);
+  let aproveitamento = "Equilibrado";
+  if(energiaDiff >= 12) aproveitamento = "Sobre Aproveitado";
+  else if(energiaDiff <= -12) aproveitamento = "Subaproveitado";
+
+  return {
+    structNorm, percepNorm, structMean, percepMean, knowNorm, knowRank, userVec, ranked: scored, axes,
+    spreadPct, spreadLevel, suportePct, suporteLevel, conflito,
+    ponderacao, pondAvg, perspectiva, perspAvg,
+    mudancas, flips, aproveitamento, energiaDiff, arquetipo,
+  };
+}
+
+/* ============================= AUTOAVPLUS: RESULTADO (UI) ============================= */
+
+let lastPlusResult = null;
+let plusStructChart = null, plusPercepChart = null, plusOpChart = null;
+
+function renderProfileLineChart(canvasId, norm, existing){
+  if(existing) existing.destroy();
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  const color = cssVar('--amber');
+  return new Chart(ctx, {
+    type:'line',
+    data:{
+      labels: PAT_KEYS.map(k=>`${k} · ${PAT_POLES[k].nome}`),
+      datasets:[
+        { label:'Perfil', data: PAT_KEYS.map(k => Math.round(norm[k]*100)),
+          borderColor: color, backgroundColor: color, pointBackgroundColor: color,
+          pointRadius:4, borderWidth:2, tension:0 },
+        { label:'Média', data:[50,50,50,50], borderColor: cssVar('--faint'), borderWidth:1,
+          borderDash:[4,3], pointRadius:0 },
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:{enabled:false}},
+      scales:{
+        y:{ min:0, max:100, ticks:{color:cssVar('--chart-label'), stepSize:25}, grid:{color:cssVar('--chart-grid')} },
+        x:{ ticks:{color:cssVar('--chart-label'), font:{family:"'JetBrains Mono', monospace", size:9.5}}, grid:{color:cssVar('--chart-grid')} }
+      }
+    }
+  });
+}
+
+function plusBipolarHtml(ax){
+  return `
+    <div class="bipolar">
+      <div class="idx-label" style="margin-bottom:8px;">${ax.name}</div>
+      <div class="bipolar-labels"><span>${ax.aLabel}</span><span>${ax.bLabel}</span></div>
+      <div class="bipolar-track"><div class="bipolar-mid"></div><div class="bipolar-fill" style="left:calc(${ax.pctB}% - 1.5px);"></div></div>
+      <div style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--amber);margin-top:5px;">${ax.dominant} — ${ax.strength}%</div>
+    </div>
+  `;
+}
+
+function showPlusResults(){
+  const r = computePlusResults();
+  lastPlusResult = r;
+  const top = r.ranked[0];
+  const know = CONHECIMENTO[r.knowRank[0]], knowSec = CONHECIMENTO[r.knowRank[1]];
+  const guidance = buildPatGuidance(r, 'self');
+
+  const axisLegendHtml = AXES_ORDER.map(a =>
+    `<span><b style="color:var(--amber)">${a}</b> ${AXES_FULL[a]}</span>`
+  ).join('');
+
+  const guidanceHtml = `
+    <div class="section-title">Orientações gerais para você</div>
+    <div class="card">
+      <div class="desc-block" style="color:var(--muted);">Baseadas nos dois eixos mais intensos do seu perfil estrutural e nos índices calculados acima — pontos de desenvolvimento pessoal, não uma avaliação de desempenho.</div>
+      ${guidance.items.map(it => `
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line);">
+          <div class="desc-block"><b>${it.title}</b> — ${it.trait}</div>
+          <div class="desc-block" style="margin-top:6px;"><b>Como desenvolver</b>${bulletList(it.tips)}</div>
+          <div class="desc-block" style="margin-top:6px;"><b>Ponto de atenção</b>${bulletList(it.cuidado)}</div>
+        </div>
+      `).join('')}
+      ${guidance.notas.length ? `
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line);">
+          <div class="desc-block"><b>Outros pontos a observar</b></div>
+          ${bulletList(guidance.notas)}
+        </div>` : ''}
+    </div>
+  `;
+
+  const el = document.getElementById('screen-plus-result');
+  el.innerHTML = `
+    <div class="eyebrow">PRISMA · Relatório · Autoavaliação PLUS</div>
+    <div class="result-header"><h1 style="margin:0;">Seu perfil <span>estrutural</span></h1></div>
+    <div class="ident-block">
+      <div><b>Nome:</b> ${plusData.nome || '—'}</div>
+      <div><b>Posto/Graduação:</b> ${plusData.posto || '—'}</div>
+      <div><b>RE:</b> ${plusData.re || '—'}</div>
+      <div><b>OPM/Unidade:</b> ${plusData.opm || '—'}</div>
+      <div><b>Data:</b> ${plusData.data || todayBR()}</div>
+    </div>
+    <p class="sub">Versão estendida da autoavaliação, com quatro eixos de comportamento estrutural (A·C·R·F), como eles se combinam entre si, o quanto o perfil natural muda sob a percepção de exigência do ambiente — e, como na autoavaliação original, perfil de conhecimento e preferência operacional cruzados com os 12 perfis GU.</p>
+
+    <div class="section-title">Parte 1 · Perfil estrutural (A · C · R · F)</div>
+    <div class="card">
+      <div class="chart-box"><canvas id="plusStructChart"></canvas></div>
+      <div class="axis-legend" style="margin-top:10px;">
+        <span><b style="color:var(--amber)">A</b> Iniciativa &amp; Análise — ${PAT_POLES.A.hi} × ${PAT_POLES.A.lo}</span>
+        <span><b style="color:var(--amber)">C</b> Fonte Motivadora — ${PAT_POLES.C.hi} × ${PAT_POLES.C.lo}</span>
+        <span><b style="color:var(--amber)">R</b> Estratégia no Tempo — ${PAT_POLES.R.hi} × ${PAT_POLES.R.lo}</span>
+        <span><b style="color:var(--amber)">F</b> Conforto no Ambiente — ${PAT_POLES.F.hi} × ${PAT_POLES.F.lo}</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="desc-block"><b>Arquétipo predominante — ${r.arquetipo}</b></div>
+      <div class="desc-block" style="color:var(--muted);">Combinação dos dois eixos com maior intensidade no seu perfil estrutural, acima ou abaixo da média.</div>
+    </div>
+
+    ${guidanceHtml}
+
+    <div class="section-title">Eixos derivados (combinação simples de fatores)</div>
+    <div class="card">
+      ${r.axes.map(plusBipolarHtml).join('')}
+    </div>
+
+    <div class="section-title">Índices do perfil estrutural</div>
+    <div class="card">
+      <div class="idx-grid">
+        <div class="idx-card">
+          <div class="idx-label">Spread</div>
+          <div class="idx-value">${r.spreadLevel} <span style="color:var(--faint);font-size:12px;">(${r.spreadPct}%)</span></div>
+          <div class="idx-desc">Distância entre o eixo mais alto e o mais baixo — quanto maior, mais ênfase o comportamento tende a ter no ambiente ao redor.</div>
+        </div>
+        <div class="idx-card">
+          <div class="idx-label">Suporte Estrutural</div>
+          <div class="idx-value">${r.suporteLevel} <span style="color:var(--faint);font-size:12px;">(${r.suportePct}%)</span></div>
+          <div class="idx-desc">"Tônus" do perfil — capacidade de sustentar o comportamento sob estresse e absorver pressão do ambiente.</div>
+        </div>
+        <div class="idx-card" style="grid-column:1/-1;">
+          <div class="idx-label">Conflito</div>
+          <div class="idx-desc" style="font-size:13.5px;color:var(--text);">${r.conflito}</div>
+        </div>
+        <div class="idx-card">
+          <div class="idx-label">Ponderação</div>
+          <div class="idx-value">${r.ponderacao}</div>
+          <div class="idx-desc">Tendência a decidir mais pela razão, mais pela emoção, ou de forma equilibrada entre as duas.</div>
+        </div>
+        <div class="idx-card">
+          <div class="idx-label">Perspectiva</div>
+          <div class="idx-value">${r.perspectiva}</div>
+          <div class="idx-desc">Como você está enxergando o momento atual e os desafios à frente na corporação.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Parte 2 · Percepção no ambiente</div>
+    <div class="card">
+      <div class="chart-box"><canvas id="plusPercepChart"></canvas></div>
+      <p class="sub" style="margin-top:10px;">Mesmos quatro eixos, mas pensando em como você se comporta quando o ambiente de trabalho exige adaptação — jeito adaptado, não o mais natural.</p>
+    </div>
+    <div class="card">
+      <div class="idx-grid">
+        <div class="idx-card">
+          <div class="idx-label">Mudanças (estrutural → percepção)</div>
+          <div class="idx-value">${r.mudancas}</div>
+          <div class="idx-desc">${PLUS_MUDANCAS_DESC[r.mudancas]}</div>
+        </div>
+        <div class="idx-card">
+          <div class="idx-label">Aproveitamento do Potencial</div>
+          <div class="idx-value">${r.aproveitamento}</div>
+          <div class="idx-desc">${PLUS_APROV_DESC[r.aproveitamento]}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Parte 4 · Perfil de conhecimento</div>
+    <div class="card">
+      <div class="temp-bars" id="plusKnowBars"></div>
+    </div>
+    <div class="card">
+      <div class="desc-block"><b>Predominante — ${know.nome}</b></div>
+      <div class="desc-block"><b>Melhor uso pelo comandante:</b> ${know.uso}</div>
+      <div class="desc-block"><b>Risco principal:</b> ${know.risco}</div>
+      <div class="desc-block"><b>Exemplo na PM:</b> ${know.exemplo}</div>
+      <div class="desc-block" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line);color:var(--muted);">
+        <b>Segundo lugar — ${knowSec.nome}:</b> quando a função exigir, você também consegue puxar para esse modo de trabalhar.
+      </div>
+    </div>
+
+    <div class="section-title">Parte 5 · Perfil operacional (você × ${top.title})</div>
+    <div class="card">
+      <div class="chart-box"><canvas id="plusOpChart"></canvas></div>
+      <div style="display:flex;gap:18px;margin:8px 0 14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">
+        <span><span style="display:inline-block;width:9px;height:9px;background:var(--amber);border-radius:1px;margin-right:5px;"></span>Sua autoavaliação</span>
+        <span><span style="display:inline-block;width:9px;height:9px;background:var(--green);border-radius:1px;margin-right:5px;"></span>${top.code} · perfil ideal</span>
+      </div>
+      <div class="axis-legend">${axisLegendHtml}</div>
+    </div>
+
+    <div class="section-title">Funções onde você tende a render mais</div>
+    <div id="plusRecList"></div>
+
+    <div class="section-title">Como o resultado foi calculado</div>
+    <div class="card">
+      <div class="desc-block">O perfil estrutural (A·C·R·F) vem de 16 rodadas de escolha forçada; a percepção no ambiente, de mais 10. Os seis eixos derivados e os índices (Spread, Suporte Estrutural, Conflito) são calculados diretamente a partir desses dois perfis — sem pergunta adicional. Ponderação e Perspectiva vêm de 7 perguntas de concordância à parte. Para cruzar com os 12 perfis GU, os eixos A/C/R/F fazem o papel do temperamento (por correspondência conceitual — A≈iniciativa, C≈comunicação, R≈paciência, F≈estrutura), combinados com o mesmo perfil de conhecimento e preferência operacional (8 rodadas cada) da autoavaliação original, usando o mesmo método de correlação por formato de perfil.</div>
+    </div>
+
+    <div class="note">Isto é autopercepção, não avaliação de desempenho — o comando não participou dessas respostas. Use este relatório como abertura de conversa sobre função e desenvolvimento, não como decisão final.</div>
+
+    <div class="navrow" style="margin-top:24px;">
+      <button class="btn ghost" onclick="goMenu()">← Menu</button>
+      <button class="btn primary" onclick="window.print()">Gerar PDF do relatório</button>
+    </div>
+    <button class="btn ghost no-print" style="margin-top:10px;" onclick="downloadPlusJSON()">⇩ Baixar dados da autoavaliação PLUS (.json)</button>
+    <p class="sub no-print" style="font-size:12px;margin-top:10px;">O botão de PDF abre a janela de impressão do navegador — escolha "Salvar como PDF" como destino.</p>
+  `;
+
+  const knowBarsWrap = document.getElementById('plusKnowBars');
+  r.knowRank.forEach(k => {
+    const t = CONHECIMENTO[k];
+    const pct = Math.round(r.knowNorm[k]*100);
+    const row = document.createElement('div');
+    row.className = 'temp-row';
+    row.innerHTML = `
+      <div class="temp-name">${t.nome}</div>
+      <div class="temp-track"><div class="temp-fill" style="width:${pct}%;background:${t.cor};"></div></div>
+      <div class="temp-val">${pct}%</div>
+    `;
+    knowBarsWrap.appendChild(row);
+  });
+
+  plusStructChart = renderProfileLineChart('plusStructChart', r.structNorm, plusStructChart);
+  plusPercepChart = renderProfileLineChart('plusPercepChart', r.percepNorm, plusPercepChart);
+
+  const cc = cssVar('--amber'), gg = cssVar('--green');
+  if(plusOpChart) plusOpChart.destroy();
+  const opCtx = document.getElementById('plusOpChart').getContext('2d');
+  plusOpChart = new Chart(opCtx, {
+    type:'radar',
+    data:{
+      labels:AXES_ORDER.map(a => `${a} · ${AXES_FULL[a]}`),
+      datasets:[
+        { label:'Você', data:r.userVec, backgroundColor:cc+'33', borderColor:cc, borderWidth:2,
+          pointBackgroundColor:cc, pointRadius:3 },
+        { label:top.code, data:top.vec, backgroundColor:gg+'22', borderColor:gg, borderWidth:2,
+          borderDash:[4,3], pointBackgroundColor:gg, pointRadius:3 },
+      ]
+    },
+    options: chartScales(9.5)
+  });
+
+  const recWrap = document.getElementById('plusRecList');
+  r.ranked.slice(0,3).forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'rec-card';
+    card.innerHTML = `
+      <div class="rec-top">
+        <div class="rec-title">${i+1}. ${p.title}</div>
+        <div class="rec-pct">${p.pct}% de aderência</div>
+      </div>
+      <div class="rec-code">${p.code}</div>
+      <div class="rec-why">${p.why}</div>
+      <div class="rec-breakdown">
+        <span>Operacional: <b>${Math.round(p.opComponent*100)}%</b></span>
+        <span>Temperamento aprox.: <b>${Math.round(p.tempComponent*100)}%</b></span>
+        <span>Conhecimento: <b>${Math.round(p.knowComponent*100)}%</b></span>
+      </div>
+    `;
+    recWrap.appendChild(card);
+  });
+
+  showScreen('screen-plus-result');
+}
+
+function downloadPlusJSON(){
+  if(!lastPlusResult) return;
+  const r = lastPlusResult;
+  const payload = {
+    kind: 'prisma-autoavplus', version: 1,
+    plusData,
+    structNorm: r.structNorm, percepNorm: r.percepNorm,
+    axes: r.axes.map(a => ({name:a.name, dominant:a.dominant, strength:a.strength})),
+    spreadLevel: r.spreadLevel, suporteLevel: r.suporteLevel, conflito: r.conflito,
+    ponderacao: r.ponderacao, perspectiva: r.perspectiva,
+    mudancas: r.mudancas, aproveitamento: r.aproveitamento, arquetipo: r.arquetipo,
+    knowScore: r.knowNorm, knowRank: r.knowRank, userVec: r.userVec,
+    top3: r.ranked.slice(0,3).map(p => ({code:p.code, title:p.title, pct:p.pct})),
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `autoavplus-${(plusData.nome || 'policial').trim().replace(/\s+/g,'-').toLowerCase()}.json`;
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -1519,11 +2703,13 @@ function geralNorm(v){ return v === null ? null : (v - 1) / 4; } // 1..5 -> 0..1
 // não importa quem for avaliado — não carrega sinal de nível absoluto, só de ranking relativo
 // entre os itens. O nível geral é o que de fato varia de policial para policial.
 // Desempenho <- checklist operacional + método dos 30 segundos. Potencial <- postura (+ liderança, se aplicável).
-function computeNineBoxAuto(){
-  const opN = geralNorm(cmdAssess.geral.op);
-  const m30N = geralNorm(cmdAssess.geral.m30);
-  const posturaN = geralNorm(cmdAssess.geral.postura);
-  const lidN = cmdAssess.comandaEquipe ? geralNorm(cmdAssess.geral.lid) : null;
+// Genérico — usado tanto pela Avaliação do Comando original (via computeNineBoxAuto(), que
+// chama isto com cmdAssess) quanto pela Avaliação do Comando PLUS (com seu próprio state).
+function computeNineBoxFrom(geral, comandaEquipe){
+  const opN = geralNorm(geral.op);
+  const m30N = geralNorm(geral.m30);
+  const posturaN = geralNorm(geral.postura);
+  const lidN = comandaEquipe ? geralNorm(geral.lid) : null;
 
   let desempenho = null;
   const dParts = [];
@@ -1536,8 +2722,8 @@ function computeNineBoxAuto(){
 
   let potencial = null;
   const pParts = [];
-  if(posturaN !== null) pParts.push([posturaN, (cmdAssess.comandaEquipe && lidN !== null) ? 0.4 : 1]);
-  if(cmdAssess.comandaEquipe && lidN !== null) pParts.push([lidN, 0.6]);
+  if(posturaN !== null) pParts.push([posturaN, (comandaEquipe && lidN !== null) ? 0.4 : 1]);
+  if(comandaEquipe && lidN !== null) pParts.push([lidN, 0.6]);
   if(pParts.length){
     const w = pParts.reduce((s,[,x])=>s+x,0);
     potencial = pParts.reduce((s,[v,x])=>s+v*x,0) / w;
@@ -1545,8 +2731,124 @@ function computeNineBoxAuto(){
 
   return { desempenho, potencial, perf: nbLevel(desempenho), pot: nbLevel(potencial) };
 }
+function computeNineBoxAuto(){
+  return computeNineBoxFrom(cmdAssess.geral, cmdAssess.comandaEquipe);
+}
 
 function lowerFirst(s){ return s ? s.charAt(0).toLowerCase() + s.slice(1) : s; }
+
+// Rodadas de escolha forçada, compartilhado pelos checklists da Avaliação do Comando E da
+// Avaliação do Comando PLUS (op/postura/liderança/30s no original; perfil estrutural
+// observado no PLUS). Mesmo padrão de duas etapas por rodada (escolhe "mais" → escolhe
+// "menos" entre os restantes) usado no teste de autoavaliação. Quando todas as rodadas de
+// uma seção são respondidas, mostra o ranking final automaticamente.
+// geralObj/geralKey são opcionais — quando informados, mostra o seletor de "nível geral 1-5"
+// usado pra alimentar a Nine Box; quando omitidos (geralKey null), só mostra o ranking.
+function renderForcedChoiceSection(containerId, items, fc, answers, textOf, onChange, geralObj, geralKey){
+  const container = document.getElementById(containerId);
+
+  function draw(){
+    container.innerHTML = '';
+    const total = fc.rounds.length;
+    const r = answers.findIndex(a => !(a && a.most !== null && a.least !== null));
+
+    if(r === -1){
+      const ranked = fcRanked(items, fc, answers, textOf);
+      const wrap = document.createElement('div');
+      wrap.className = 'temp-bars';
+      renderRankBars(wrap, ranked, 'var(--amber)');
+      container.appendChild(wrap);
+
+      if(geralKey){
+        // Nível geral (1-5): a escolha forçada acima só ordena os itens entre si — este é o
+        // único ponto do checklist que informa nível absoluto, e é o que alimenta o Nine Box.
+        const geralWrap = document.createElement('div');
+        geralWrap.style.marginTop = '16px';
+        geralWrap.style.paddingTop = '14px';
+        geralWrap.style.borderTop = '1px solid var(--line)';
+        const geralTitle = document.createElement('div');
+        geralTitle.className = 'qtext';
+        geralTitle.style.fontSize = '14px';
+        geralTitle.style.marginBottom = '8px';
+        geralTitle.textContent = 'No geral, comparado ao esperado para a função, o nível dele aqui foi:';
+        geralWrap.appendChild(geralTitle);
+        const geralBtns = document.createElement('div');
+        geralBtns.className = 'likert';
+        [1,2,3,4,5].forEach(v => {
+          const b = document.createElement('button');
+          b.textContent = v;
+          b.title = GERAL_LABELS[v-1];
+          if(geralObj[geralKey] === v) b.classList.add('selected');
+          b.onclick = () => { geralObj[geralKey] = v; draw(); onChange(); };
+          geralBtns.appendChild(b);
+        });
+        geralWrap.appendChild(geralBtns);
+        const geralHint = document.createElement('div');
+        geralHint.className = 'anchor-hint';
+        geralHint.textContent = `1 — ${GERAL_LABELS[0]} · 5 — ${GERAL_LABELS[4]}`;
+        geralWrap.appendChild(geralHint);
+        container.appendChild(geralWrap);
+      }
+
+      const redo = document.createElement('button');
+      redo.className = 'btn ghost';
+      redo.style.marginTop = '10px';
+      redo.textContent = '← refazer esta seção';
+      redo.onclick = () => { answers.forEach(a => { a.most = null; a.least = null; }); if(geralKey) geralObj[geralKey] = null; draw(); onChange(); };
+      container.appendChild(redo);
+      return;
+    }
+
+    const idxs = fc.rounds[r];
+    const a = answers[r];
+
+    const prog = document.createElement('div');
+    prog.className = 'qnum';
+    prog.style.marginBottom = '6px';
+    prog.textContent = `RODADA ${r+1}/${total}`;
+    container.appendChild(prog);
+
+    const stepTitle = document.createElement('div');
+    stepTitle.className = 'section-title';
+    stepTitle.style.margin = '0 0 10px';
+    stepTitle.textContent = a.most === null ? 'O QUE MAIS REPRESENTA:' : 'AGORA, O QUE MENOS REPRESENTA:';
+    container.appendChild(stepTitle);
+
+    const wrap = document.createElement('div');
+    wrap.className = 'options';
+    const pool = a.most === null ? idxs : idxs.filter(k => k !== a.most);
+    pool.forEach(k => {
+      const b = document.createElement('button');
+      b.className = 'opt';
+      if(a.most !== null && a.least === k) b.classList.add('selected');
+      b.textContent = textOf(items[k]);
+      b.onclick = () => {
+        if(a.most === null){ a.most = k; }
+        else { a.least = k; onChange(); }
+        draw();
+      };
+      wrap.appendChild(b);
+    });
+    container.appendChild(wrap);
+
+    if(a.most !== null){
+      const back = document.createElement('button');
+      back.className = 'btn ghost';
+      back.style.marginTop = '10px';
+      back.textContent = '← trocar o "mais representa"';
+      back.onclick = () => { a.most = null; a.least = null; draw(); };
+      container.appendChild(back);
+    } else if(r > 0){
+      const backRound = document.createElement('button');
+      backRound.className = 'btn ghost';
+      backRound.style.marginTop = '10px';
+      backRound.textContent = '← rodada anterior';
+      backRound.onclick = () => { answers[r-1] = {most:null, least:null}; draw(); onChange(); };
+      container.appendChild(backRound);
+    }
+  }
+  draw();
+}
 
 function renderCmdForm(){
   cmdAssess = freshCmdAssess();
@@ -1637,120 +2939,11 @@ function renderCmdForm(){
     </div>
   `;
 
-  // Rodadas de escolha forçada, compartilhado pelos 4 checklists (op/postura/liderança/30s).
-  // Mesmo padrão de duas etapas por rodada (escolhe "mais" → escolhe "menos" entre os restantes)
-  // usado no teste de autoavaliação. Quando todas as rodadas de um checklist são respondidas,
-  // mostra o ranking final (equivalente ao "ponto forte / ponto de atenção" de antes, mas
-  // automático — o forced-choice já hierarquiza tudo).
-  function renderForcedChoiceSection(containerId, items, fc, answers, textOf, onChange, geralKey){
-    const container = document.getElementById(containerId);
-
-    function draw(){
-      container.innerHTML = '';
-      const total = fc.rounds.length;
-      const r = answers.findIndex(a => !(a && a.most !== null && a.least !== null));
-
-      if(r === -1){
-        const ranked = fcRanked(items, fc, answers, textOf);
-        const wrap = document.createElement('div');
-        wrap.className = 'temp-bars';
-        renderRankBars(wrap, ranked, 'var(--amber)');
-        container.appendChild(wrap);
-
-        // Nível geral (1-5): a escolha forçada acima só ordena os itens entre si — este é o
-        // único ponto do checklist que informa nível absoluto, e é o que alimenta o Nine Box.
-        const geralWrap = document.createElement('div');
-        geralWrap.style.marginTop = '16px';
-        geralWrap.style.paddingTop = '14px';
-        geralWrap.style.borderTop = '1px solid var(--line)';
-        const geralTitle = document.createElement('div');
-        geralTitle.className = 'qtext';
-        geralTitle.style.fontSize = '14px';
-        geralTitle.style.marginBottom = '8px';
-        geralTitle.textContent = 'No geral, comparado ao esperado para a função, o nível dele aqui foi:';
-        geralWrap.appendChild(geralTitle);
-        const geralBtns = document.createElement('div');
-        geralBtns.className = 'likert';
-        [1,2,3,4,5].forEach(v => {
-          const b = document.createElement('button');
-          b.textContent = v;
-          b.title = GERAL_LABELS[v-1];
-          if(cmdAssess.geral[geralKey] === v) b.classList.add('selected');
-          b.onclick = () => { cmdAssess.geral[geralKey] = v; draw(); onChange(); };
-          geralBtns.appendChild(b);
-        });
-        geralWrap.appendChild(geralBtns);
-        const geralHint = document.createElement('div');
-        geralHint.className = 'anchor-hint';
-        geralHint.textContent = `1 — ${GERAL_LABELS[0]} · 5 — ${GERAL_LABELS[4]}`;
-        geralWrap.appendChild(geralHint);
-        container.appendChild(geralWrap);
-
-        const redo = document.createElement('button');
-        redo.className = 'btn ghost';
-        redo.style.marginTop = '10px';
-        redo.textContent = '← refazer este checklist';
-        redo.onclick = () => { answers.forEach(a => { a.most = null; a.least = null; }); cmdAssess.geral[geralKey] = null; draw(); onChange(); };
-        container.appendChild(redo);
-        return;
-      }
-
-      const idxs = fc.rounds[r];
-      const a = answers[r];
-
-      const prog = document.createElement('div');
-      prog.className = 'qnum';
-      prog.style.marginBottom = '6px';
-      prog.textContent = `RODADA ${r+1}/${total}`;
-      container.appendChild(prog);
-
-      const stepTitle = document.createElement('div');
-      stepTitle.className = 'section-title';
-      stepTitle.style.margin = '0 0 10px';
-      stepTitle.textContent = a.most === null ? 'O QUE MAIS REPRESENTA:' : 'AGORA, O QUE MENOS REPRESENTA:';
-      container.appendChild(stepTitle);
-
-      const wrap = document.createElement('div');
-      wrap.className = 'options';
-      const pool = a.most === null ? idxs : idxs.filter(k => k !== a.most);
-      pool.forEach(k => {
-        const b = document.createElement('button');
-        b.className = 'opt';
-        if(a.most !== null && a.least === k) b.classList.add('selected');
-        b.textContent = textOf(items[k]);
-        b.onclick = () => {
-          if(a.most === null){ a.most = k; }
-          else { a.least = k; onChange(); }
-          draw();
-        };
-        wrap.appendChild(b);
-      });
-      container.appendChild(wrap);
-
-      if(a.most !== null){
-        const back = document.createElement('button');
-        back.className = 'btn ghost';
-        back.style.marginTop = '10px';
-        back.textContent = '← trocar o "mais representa"';
-        back.onclick = () => { a.most = null; a.least = null; draw(); };
-        container.appendChild(back);
-      } else if(r > 0){
-        const backRound = document.createElement('button');
-        backRound.className = 'btn ghost';
-        backRound.style.marginTop = '10px';
-        backRound.textContent = '← rodada anterior';
-        backRound.onclick = () => { answers[r-1] = {most:null, least:null}; draw(); onChange(); };
-        container.appendChild(backRound);
-      }
-    }
-    draw();
-  }
-
   const itemStatement = it => it.hi;
   const plainStatement = it => it;
 
   // checklist: operacional
-  renderForcedChoiceSection('cl-op', CHECKLIST_OP, OP_FC, cmdAssess.op, itemStatement, () => { updateOpInterp(); refreshNineBoxPreview(); }, 'op');
+  renderForcedChoiceSection('cl-op', CHECKLIST_OP, OP_FC, cmdAssess.op, itemStatement, () => { updateOpInterp(); refreshNineBoxPreview(); }, cmdAssess.geral, 'op');
   function updateOpInterp(){
     const box = document.getElementById('interp-op');
     if(!fcComplete(OP_FC, cmdAssess.op)){ box.classList.add('hidden'); return; }
@@ -1768,7 +2961,7 @@ function renderCmdForm(){
   }
 
   // checklist: postura
-  renderForcedChoiceSection('cl-postura', CHECKLIST_POSTURA, POSTURA_FC, cmdAssess.postura, itemStatement, refreshNineBoxPreview, 'postura');
+  renderForcedChoiceSection('cl-postura', CHECKLIST_POSTURA, POSTURA_FC, cmdAssess.postura, itemStatement, refreshNineBoxPreview, cmdAssess.geral, 'postura');
 
   // comanda equipe toggle
   document.querySelectorAll('#comandaEquipeOpts .opt').forEach(btn => {
@@ -1779,10 +2972,10 @@ function renderCmdForm(){
       refreshNineBoxPreview();
     };
   });
-  renderForcedChoiceSection('cl-lid', CHECKLIST_LID, LID_FC, cmdAssess.lid, itemStatement, refreshNineBoxPreview, 'lid');
+  renderForcedChoiceSection('cl-lid', CHECKLIST_LID, LID_FC, cmdAssess.lid, itemStatement, refreshNineBoxPreview, cmdAssess.geral, 'lid');
 
   // método 30 segundos — agora também escolha forçada, mas numa rodada só (recall de UMA ocorrência, não um inventário de competências)
-  renderForcedChoiceSection('m30-wrap', METHOD_30S, M30_FC, cmdAssess.m30, plainStatement, () => { updateM30Interp(); refreshNineBoxPreview(); }, 'm30');
+  renderForcedChoiceSection('m30-wrap', METHOD_30S, M30_FC, cmdAssess.m30, plainStatement, () => { updateM30Interp(); refreshNineBoxPreview(); }, cmdAssess.geral, 'm30');
   function updateM30Interp(){
     const box = document.getElementById('interp-m30');
     if(!fcComplete(M30_FC, cmdAssess.m30)){ box.classList.add('hidden'); return; }
@@ -1950,7 +3143,7 @@ function buildAutoSuggestion(t, c, nb, pStep){
     parts.push(pStep.mudanca);
   }
 
-  if(importedSelf && importedSelf.selfData){
+  if(importedSelf && (importedSelf.selfData || importedSelf.plusData)){
     const selfTempKey = importedSelf.tempRank && importedSelf.tempRank[0];
     if(selfTempKey && TEMPERAMENTOS[selfTempKey]){
       const selfTempNome = TEMPERAMENTOS[selfTempKey].nome;
@@ -1991,6 +3184,21 @@ function buildAutoSuggestion(t, c, nb, pStep){
     if(importedSelf.top3 && importedSelf.top3[0]){
       const top = importedSelf.top3[0];
       parts.push(`Na autoavaliação, a função de melhor aderência apontada foi <b>${top.code} — ${top.title}</b> (${top.pct}% de aderência) — vale considerar isso ao decidir sobre a função atual.`);
+    }
+
+    // Autoavaliação PLUS traz eixos A/C/R/F em vez de C/S/F/M — não dá pra comparar
+    // diretamente com o temperamento observado pelo comando, mas o arquétipo e os
+    // índices estruturais ainda agregam contexto útil pra conversa de feedback.
+    if(importedSelf.kind === 'prisma-autoavplus'){
+      if(importedSelf.arquetipo){
+        parts.push(`<b>Autoavaliação PLUS — arquétipo estrutural:</b> ${importedSelf.arquetipo}. Spread ${importedSelf.spreadLevel || '—'}, Suporte Estrutural ${importedSelf.suporteLevel || '—'}, Ponderação ${importedSelf.ponderacao || '—'}, Perspectiva ${importedSelf.perspectiva || '—'}.`);
+      }
+      if(importedSelf.mudancas){
+        parts.push(`Mudanças (natural → percepção no ambiente): <b>${importedSelf.mudancas}</b>. Aproveitamento do potencial: <b>${importedSelf.aproveitamento || '—'}</b>.`);
+      }
+      if(importedSelf.conflito && !/^Sem conflito/.test(importedSelf.conflito)){
+        parts.push(`A autoavaliação PLUS aponta um conflito estrutural: ${importedSelf.conflito}`);
+      }
     }
   }
   return parts;
@@ -2150,7 +3358,7 @@ function showCmdResult(){
     ${importedSelf ? `
     <div class="section-title">Cruzamento com a autoavaliação do policial</div>
     <div class="card">
-      <div class="desc-block">Arquivo importado: autoavaliação de <b>${(importedSelf.selfData && importedSelf.selfData.nome) || '—'}</b> (${(importedSelf.selfData && importedSelf.selfData.data) || '—'}).</div>
+      <div class="desc-block">Arquivo importado: autoavaliação${importedSelf.kind==='prisma-autoavplus' ? ' PLUS' : ''} de <b>${((importedSelf.selfData||importedSelf.plusData) && (importedSelf.selfData||importedSelf.plusData).nome) || '—'}</b> (${((importedSelf.selfData||importedSelf.plusData) && (importedSelf.selfData||importedSelf.plusData).data) || '—'}).</div>
     </div>` : ''}
 
     <div class="section-title">Sugestão automática de desenvolvimento</div>
@@ -2251,6 +3459,611 @@ function showCmdResult(){
   });
 
   showScreen('screen-cmd-result');
+}
+
+/* ============================= AVALIAÇÃO DO COMANDO PLUS ============================= */
+// Versão da Avaliação do Comando nativa nos eixos A/C/R/F da Autoavaliação PLUS: em vez do
+// comandante escolher um temperamento (C/S/F/M) manualmente, ele responde 12 rodadas de
+// escolha forçada observando o comportamento do policial, produzindo um perfil estrutural
+// OBSERVADO diretamente comparável ao autorrelatado — sem a aproximação C/S/F/M que a
+// Autoavaliação PLUS precisa usar pra cruzar com os 12 perfis GU. Reaproveita os mesmos
+// checklists comportamentais, Nine Box e Pipeline da Avaliação do Comando original.
+
+const PAT_STRUCT_OBS_BLOCKS = [
+  { situacao:"Numa ocorrência nova, sem procedimento claro definido, o que mais e o que menos representa esse policial:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Decide na hora, confiando no instinto, mesmo sem ter todos os dados.",
+           C:"Aciona a equipe pelo rádio e resolve junto, conversando enquanto age.",
+           R:"Espera alguns segundos a mais, deixando a situação se definir antes de agir.",
+           F:"Busca o procedimento ou protocolo mais parecido antes de agir." } },
+  { situacao:"Ao assumir uma viatura ou equipe nova, o que mais e o que menos representa esse policial:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Já vai testando o próprio jeito de trabalhar, sem esperar todo mundo se ajustar.",
+           C:"Conversa bastante nos primeiros dias pra criar entrosamento rápido.",
+           R:"Prefere observar o ritmo da equipe por um tempo antes de mudar qualquer coisa.",
+           F:"Pergunta logo quais são as regras e rotinas já estabelecidas." } },
+  { situacao:"Diante de uma tarefa administrativa chata mas necessária, o que mais e o que menos representa esse policial:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Faz rápido, do próprio jeito, mesmo que não siga o passo a passo à risca.",
+           C:"Prefere fazer conversando com alguém por perto.",
+           R:"Faz com calma, sem pressa, no próprio tempo.",
+           F:"Segue o modelo/formulário certinho, do jeito que deve ser feito." } },
+  { situacao:"Quando um colega discorda da forma dele agir numa ocorrência, o que mais e o que menos representa esse policial:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Defende a posição com firmeza, sem duvidar muito de si mesmo.",
+           C:"Prefere conversar bastante até entenderem o lado um do outro.",
+           R:"Deixa o assunto esfriar antes de continuar a conversa.",
+           F:"Busca o que está escrito no procedimento pra resolver a divergência." } },
+  { situacao:"No planejamento de uma ação com prazo curto, o que mais e o que menos representa esse policial:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Prefere agir logo e ajustar o plano no caminho.",
+           C:"Prefere alinhar verbalmente com todo mundo antes de sair.",
+           R:"Prefere esperar mais informação antes de definir qualquer coisa.",
+           F:"Prefere montar uma checklist antes de sair, mesmo com o tempo curto." } },
+  { situacao:"Numa reunião de passagem de serviço, o que mais e o que menos representa esse policial:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Vai direto ao ponto, sem enrolar em detalhes.",
+           C:"Gosta de comentar e trocar impressões, não só passar a informação seca.",
+           R:"Deixa quem está mais afobado falar primeiro, e entra com calma.",
+           F:"Segue a ordem e o formato padrão de passagem, sem pular etapas." } },
+  { situacao:"Quando percebe um erro num relatório ou procedimento de outro colega, o que mais e o que menos representa esse policial:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Aponta na hora, direto, sem rodeio.",
+           C:"Comenta com jeito, numa conversa, pra não constranger.",
+           R:"Deixa pra falar num momento mais tranquilo, sem pressa.",
+           F:"Registra formalmente / segue o canal correto para reportar." } },
+  { situacao:"Ao encarar uma mudança de escala ou rotina de última hora, o que mais e o que menos representa esse policial:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Se adapta na hora, sem muito questionamento.",
+           C:"Precisa conversar sobre o motivo da mudança pra se sentir bem com ela.",
+           R:"Precisa de um tempo pra se ajustar mentalmente à mudança.",
+           F:"Fica incomodado quando a mudança quebra uma rotina já organizada." } },
+  { situacao:"No meio de uma abordagem que está indo bem, o que mais e o que menos representa esse policial:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Segue o instinto pra decidir os próximos passos, mesmo fora do script.",
+           C:"Usa a conversa como principal ferramenta pra manter o controle da situação.",
+           R:"Mantém o ritmo calmo, sem acelerar desnecessariamente.",
+           F:"Segue rigorosamente a sequência de segurança do procedimento." } },
+  { situacao:"Ao organizar o material/equipamento de serviço, o que mais e o que menos representa esse policial:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Não liga muito pra organização, contanto que funcione.",
+           C:"Gosta de comentar/mostrar como organizou pros colegas.",
+           R:"Vai arrumando aos poucos, sem se apressar.",
+           F:"Gosta de tudo no lugar certo, seguindo um padrão fixo." } },
+  { situacao:"Diante de uma ordem que ele não concorda totalmente, o que mais e o que menos representa esse policial:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Questiona na hora, mesmo sabendo que pode gerar atrito.",
+           C:"Busca entender conversando com quem deu a ordem.",
+           R:"Cumpre por ora e só levanta o ponto depois, com calma.",
+           F:"Cumpre porque é a ordem, mesmo sem concordar totalmente." } },
+  { situacao:"No fim de um plantão puxado, o que mais e o que menos representa esse policial:",
+    keys:["A","C","R","F"],
+    opts:{ A:"Já pensa na próxima ação/plantão, sem parar muito pra processar o que passou.",
+           C:"Precisa comentar o plantão com alguém antes de ir embora.",
+           R:"Precisa de um tempo sozinho pra desacelerar antes de qualquer coisa.",
+           F:"Revisa e fecha certinho tudo que precisa ser registrado antes de sair." } },
+];
+
+let cmdPlusStructAnswers = {};
+let cmdPlusStructQ = 0;
+let importedSelfPlus = null;
+
+function freshCmdPlusAssess(){
+  return {
+    op: OP_FC.rounds.map(()=>({most:null, least:null})),
+    postura: POSTURA_FC.rounds.map(()=>({most:null, least:null})),
+    comandaEquipe: null,
+    lid: LID_FC.rounds.map(()=>({most:null, least:null})),
+    m30: M30_FC.rounds.map(()=>({most:null, least:null})),
+    geral: {op:null, postura:null, lid:null, m30:null},
+    perfil: null,
+    funcaoAdequada: null,
+    observacoes: "",
+  };
+}
+let cmdPlusAssess = freshCmdPlusAssess();
+
+function startCmdPlusStructQuiz(){
+  cmdPlusStructAnswers = {}; cmdPlusStructQ = 0;
+  renderCmdPlusStructQuestion();
+  showScreen('screen-cmdplus-quiz');
+}
+
+function renderCmdPlusStructQuestion(){
+  const total = PAT_STRUCT_OBS_BLOCKS.length;
+  const q = PAT_STRUCT_OBS_BLOCKS[cmdPlusStructQ];
+  document.getElementById('qCounterCmdPlus').textContent = `RODADA ${cmdPlusStructQ+1}/${total}`;
+  document.getElementById('progressFillCmdPlus').style.width = `${(cmdPlusStructQ/total)*100}%`;
+  document.getElementById('qTextCmdPlus').textContent = q.situacao;
+  const body = document.getElementById('qBodyCmdPlus');
+  body.innerHTML = "";
+
+  const current = cmdPlusStructAnswers[cmdPlusStructQ] || {};
+  const stepTitle = document.createElement('div');
+  stepTitle.className = 'section-title';
+  stepTitle.style.margin = '0 0 10px';
+  stepTitle.textContent = current.most ? "AGORA, O QUE MENOS REPRESENTA:" : "O QUE MAIS REPRESENTA:";
+  body.appendChild(stepTitle);
+
+  const wrap = document.createElement('div');
+  wrap.className = 'options';
+  const pool = current.most ? q.keys.filter(k => k !== current.most) : q.keys;
+  pool.forEach(k => {
+    const b = document.createElement('button');
+    b.className = 'opt';
+    const isSelected = current.most ? current.least === k : current.most === k;
+    if(isSelected) b.classList.add('selected');
+    b.textContent = q.opts[k];
+    b.onclick = () => {
+      if(!current.most){ cmdPlusStructAnswers[cmdPlusStructQ] = {most:k}; }
+      else { cmdPlusStructAnswers[cmdPlusStructQ] = {most:current.most, least:k}; }
+      renderCmdPlusStructQuestion();
+      updateCmdPlusNextBtn();
+    };
+    wrap.appendChild(b);
+  });
+  body.appendChild(wrap);
+
+  if(current.most){
+    const back = document.createElement('button');
+    back.className = 'btn ghost';
+    back.style.marginTop = '10px';
+    back.textContent = '← trocar o "mais representa"';
+    back.onclick = () => { cmdPlusStructAnswers[cmdPlusStructQ] = {}; renderCmdPlusStructQuestion(); updateCmdPlusNextBtn(); };
+    body.appendChild(back);
+  }
+
+  document.getElementById('btnBackCmdPlus').disabled = false;
+  updateCmdPlusNextBtn();
+}
+function updateCmdPlusNextBtn(){
+  const btn = document.getElementById('btnNextCmdPlus');
+  const a = cmdPlusStructAnswers[cmdPlusStructQ];
+  const answered = !!(a && a.most && a.least);
+  btn.disabled = !answered;
+  btn.textContent = cmdPlusStructQ === PAT_STRUCT_OBS_BLOCKS.length - 1 ? "Continuar →" : "Próxima →";
+}
+function goCmdPlusNext(){
+  const a = cmdPlusStructAnswers[cmdPlusStructQ];
+  if(!(a && a.most && a.least)) return;
+  if(cmdPlusStructQ === PAT_STRUCT_OBS_BLOCKS.length - 1){
+    cmdPlusAssess = freshCmdPlusAssess();
+    renderCmdPlusForm();
+    showScreen('screen-cmdplus-form');
+  } else {
+    cmdPlusStructQ++;
+    renderCmdPlusStructQuestion();
+  }
+}
+function goCmdPlusBack(){
+  if(cmdPlusStructQ === 0){ showScreen('screen-cmdplus-intro'); return; }
+  cmdPlusStructQ--;
+  renderCmdPlusStructQuestion();
+}
+
+function renderCmdPlusForm(){
+  const el = document.getElementById('screen-cmdplus-form');
+  el.innerHTML = `
+    <div class="eyebrow">PRISMA · Avaliação do Comando PLUS</div>
+    <h1>Ficha de <span>avaliação</span></h1>
+    <p class="sub">Avaliando <b style="color:var(--text)">${cmdPlusData.avaliadoNome}</b> (${cmdPlusData.avaliadoPosto}). Baseie-se apenas no que você observou em serviço.</p>
+    <div class="note" style="border-left-color:var(--danger);">Documento de uso interno do avaliador — não deve ser entregue ao avaliado.</div>
+
+    <div class="section-title">Checklist operacional (durante a ocorrência)</div>
+    <div class="card">
+      <div id="clp-op"></div>
+      <div class="interp-box hidden" id="interp-plus-op"></div>
+    </div>
+
+    <div class="section-title">Checklist de postura profissional (rotina e quartel)</div>
+    <div class="card">
+      <div id="clp-postura"></div>
+    </div>
+
+    <div class="section-title">Liderança de equipe</div>
+    <div class="card">
+      <div class="qtext" style="font-size:15px;margin-bottom:10px;">Este policial comanda equipe/fração?</div>
+      <div class="options row" id="comandaEquipeOptsPlus">
+        <button class="opt" data-v="sim">Sim</button>
+        <button class="opt" data-v="nao">Não</button>
+      </div>
+      <div id="clp-lid-wrap" class="hidden" style="margin-top:16px;"><div id="clp-lid"></div></div>
+    </div>
+
+    <div class="section-title">Método de avaliação em 30 segundos</div>
+    <div class="card">
+      <div id="m30-wrap-plus"></div>
+      <div class="interp-box hidden" id="interp-plus-m30"></div>
+    </div>
+
+    <div class="section-title">Perfil predominante (uso do conhecimento)</div>
+    <div class="card">
+      <div class="options" id="perfilOptsPlus"></div>
+    </div>
+
+    <div class="section-title">Nine Box — calculado automaticamente</div>
+    <div class="card">
+      <div id="nineboxAutoHolderPlus"></div>
+      <div class="nb-detail" id="nb-auto-detail-plus">Responda os checklists acima para calcular a posição.</div>
+    </div>
+
+    <div class="section-title">Função atual</div>
+    <div class="card">
+      <div class="qtext" style="font-size:15px;margin-bottom:10px;">A função atual é adequada ao perfil observado?</div>
+      <div class="options row" id="funcaoOptsPlus">
+        <button class="opt" data-v="sim">Sim</button>
+        <button class="opt" data-v="nao">Não</button>
+      </div>
+    </div>
+
+    <div class="section-title">Pipeline de liderança — próxima passagem</div>
+    <div class="card"><div id="pipelineHolderPlus"></div></div>
+
+    <div class="section-title">Observações adicionais do avaliador (opcional)</div>
+    <div class="card">
+      <div class="field">
+        <label>Complementos além da sugestão automática</label>
+        <textarea id="cmdPlusObs" placeholder="Ex.: contexto específico da ocorrência, histórico recente, combinados já feitos com o policial..."></textarea>
+      </div>
+    </div>
+
+    <div id="cmdPlusFormMsg" class="interp-box warn hidden" style="margin-bottom:16px;"></div>
+
+    <div class="navrow">
+      <button class="btn" onclick="showScreen('screen-cmdplus-quiz')">← Voltar</button>
+      <button class="btn primary" onclick="generateCmdPlusReport()">Gerar relatório →</button>
+    </div>
+  `;
+
+  const itemStatement = it => it.hi;
+  const plainStatement = it => it;
+
+  renderForcedChoiceSection('clp-op', CHECKLIST_OP, OP_FC, cmdPlusAssess.op, itemStatement, () => { updateOpInterpPlus(); refreshNineBoxPreviewPlus(); }, cmdPlusAssess.geral, 'op');
+  function updateOpInterpPlus(){
+    const box = document.getElementById('interp-plus-op');
+    if(!fcComplete(OP_FC, cmdPlusAssess.op)){ box.classList.add('hidden'); return; }
+    box.classList.remove('hidden');
+    const norm = fcNorm(CHECKLIST_OP, OP_FC, cmdPlusAssess.op);
+    const falhas = norm.filter(v => v < 0.4).length;
+    const warnAt = Math.ceil(CHECKLIST_OP.length/3);
+    box.className = falhas >= warnAt ? 'interp-box warn' : 'interp-box ok';
+    box.textContent = falhas >= warnAt
+      ? `${falhas} item(ns) no fundo do ranking — existe um problema comportamental claro a ser trabalhado.`
+      : `${falhas} item(ns) no fundo do ranking — sem sinal de problema comportamental claro neste checklist.`;
+  }
+
+  renderForcedChoiceSection('clp-postura', CHECKLIST_POSTURA, POSTURA_FC, cmdPlusAssess.postura, itemStatement, refreshNineBoxPreviewPlus, cmdPlusAssess.geral, 'postura');
+
+  document.querySelectorAll('#comandaEquipeOptsPlus .opt').forEach(btn => {
+    btn.onclick = () => {
+      cmdPlusAssess.comandaEquipe = btn.dataset.v === 'sim';
+      document.querySelectorAll('#comandaEquipeOptsPlus .opt').forEach(b => b.classList.toggle('selected', b === btn));
+      document.getElementById('clp-lid-wrap').classList.toggle('hidden', !cmdPlusAssess.comandaEquipe);
+      refreshNineBoxPreviewPlus();
+    };
+  });
+  renderForcedChoiceSection('clp-lid', CHECKLIST_LID, LID_FC, cmdPlusAssess.lid, itemStatement, refreshNineBoxPreviewPlus, cmdPlusAssess.geral, 'lid');
+
+  renderForcedChoiceSection('m30-wrap-plus', METHOD_30S, M30_FC, cmdPlusAssess.m30, plainStatement, () => { updateM30InterpPlus(); refreshNineBoxPreviewPlus(); }, cmdPlusAssess.geral, 'm30');
+  function updateM30InterpPlus(){
+    const box = document.getElementById('interp-plus-m30');
+    if(!fcComplete(M30_FC, cmdPlusAssess.m30)){ box.classList.add('hidden'); return; }
+    box.classList.remove('hidden');
+    const norm = fcNorm(METHOD_30S, M30_FC, cmdPlusAssess.m30);
+    const positivos = norm.filter(v => v >= 0.6).length;
+    box.className = positivos >= Math.ceil(METHOD_30S.length/2) ? 'interp-box ok' : 'interp-box warn';
+    box.textContent = positivos >= Math.ceil(METHOD_30S.length/2)
+      ? `${positivos}/${METHOD_30S.length} pontos fortes no método dos 30 segundos — bom desempenho.`
+      : `${positivos}/${METHOD_30S.length} pontos fortes no método dos 30 segundos — precisa de orientação.`;
+  }
+
+  const perfilOptsPlus = document.getElementById('perfilOptsPlus');
+  ["E","G","N"].forEach(k => {
+    const c = CONHECIMENTO[k];
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.innerHTML = `<b style="color:${c.cor}">${k} — ${c.nome}</b> <span style="color:var(--faint)">(${c.alt})</span>`;
+    b.onclick = () => {
+      cmdPlusAssess.perfil = k;
+      perfilOptsPlus.querySelectorAll('.opt').forEach(x => x.classList.toggle('selected', x === b));
+    };
+    perfilOptsPlus.appendChild(b);
+  });
+
+  function refreshNineBoxPreviewPlus(){
+    const { perf, pot } = computeNineBoxFrom(cmdPlusAssess.geral, cmdPlusAssess.comandaEquipe);
+    const holder = document.getElementById('nineboxAutoHolderPlus');
+    const detail = document.getElementById('nb-auto-detail-plus');
+    if(!perf || !pot){
+      renderNineBoxGrid(holder, null, null);
+      detail.textContent = 'Responda os checklists acima para calcular a posição.';
+      return;
+    }
+    renderNineBoxGrid(holder, {pot, perf}, null);
+    const d = NINE_BOX[`${pot}|${perf}`];
+    detail.innerHTML = `<b>${d.nome}</b> — ${d.leitura}<br><b>Ação recomendada:</b> ${d.acao}`;
+  }
+  refreshNineBoxPreviewPlus();
+
+  document.querySelectorAll('#funcaoOptsPlus .opt').forEach(btn => {
+    btn.onclick = () => {
+      cmdPlusAssess.funcaoAdequada = btn.dataset.v === 'sim';
+      document.querySelectorAll('#funcaoOptsPlus .opt').forEach(b => b.classList.toggle('selected', b === btn));
+    };
+  });
+
+  const pipelineHolderPlus = document.getElementById('pipelineHolderPlus');
+  const pStep = PIPELINE[cmdPlusData.avaliadoPosto];
+  if(pStep && pStep.para){
+    pipelineHolderPlus.innerHTML = `
+      <div class="pipeline-card">
+        <div class="pc-title">${cmdPlusData.avaliadoPosto} → ${pStep.para}</div>
+        <div><b>O que muda:</b> ${pStep.mudanca}</div>
+        <div style="margin-top:6px;"><b>Erros comuns nessa passagem:</b> ${pStep.erros}</div>
+      </div>
+    `;
+  } else if(pStep){
+    pipelineHolderPlus.innerHTML = `
+      <div class="pipeline-card">
+        <div class="pc-title">${cmdPlusData.avaliadoPosto} — topo do roteiro</div>
+        <div>${pStep.mudanca}</div>
+        ${pStep.erros ? `<div style="margin-top:6px;"><b>Atenção:</b> ${pStep.erros}</div>` : ''}
+      </div>
+    `;
+  }
+
+  document.getElementById('cmdPlusObs').addEventListener('input', e => { cmdPlusAssess.observacoes = e.target.value; });
+}
+
+function generateCmdPlusReport(){
+  const msg = document.getElementById('cmdPlusFormMsg');
+  const { perf, pot } = computeNineBoxFrom(cmdPlusAssess.geral, cmdPlusAssess.comandaEquipe);
+  const missing = [];
+  if(!fcComplete(OP_FC, cmdPlusAssess.op)) missing.push('o checklist operacional');
+  if(cmdPlusAssess.geral.op === null) missing.push('o nível geral do checklist operacional');
+  if(!fcComplete(POSTURA_FC, cmdPlusAssess.postura)) missing.push('o checklist de postura profissional');
+  if(cmdPlusAssess.geral.postura === null) missing.push('o nível geral do checklist de postura');
+  if(cmdPlusAssess.comandaEquipe === null) missing.push('se o policial comanda equipe');
+  if(cmdPlusAssess.comandaEquipe && !fcComplete(LID_FC, cmdPlusAssess.lid)) missing.push('o checklist de liderança');
+  if(cmdPlusAssess.comandaEquipe && cmdPlusAssess.geral.lid === null) missing.push('o nível geral do checklist de liderança');
+  if(!fcComplete(M30_FC, cmdPlusAssess.m30)) missing.push('o método dos 30 segundos');
+  if(cmdPlusAssess.geral.m30 === null) missing.push('o nível geral do método dos 30 segundos');
+  if(!cmdPlusAssess.perfil) missing.push('o perfil predominante');
+  if(!perf || !pot) missing.push('dados suficientes para calcular a Nine Box');
+  if(cmdPlusAssess.funcaoAdequada === null) missing.push('se a função atual é adequada');
+
+  if(missing.length){
+    msg.classList.remove('hidden');
+    msg.textContent = 'Antes de gerar o relatório, preencha: ' + missing.join('; ') + '.';
+    msg.scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+  msg.classList.add('hidden');
+  showCmdPlusResult();
+}
+
+function computeCmdPlusResults(){
+  const structNorm = normIpsative(PAT_STRUCT_OBS_BLOCKS, 0, PAT_KEYS, cmdPlusStructAnswers);
+  const idx = computeStructIndices(structNorm);
+  return { structNorm, ...idx };
+}
+
+function buildCmdPlusComparison(rObs){
+  if(!importedSelfPlus || !importedSelfPlus.structNorm) return null;
+  const selfNorm = importedSelfPlus.structNorm;
+  const rows = PAT_KEYS.map(k => {
+    const obsV = rObs.structNorm[k], selfV = selfNorm[k];
+    return { key:k, nome:PAT_POLES[k].nome, obsPct:Math.round(obsV*100), selfPct:Math.round(selfV*100), diff:Math.round((obsV-selfV)*100) };
+  });
+  const maxDiffRow = rows.slice().sort((a,b)=>Math.abs(b.diff)-Math.abs(a.diff))[0];
+  return { rows, maxDiffRow };
+}
+
+let cmdPlusOpFcChart=null, cmdPlusPosturaFcChart=null, cmdPlusLidFcChart=null, cmdPlusStructChartInstance=null;
+
+function showCmdPlusResult(){
+  const rObs = computeCmdPlusResults();
+  const c = CONHECIMENTO[cmdPlusAssess.perfil];
+  const { perf, pot } = computeNineBoxFrom(cmdPlusAssess.geral, cmdPlusAssess.comandaEquipe);
+  const nb = NINE_BOX[`${pot}|${perf}`];
+  const pStep = PIPELINE[cmdPlusData.avaliadoPosto];
+  const guidance = buildPatGuidance(rObs, 'lead');
+  const comparison = buildCmdPlusComparison(rObs);
+
+  const opRanked = fcRanked(CHECKLIST_OP, OP_FC, cmdPlusAssess.op, it => it.label);
+  const posturaRanked = fcRanked(CHECKLIST_POSTURA, POSTURA_FC, cmdPlusAssess.postura, it => it.label);
+  const lidRanked = cmdPlusAssess.comandaEquipe ? fcRanked(CHECKLIST_LID, LID_FC, cmdPlusAssess.lid, it => it.label) : [];
+  const m30Ranked = fcRanked(METHOD_30S, M30_FC, cmdPlusAssess.m30, it => it);
+  const falhasOp = opRanked.filter(r => r.pct < 40).length;
+  const warnAtOp = Math.ceil(CHECKLIST_OP.length/3);
+  const positivosM30 = m30Ranked.filter(r => r.pct >= 60).length;
+
+  const el = document.getElementById('screen-cmdplus-result');
+  el.innerHTML = `
+    <div class="eyebrow">PRISMA · Relatório · Avaliação do Comando PLUS</div>
+    <h1 style="margin:0 0 14px;">Avaliação <span>estrutural</span></h1>
+    <div class="note" style="border-left-color:var(--danger);">Documento de uso interno do avaliador — não deve ser entregue ao avaliado.</div>
+    <div class="ident-block">
+      <div><b>Avaliado:</b> ${cmdPlusData.avaliadoNome}</div>
+      <div><b>Posto/Graduação:</b> ${cmdPlusData.avaliadoPosto}</div>
+      <div><b>RE:</b> ${cmdPlusData.avaliadoRE || '—'}</div>
+      <div><b>Equipe/Viatura:</b> ${cmdPlusData.equipe || '—'}</div>
+      <div><b>Avaliador:</b> ${cmdPlusData.avaliadorNome || '—'} ${cmdPlusData.avaliadorPosto ? '('+cmdPlusData.avaliadorPosto+')' : ''}</div>
+      <div><b>Data:</b> ${cmdPlusData.data}</div>
+    </div>
+
+    <div class="section-title">Perfil estrutural observado (A · C · R · F)</div>
+    <div class="card">
+      <div class="chart-box"><canvas id="cmdPlusStructChart"></canvas></div>
+      <div class="axis-legend" style="margin-top:10px;">
+        <span><b style="color:var(--amber)">A</b> Iniciativa &amp; Análise — ${PAT_POLES.A.hi} × ${PAT_POLES.A.lo}</span>
+        <span><b style="color:var(--amber)">C</b> Fonte Motivadora — ${PAT_POLES.C.hi} × ${PAT_POLES.C.lo}</span>
+        <span><b style="color:var(--amber)">R</b> Estratégia no Tempo — ${PAT_POLES.R.hi} × ${PAT_POLES.R.lo}</span>
+        <span><b style="color:var(--amber)">F</b> Conforto no Ambiente — ${PAT_POLES.F.hi} × ${PAT_POLES.F.lo}</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="desc-block"><b>Arquétipo predominante — ${rObs.arquetipo}</b></div>
+    </div>
+
+    <div class="section-title">Eixos derivados (combinação simples de fatores)</div>
+    <div class="card">${rObs.axes.map(plusBipolarHtml).join('')}</div>
+
+    <div class="section-title">Índices do perfil estrutural</div>
+    <div class="card">
+      <div class="idx-grid">
+        <div class="idx-card">
+          <div class="idx-label">Spread</div>
+          <div class="idx-value">${rObs.spreadLevel} <span style="color:var(--faint);font-size:12px;">(${rObs.spreadPct}%)</span></div>
+          <div class="idx-desc">Distância entre o eixo mais alto e o mais baixo observados.</div>
+        </div>
+        <div class="idx-card">
+          <div class="idx-label">Suporte Estrutural</div>
+          <div class="idx-value">${rObs.suporteLevel} <span style="color:var(--faint);font-size:12px;">(${rObs.suportePct}%)</span></div>
+          <div class="idx-desc">Capacidade observada de sustentar o comportamento sob estresse.</div>
+        </div>
+        <div class="idx-card" style="grid-column:1/-1;">
+          <div class="idx-label">Conflito</div>
+          <div class="idx-desc" style="font-size:13.5px;color:var(--text);">${rObs.conflito}</div>
+        </div>
+      </div>
+    </div>
+
+    ${comparison ? `
+    <div class="section-title">Comparação com a Autoavaliação PLUS do policial</div>
+    <div class="card">
+      <div class="desc-block" style="color:var(--muted);margin-bottom:10px;">Arquivo importado: autoavaliação PLUS de <b>${(importedSelfPlus.plusData&&importedSelfPlus.plusData.nome)||'—'}</b> (${(importedSelfPlus.plusData&&importedSelfPlus.plusData.data)||'—'}).</div>
+      ${comparison.rows.map(row => `
+        <div class="check-result-row">
+          <span>${row.nome}</span>
+          <span class="mark ${Math.abs(row.diff)<=15?'yes':Math.abs(row.diff)<=30?'neu':'no'}">Comando ${row.obsPct}% · Autoavaliação ${row.selfPct}% (Δ${row.diff>0?'+':''}${row.diff}pp)</span>
+        </div>
+      `).join('')}
+      <div class="desc-block" style="margin-top:10px;">${Math.abs(comparison.maxDiffRow.diff) > 30
+        ? `Maior divergência em <b>${comparison.maxDiffRow.nome}</b> — vale explorar isso na conversa de feedback: o comando observa um comportamento bem diferente do que o próprio policial relata sobre si mesmo nesse eixo.`
+        : 'Sem divergência grande entre a observação do comando e a autopercepção do policial em nenhum eixo — boa consistência entre autoimagem e comportamento observado.'}</div>
+    </div>` : ''}
+
+    <div class="section-title">Como liderar essa pessoa</div>
+    <div class="card">
+      <div class="desc-block" style="color:var(--muted);">Baseado nos dois eixos mais intensos do perfil observado e nos índices estruturais calculados acima.</div>
+      ${guidance.items.map(it => `
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line);">
+          <div class="desc-block"><b>${it.title}</b> — ${it.trait}</div>
+          <div class="desc-block" style="margin-top:6px;"><b>Como liderar</b>${bulletList(it.tips)}</div>
+          <div class="desc-block" style="margin-top:6px;"><b>Ponto de atenção</b>${bulletList(it.cuidado)}</div>
+        </div>
+      `).join('')}
+      ${guidance.notas.length ? `
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line);">
+          <div class="desc-block"><b>Outros pontos a observar</b></div>
+          ${bulletList(guidance.notas)}
+        </div>` : ''}
+    </div>
+
+    <div class="section-title">Checklist operacional (durante a ocorrência)</div>
+    <div class="card">
+      <div class="chart-box"><canvas id="cmdPlusOpFcChart"></canvas></div>
+      <div class="temp-bars" id="cmdPlusOpFcBars"></div>
+      <div class="interp-box ${falhasOp>=warnAtOp?'warn':'ok'}" style="margin-top:12px;">${falhasOp} item(ns) no fundo do ranking — ${falhasOp>=warnAtOp?'existe um problema comportamental claro a ser trabalhado.':'sem sinal de problema comportamental claro neste checklist.'}</div>
+      <div class="desc-block" style="margin-top:8px;"><b>Nível geral informado:</b> ${cmdPlusAssess.geral.op}/5 — ${GERAL_LABELS[cmdPlusAssess.geral.op-1]}</div>
+    </div>
+
+    <div class="section-title">Checklist de postura profissional (rotina e quartel)</div>
+    <div class="card">
+      <div class="chart-box"><canvas id="cmdPlusPosturaFcChart"></canvas></div>
+      <div class="temp-bars" id="cmdPlusPosturaFcBars"></div>
+      <div class="desc-block" style="margin-top:8px;"><b>Nível geral informado:</b> ${cmdPlusAssess.geral.postura}/5 — ${GERAL_LABELS[cmdPlusAssess.geral.postura-1]}</div>
+    </div>
+
+    ${cmdPlusAssess.comandaEquipe ? `
+    <div class="section-title">Checklist de liderança</div>
+    <div class="card">
+      <div class="chart-box"><canvas id="cmdPlusLidFcChart"></canvas></div>
+      <div class="temp-bars" id="cmdPlusLidFcBars"></div>
+      <div class="desc-block" style="margin-top:8px;"><b>Nível geral informado:</b> ${cmdPlusAssess.geral.lid}/5 — ${GERAL_LABELS[cmdPlusAssess.geral.lid-1]}</div>
+    </div>` : ''}
+
+    <div class="section-title">Método de avaliação em 30 segundos</div>
+    <div class="card">
+      <div class="temp-bars" id="cmdPlusM30FcBars"></div>
+      <div class="interp-box ${positivosM30>=Math.ceil(METHOD_30S.length/2)?'ok':'warn'}" style="margin-top:12px;">${positivosM30}/${METHOD_30S.length} pontos fortes — ${positivosM30>=Math.ceil(METHOD_30S.length/2)?'bom desempenho.':'precisa de orientação.'}</div>
+      <div class="desc-block" style="margin-top:8px;"><b>Nível geral informado:</b> ${cmdPlusAssess.geral.m30}/5 — ${GERAL_LABELS[cmdPlusAssess.geral.m30-1]}</div>
+    </div>
+
+    <div class="section-title">Perfil predominante (uso do conhecimento)</div>
+    <div class="card">
+      <div class="desc-block"><b>${cmdPlusAssess.perfil} — ${c.nome}</b> <span style="color:var(--faint)">(${c.alt})</span></div>
+      <div class="desc-block"><b>Melhor uso pelo comandante:</b> ${c.uso}</div>
+      <div class="desc-block"><b>Risco principal:</b> ${c.risco}</div>
+    </div>
+
+    <div class="section-title">Nine Box (calculado automaticamente)</div>
+    <div class="card">
+      <div id="nbResultHolderPlus"></div>
+      <div class="nb-detail"><b>${nb.nome}</b> — ${nb.leitura}<br><b>Ação recomendada:</b> ${nb.acao}</div>
+    </div>
+
+    <div class="section-title">Função atual</div>
+    <div class="card">
+      <div class="desc-block">A função atual é adequada ao perfil observado: <b>${cmdPlusAssess.funcaoAdequada ? 'Sim' : 'Não'}</b></div>
+    </div>
+
+    <div class="section-title">Pipeline de liderança — próxima passagem</div>
+    <div class="card">
+      ${pStep && pStep.para ? `
+        <div class="pipeline-card">
+          <div class="pc-title">${cmdPlusData.avaliadoPosto} → ${pStep.para}</div>
+          <div><b>O que muda:</b> ${pStep.mudanca}</div>
+          <div style="margin-top:6px;"><b>Erros comuns nessa passagem:</b> ${pStep.erros}</div>
+        </div>` : `
+        <div class="pipeline-card">
+          <div class="pc-title">${cmdPlusData.avaliadoPosto}</div>
+          <div>${pStep ? pStep.mudanca : ''}</div>
+        </div>`}
+    </div>
+
+    <div class="section-title">Observações adicionais do avaliador</div>
+    <div class="card">
+      <div class="desc-block">${cmdPlusAssess.observacoes ? cmdPlusAssess.observacoes.replace(/\n/g,'<br>') : '<span style="color:var(--faint)">Nenhuma observação adicional registrada.</span>'}</div>
+    </div>
+
+    <div class="note">Esta ficha é um instrumento de apoio à decisão do comando — registra observação comportamental estruturada, não substitui os processos formais de avaliação de desempenho da corporação.</div>
+
+    <div class="sig-line">Assinatura do avaliador: <span class="line"></span></div>
+
+    <div class="navrow" style="margin-top:24px;">
+      <button class="btn ghost" onclick="goMenu()">← Menu</button>
+      <button class="btn primary" onclick="window.print()">Gerar PDF do relatório</button>
+    </div>
+    <p class="sub no-print" style="font-size:12px;margin-top:10px;">O botão abre a janela de impressão do navegador — escolha "Salvar como PDF" como destino.</p>
+  `;
+
+  cmdPlusStructChartInstance = renderProfileLineChart('cmdPlusStructChart', rObs.structNorm, cmdPlusStructChartInstance);
+
+  renderNineBoxGrid(document.getElementById('nbResultHolderPlus'), {pot, perf}, null);
+  renderRankBars(document.getElementById('cmdPlusOpFcBars'), opRanked, 'var(--amber)');
+  renderRankBars(document.getElementById('cmdPlusPosturaFcBars'), posturaRanked, 'var(--amber)');
+  if(cmdPlusAssess.comandaEquipe) renderRankBars(document.getElementById('cmdPlusLidFcBars'), lidRanked, 'var(--amber)');
+  renderRankBars(document.getElementById('cmdPlusM30FcBars'), m30Ranked, 'var(--amber)');
+
+  const fcColorPlus = cssVar('--amber');
+  function drawFcRadarPlus(canvasId, items, fc, answers, labelSize, existing){
+    if(existing) existing.destroy();
+    const ctx = document.getElementById(canvasId).getContext('2d');
+    return new Chart(ctx, {
+      type:'radar',
+      data:{ labels: items.map(it => typeof it === 'string' ? it : it.label),
+        datasets:[{ data: fcNorm(items, fc, answers).map(v => Math.round(v*10*10)/10),
+          backgroundColor: fcColorPlus+'33', borderColor: fcColorPlus, borderWidth:2, pointBackgroundColor: fcColorPlus, pointRadius:3 }] },
+      options: chartScales(labelSize)
+    });
+  }
+  cmdPlusOpFcChart = drawFcRadarPlus('cmdPlusOpFcChart', CHECKLIST_OP, OP_FC, cmdPlusAssess.op, 8.5, cmdPlusOpFcChart);
+  cmdPlusPosturaFcChart = drawFcRadarPlus('cmdPlusPosturaFcChart', CHECKLIST_POSTURA, POSTURA_FC, cmdPlusAssess.postura, 9.5, cmdPlusPosturaFcChart);
+  if(cmdPlusAssess.comandaEquipe) cmdPlusLidFcChart = drawFcRadarPlus('cmdPlusLidFcChart', CHECKLIST_LID, LID_FC, cmdPlusAssess.lid, 9.5, cmdPlusLidFcChart);
+
+  showScreen('screen-cmdplus-result');
 }
 
 </script>
