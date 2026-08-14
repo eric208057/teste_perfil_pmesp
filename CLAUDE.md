@@ -267,23 +267,24 @@ da raiz do repo, é fonte nova). Estrutura:
   de conteúdo pra checklists/perfis; este JSON é canônico especificamente pra `familias_perfis`
   (dado estruturado, não OCR).
 
-### Já integrado em `index_civil.html`, ainda **não portado** pra `index.html`
+### Integrado em ambos os arquivos (portado pra `index.html` em 2026-08-14)
 
-`index_civil.html` (por volta da linha 901) tem `PAT_FAMILY_PROFILES` (os 59 perfis únicos,
+Ambos `index.html` e `index_civil.html` têm `PAT_FAMILY_PROFILES` (os 59 perfis únicos,
 `{code, name, family, vec:{A,C,R,F}}`) e `PAT_FAMILY_DESC` (texto de cada família) copiados
-diretamente de `familias_perfis`, e uma nova `patProfileName(structNorm)` que troca o critério de
-"arquétipo" antigo (par dos 2 eixos mais intensos, tabela `PAT_PROFILES` com 24 combinações
-hi/lo *inventadas*) por correlação de Pearson (`pearson()`, já usada em `GU_PROFILES`) do vetor
-ACRF da pessoa contra os 59 vetores reais da apostila — ou seja, agora compara o *formato* do
-gráfico da pessoa contra os formatos oficiais do método PAT, igual ao roteiro do analista PAT
-faria manualmente, em vez de reduzir a leitura a só 2 eixos.
+diretamente de `familias_perfis`, e `patProfileName(structNorm)` fazendo correlação de Pearson
+(`pearson()`, já usada em `GU_PROFILES`) do vetor ACRF da pessoa contra os 59 vetores reais da
+apostila — compara o *formato* do gráfico da pessoa contra os formatos oficiais do método PAT,
+igual ao roteiro do analista PAT faria manualmente, em vez de reduzir a leitura a só 2 eixos.
+Isso substituiu, nos dois arquivos, o critério antigo de "arquétipo" (par dos 2 eixos mais
+intensos, tabela `PAT_PROFILES` com 24 combinações hi/lo *inventadas*, `patProfileName(structNorm,
+structMean)` com 2 argumentos) — essa tabela antiga não existe mais em nenhum dos dois arquivos.
+`PAT_ARCH_LABELS`/`PAT_POLES` (usados só pro texto "Combinação de eixos: X + Y", conceito
+diferente de `patProfileName`) não mudaram e continuam iguais nos dois arquivos.
 
-`index.html` (versão PM) **ainda está na versão antiga**: `patProfileName(structNorm, structMean)`
-(linha ~943) continua usando a tabela `PAT_PROFILES` de 24 arquétipos com nome inventado por par
-de eixos. Se pedirem pra portar essa melhoria pro `index.html`, copiar `PAT_FAMILY_PROFILES` +
-`PAT_FAMILY_DESC` + a nova `patProfileName(structNorm)` (assinatura mudou — não recebe mais
-`structMean`) de `index_civil.html`, e atualizar o(s) call site(s) que hoje chamam
-`patProfileName(structNorm, structMean)` (ex. linha ~1444) pra passar só `structNorm`.
+Testado no `index.html` via injeção de estado (mesmo mecanismo do
+`_simulacao/generate_pdf_via_cdp.py`) nos dois módulos (Autoavaliação PLUS e Avaliação do Comando
+PLUS) — ambos mostram corretamente o novo formato `"Nome do Perfil (Pxx)"` / `"Família X — ..."`,
+sem erro de console, com a terminologia PM (postos, RE, OPM, "Comando") intacta.
 
 ## Estado no momento deste histórico (2026-08-11)
 
