@@ -219,7 +219,7 @@
   .axis-legend span{display:block;}
   @media(max-width:480px){ .axis-legend{grid-template-columns:1fr;} }
 
-  /* bipolar axis bars (AutoavPlus — eixos derivados A/C/R/F) */
+  /* bipolar axis bars (AutoavPlus — eixos derivados D/I/S/C) */
   .bipolar{margin-bottom:16px;}
   .bipolar:last-child{margin-bottom:0;}
   .bipolar-labels{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;
@@ -231,7 +231,7 @@
   .bipolar-fill{position:absolute;top:-2px;bottom:-2px;width:3px;background:var(--amber);border-radius:2px;
     box-shadow:0 0 6px 1px rgba(169,136,79,.5);}
 
-  /* dumbbell bipolar bars (AutoavPlus — estrutural × percepção combinados por eixo A/C/R/F).
+  /* dumbbell bipolar bars (AutoavPlus — estrutural × percepção combinados por eixo D/I/S/C).
      Duas cores bem distintas (amber × green) em vez de dois tons de amber — mais fácil de
      diferenciar à primeira vista — reforçadas por rótulo de texto, não só cor. */
   .bipolar2-legend{display:flex;gap:18px;margin-bottom:16px;font-family:'JetBrains Mono',monospace;
@@ -352,7 +352,7 @@
 
       <button class="menu-card" onclick="chooseCmdPlus()">
         <div class="mc-title"><b>02</b>Avaliação do Comando PLUS</div>
-        <div class="mc-desc">O comandante observa e responde nos mesmos quatro eixos estruturais (A·C·R·F) da Autoavaliação PLUS — checklist comportamental observável, método dos 30 segundos, perfil estrutural observado, Nine Box (desempenho × potencial) e próxima passagem no Pipeline de Liderança. Cruza direto com o .json da Autoavaliação PLUS, sem aproximação, e gera orientação específica de como liderar esse policial.</div>
+        <div class="mc-desc">O comandante observa e responde nos mesmos quatro eixos estruturais (D·I·S·C) da Autoavaliação PLUS — checklist comportamental observável, método dos 30 segundos, perfil estrutural observado, Nine Box (desempenho × potencial) e próxima passagem no Pipeline de Liderança. Cruza direto com o .json da Autoavaliação PLUS, sem aproximação, e gera orientação específica de como liderar esse policial.</div>
         <div class="mc-arrow">Começar avaliação PLUS →</div>
       </button>
     </div>
@@ -459,7 +459,7 @@
 
     <div class="section-title">Autoavaliação PLUS do policial (opcional)</div>
     <div class="card">
-      <p class="form-hint" style="margin-top:0;">Se o policial já fez a Autoavaliação PLUS e exportou o arquivo .json, importe aqui para comparar diretamente os eixos A·C·R·F (sem aproximação) e refinar a orientação de liderança. Não é obrigatório.</p>
+      <p class="form-hint" style="margin-top:0;">Se o policial já fez a Autoavaliação PLUS e exportou o arquivo .json, importe aqui para comparar diretamente os eixos D·I·S·C (sem aproximação) e refinar a orientação de liderança. Não é obrigatório.</p>
       <input type="file" id="selfPlusImportInput" accept="application/json,.json" style="display:none;" onchange="handleSelfPlusImport(event)">
       <button class="btn" onclick="document.getElementById('selfPlusImportInput').click()">Importar autoavaliação PLUS (.json)</button>
       <div id="selfPlusImportStatus" class="form-hint" style="margin-top:10px;margin-bottom:0;"></div>
@@ -477,7 +477,7 @@
     <h1>Perfil estrutural <span>observado</span></h1>
     <p class="sub">Baseie-se apenas no que você observou em serviço — a regra é: você não avalia a pessoa, avalia o que ela FAZ.</p>
     <div class="card" style="margin-top:18px;">
-      <div class="desc-block"><b>Parte 1 — Perfil estrutural observado (12 rodadas):</b> escolha forçada, os mesmos quatro eixos A·C·R·F da Autoavaliação PLUS — mas observados por você, não autorrelatados pelo policial.</div>
+      <div class="desc-block"><b>Parte 1 — Perfil estrutural observado (12 rodadas):</b> escolha forçada, os mesmos quatro eixos D·I·S·C da Autoavaliação PLUS — mas observados por você, não autorrelatados pelo policial.</div>
       <div class="desc-block"><b>Parte 2 — Checklists comportamentais:</b> operacional, postura profissional, liderança (se aplicável) e método dos 30 segundos.</div>
       <div class="desc-block"><b>Parte 3 — Perfil de conhecimento, Nine Box, pipeline e observações finais.</b></div>
     </div>
@@ -486,7 +486,7 @@
     </div>
   </div>
 
-  <!-- COMANDO PLUS: STRUCT QUIZ (observado, A/C/R/F) -->
+  <!-- COMANDO PLUS: STRUCT QUIZ (observado, D/I/S/C) -->
   <div id="screen-cmdplus-quiz" class="hidden">
     <div class="progress-track"><div class="progress-fill" id="progressFillCmdPlus"></div></div>
     <div class="card">
@@ -873,311 +873,310 @@ function pearson(a, b){
 const to01 = r => (r + 1) / 2;
 
 /* ============================= AUTOAVPLUS: DADOS (perfil estrutural 4 eixos) ============================= */
-// Escrita para uso interno da PM, inspirada em ferramentas de análise comportamental de 4
-// fatores de base junguiana (a mesma família conceitual do DISC). Mede quatro eixos
-// bipolares — A/C/R/F — e complementa com o que esse modelo de 4 fatores não cobre
-// sozinho: perfil de conhecimento (Especialista/Generalista/Nexialista) e preferência
-// operacional cruzada com os 20 perfis funcionais, via os blocos KNOW_BLOCKS e OP_BLOCKS.
+// Escrita para uso interno da PM, seguindo o modelo comportamental DISC (Dominância,
+// Influência, Estabilidade, Conformidade). Mede quatro eixos bipolares — D/I/S/C — e
+// complementa com o que esse modelo de 4 fatores não cobre sozinho: perfil de conhecimento
+// (Especialista/Generalista/Nexialista) e preferência operacional cruzada com os 20 perfis
+// funcionais, via os blocos KNOW_BLOCKS e OP_BLOCKS.
 
-const PAT_KEYS = ["A","C","R","F"];
-const PAT_POLES = {
-  A: { nome:"Iniciativa & Análise", hi:"Intuitivo", lo:"Sensorial" },
-  C: { nome:"Fonte Motivadora", hi:"Expressão Verbal", lo:"Próprias Ideias" },
-  R: { nome:"Estratégia no Tempo", hi:"Amanhã Melhor", lo:"Hoje Melhor" },
-  F: { nome:"Conforto no Ambiente", hi:"Estruturado", lo:"Livre" },
+const DISC_KEYS = ["D","I","S","C"];
+const DISC_POLES = {
+  D: { nome:"Dominância", hi:"Intuitivo", lo:"Sensorial" },
+  I: { nome:"Influência", hi:"Expressão Verbal", lo:"Próprias Ideias" },
+  S: { nome:"Estabilidade", hi:"Amanhã Melhor", lo:"Hoje Melhor" },
+  C: { nome:"Conformidade", hi:"Estruturado", lo:"Livre" },
 };
-// Cada eixo A/C/R/F é bipolar em torno do centro fixo 0.5 (=50% na régua/gráfico, mesmo
+// Cada eixo D/I/S/C é bipolar em torno do centro fixo 0.5 (=50% na régua/gráfico, mesmo
 // ponto onde .bipolar-mid é desenhado): structNorm[k] < 0.5 pende pro polo "lo", >= 0.5
 // pende pro polo "hi". Fonte única do "qual polo" — todo lugar do relatório que decide algo
-// a partir de um eixo bipolar (texto de "de que lado"/"mudou de lado", arquétipo, perfil PAT)
-// usa esse mesmo pivô fixo, nunca a média dinâmica do gráfico. A média dinâmica (structMean)
-// continua existindo só pra RANQUEAR quais eixos são mais intensos/distintivos numa pessoa
-// — um conceito diferente de "em qual polo ela está".
+// a partir de um eixo bipolar (texto de "de que lado"/"mudou de lado", arquétipo, perfil
+// dominante) usa esse mesmo pivô fixo, nunca a média dinâmica do gráfico. A média dinâmica
+// (structMean) continua existindo só pra RANQUEAR quais eixos são mais intensos/distintivos
+// numa pessoa — um conceito diferente de "em qual polo ela está".
 function axisSide(v){ return v >= 0.5 ? 'hi' : 'lo'; }
-function axisPole(k, v){ return PAT_POLES[k][axisSide(v)]; }
-const PAT_ARCH_LABELS = {
-  A: { hi:"Iniciativa", lo:"Observação" },
-  C: { hi:"Comunicação", lo:"Reflexão" },
-  R: { hi:"Constância", lo:"Resposta Rápida" },
-  F: { hi:"Estrutura", lo:"Flexibilidade" },
+function axisPole(k, v){ return DISC_POLES[k][axisSide(v)]; }
+const DISC_ARCH_LABELS = {
+  D: { hi:"Iniciativa", lo:"Observação" },
+  I: { hi:"Comunicação", lo:"Reflexão" },
+  S: { hi:"Constância", lo:"Resposta Rápida" },
+  C: { hi:"Estrutura", lo:"Flexibilidade" },
 };
 
-// ---- Perfil PAT: as 9 famílias e os 59 perfis oficiais do método PAT® ----
+// ---- Perfil dominante: as 9 famílias e os 59 perfis oficiais de referência ----
 // Fonte: apostila_pat_completa.json (seção "Famílias de Perfis", pg. 37-47), dados
-// verificados manualmente a partir dos gráficos ACRF impressos em cada perfil. Cada perfil
-// tem um vetor {A,C,R,F} de 0 a 1 lido diretamente da posição vertical do ponto no gráfico
+// verificados manualmente a partir dos gráficos DISC impressos em cada perfil. Cada perfil
+// tem um vetor {D,I,S,C} de 0 a 1 lido diretamente da posição vertical do ponto no gráfico
 // impresso (1 = fator mais alto, 0 = mais baixo — mesma escala/polaridade de structNorm,
-// já que os eixos A/C/R/F daqui são os mesmos "Análise e Aprendizagem/Fonte Motivadora/
-// Estratégia no Tempo/Conforto no Ambiente" descritos em PAT_POLES). O roteiro oficial do
-// analista PAT ("Família à Qual o Perfil Pertence") classifica comparando o FORMATO do
-// gráfico da pessoa com os 59 formatos de referência — por isso o match usa pearson() (já
+// já que os eixos D/I/S/C daqui são os mesmos "Dominância/Influência/Estabilidade/
+// Conformidade" descritos em DISC_POLES). O roteiro oficial classifica comparando o FORMATO
+// do gráfico da pessoa com os 59 formatos de referência — por isso o match usa pearson() (já
 // usado em GU_PROFILES) nos 4 eixos simultaneamente, e não só nos 2 eixos mais intensos.
 // P22 e P24 aparecem impressos tanto na família Criativos Inovadores quanto em Analíticos;
-// a apostila marca essas duplicatas com "*" e afirma que a família de pertencimento
+// a fonte marca essas duplicatas com "*" e afirma que a família de pertencimento
 // verdadeira é Analíticos ("perfis que pertencem à família dos Analíticos mas apresentam
 // muitas características da família dos Criativos Inovadores") — por isso entram uma única
 // vez aqui, com family:"Analíticos".
-const PAT_FAMILY_DESC = {
+const DISC_FAMILY_DESC = {
   "Criativos Inovadores": "Buscam soluções criativas e inovadoras. São persistentes na busca de seus objetivos, atuando de forma independente e generalista.",
   "Criativos Comunicadores": "Têm verbo fácil e verbalizam com facilidade o que pensam. Podem se tornar comunicadores de forte impacto quando dominam o assunto — corajosos para falar sobre qualquer tema com qualquer pessoa.",
   "Analíticos": "Possuem senso crítico apurado e apreciam estar no controle dos sistemas. São voltados para os aspectos técnicos, com visão apurada para dados, fatos, detalhes e processos.",
-  "Executivos": "Possuem duas grandes forças de influência: a determinação e a coragem (fator A alto) e a capacidade de argumentação, persuasão e convencimento (fator C alto).",
+  "Executivos": "Possuem duas grandes forças de influência: a determinação e a coragem (fator D alto) e a capacidade de argumentação, persuasão e convencimento (fator I alto).",
   "Pesquisadores": "Têm interesse natural por pesquisa e aprofundamento em assuntos, mesmo quando exigem horas de concentração, dedicação e constância — evitam a impulsividade e a pressão de tempo para garantir melhores resultados.",
   "Versáteis": "Têm facilidade de acesso em qualquer meio social ou físico, interagindo de forma adaptada com qualquer nível hierárquico. Formam conexões e mantêm relacionamentos saudáveis, influenciando pela comunicação, não pela imposição.",
   "Treinadores": "São mediadores, com capacidade de ajustar discursos diretos em mensagens compreensíveis e adaptadas ao público, facilitando a compreensão e a aceitação.",
   "Gestores": "Têm habilidade natural para gerir o próprio espaço, atuando bem em ambientes de autonomia delimitada — cuidam e controlam os eventos e processos sob sua responsabilidade.",
   "Realizadores": "São direcionados à execução com excelência. Especialistas, atuam de forma segura e parametrizada, decidindo com cautela diante de riscos, e trabalham bem em equipe visando sempre agregar valor.",
 };
-const PAT_FAMILY_PROFILES = [
+const DISC_FAMILY_PROFILES = [
   // Criativos Inovadores
-  {code:"P02", name:"Criativo Estrategista Estruturado", family:"Criativos Inovadores", vec:{A:0.668,C:0.095,R:0.914,F:0.505}},
-  {code:"P04", name:"Criativo Livre Equilibrado", family:"Criativos Inovadores", vec:{A:0.851,C:0.158,R:0.566,F:0.35}},
-  {code:"P06", name:"Criativo Livre Executivo", family:"Criativos Inovadores", vec:{A:0.947,C:0.38,R:0.662,F:0.06}},
-  {code:"P08", name:"Criativo Livre Informal", family:"Criativos Inovadores", vec:{A:0.589,C:0.416,R:0.941,F:0.063}},
-  {code:"P10", name:"Criativo Livre Normativo", family:"Criativos Inovadores", vec:{A:0.599,C:0.126,R:0.878,F:0.349}},
-  {code:"P12", name:"Criativo Livre Performático", family:"Criativos Inovadores", vec:{A:0.818,C:0.191,R:0.82,F:0.192}},
+  {code:"P02", name:"Criativo Estrategista Estruturado", family:"Criativos Inovadores", vec:{D:0.668,I:0.095,S:0.914,C:0.505}},
+  {code:"P04", name:"Criativo Livre Equilibrado", family:"Criativos Inovadores", vec:{D:0.851,I:0.158,S:0.566,C:0.35}},
+  {code:"P06", name:"Criativo Livre Executivo", family:"Criativos Inovadores", vec:{D:0.947,I:0.38,S:0.662,C:0.06}},
+  {code:"P08", name:"Criativo Livre Informal", family:"Criativos Inovadores", vec:{D:0.589,I:0.416,S:0.941,C:0.063}},
+  {code:"P10", name:"Criativo Livre Normativo", family:"Criativos Inovadores", vec:{D:0.599,I:0.126,S:0.878,C:0.349}},
+  {code:"P12", name:"Criativo Livre Performático", family:"Criativos Inovadores", vec:{D:0.818,I:0.191,S:0.82,C:0.192}},
   // Criativos Comunicadores
-  {code:"P14", name:"Inovador Executivo Livre", family:"Criativos Comunicadores", vec:{A:0.897,C:0.72,R:0.364,F:0.187}},
-  {code:"P16", name:"Inovador Social", family:"Criativos Comunicadores", vec:{A:0.778,C:0.926,R:0.265,F:0.075}},
-  {code:"P18", name:"Inovador Estrategista I", family:"Criativos Comunicadores", vec:{A:0.908,C:0.592,R:0.695,F:0.096}},
-  {code:"P20", name:"Inovador Estrategista II", family:"Criativos Comunicadores", vec:{A:0.91,C:0.803,R:0.694,F:0.09}},
+  {code:"P14", name:"Inovador Executivo Livre", family:"Criativos Comunicadores", vec:{D:0.897,I:0.72,S:0.364,C:0.187}},
+  {code:"P16", name:"Inovador Social", family:"Criativos Comunicadores", vec:{D:0.778,I:0.926,S:0.265,C:0.075}},
+  {code:"P18", name:"Inovador Estrategista I", family:"Criativos Comunicadores", vec:{D:0.908,I:0.592,S:0.695,C:0.096}},
+  {code:"P20", name:"Inovador Estrategista II", family:"Criativos Comunicadores", vec:{D:0.91,I:0.803,S:0.694,C:0.09}},
   // Analíticos (inclui P22/P24, ver nota acima)
-  {code:"P22", name:"Projetista Criativo", family:"Analíticos", vec:{A:0.885,C:0.325,R:0.138,F:0.321}},
-  {code:"P24", name:"Analítico Intuitivo Livre", family:"Analíticos", vec:{A:0.888,C:0.288,R:0.182,F:0.114}},
-  {code:"P26", name:"Analítico Intuitivo", family:"Analíticos", vec:{A:0.837,C:0.299,R:0.166,F:0.57}},
-  {code:"P28", name:"Analítico Intuitivo Formal", family:"Analíticos", vec:{A:0.815,C:0.4,R:0.196,F:0.813}},
-  {code:"P30", name:"Analítico Estratégico", family:"Analíticos", vec:{A:0.394,C:0.485,R:0.258,F:0.53}},
-  {code:"P32", name:"Analítico Formal", family:"Analíticos", vec:{A:0.627,C:0.102,R:0.278,F:0.91}},
-  {code:"P34", name:"Analítico Formal de Ação", family:"Analíticos", vec:{A:0.627,C:0.278,R:0.225,F:0.892}},
+  {code:"P22", name:"Projetista Criativo", family:"Analíticos", vec:{D:0.885,I:0.325,S:0.138,C:0.321}},
+  {code:"P24", name:"Analítico Intuitivo Livre", family:"Analíticos", vec:{D:0.888,I:0.288,S:0.182,C:0.114}},
+  {code:"P26", name:"Analítico Intuitivo", family:"Analíticos", vec:{D:0.837,I:0.299,S:0.166,C:0.57}},
+  {code:"P28", name:"Analítico Intuitivo Formal", family:"Analíticos", vec:{D:0.815,I:0.4,S:0.196,C:0.813}},
+  {code:"P30", name:"Analítico Estratégico", family:"Analíticos", vec:{D:0.394,I:0.485,S:0.258,C:0.53}},
+  {code:"P32", name:"Analítico Formal", family:"Analíticos", vec:{D:0.627,I:0.102,S:0.278,C:0.91}},
+  {code:"P34", name:"Analítico Formal de Ação", family:"Analíticos", vec:{D:0.627,I:0.278,S:0.225,C:0.892}},
   // Executivos
-  {code:"P44", name:"Executivo Metas", family:"Executivos", vec:{A:0.816,C:0.722,R:0.184,F:0.343}},
-  {code:"P46", name:"Executivo Metas Formal", family:"Executivos", vec:{A:0.886,C:0.72,R:0.122,F:0.585}},
-  {code:"P48", name:"Executivo Metas de Ação", family:"Executivos", vec:{A:0.705,C:0.601,R:0.164,F:0.84}},
-  {code:"P50", name:"Executivo Metas Ponderado", family:"Executivos", vec:{A:0.812,C:0.606,R:0.192,F:0.729}},
-  {code:"P52", name:"Executivo Pessoas Metas", family:"Executivos", vec:{A:0.502,C:0.851,R:0.157,F:0.4}},
-  {code:"P54", name:"Executivo Pessoas", family:"Executivos", vec:{A:0.726,C:0.928,R:0.077,F:0.25}},
-  {code:"P56", name:"Executivo Pessoas Formal", family:"Executivos", vec:{A:0.683,C:0.927,R:0.072,F:0.523}},
-  {code:"P58", name:"Executivo Pessoas de Ação", family:"Executivos", vec:{A:0.581,C:0.718,R:0.07,F:0.938}},
-  {code:"P60", name:"Executivo Pessoas Ponderado", family:"Executivos", vec:{A:0.675,C:0.847,R:0.151,F:0.677}},
+  {code:"P44", name:"Executivo Metas", family:"Executivos", vec:{D:0.816,I:0.722,S:0.184,C:0.343}},
+  {code:"P46", name:"Executivo Metas Formal", family:"Executivos", vec:{D:0.886,I:0.72,S:0.122,C:0.585}},
+  {code:"P48", name:"Executivo Metas de Ação", family:"Executivos", vec:{D:0.705,I:0.601,S:0.164,C:0.84}},
+  {code:"P50", name:"Executivo Metas Ponderado", family:"Executivos", vec:{D:0.812,I:0.606,S:0.192,C:0.729}},
+  {code:"P52", name:"Executivo Pessoas Metas", family:"Executivos", vec:{D:0.502,I:0.851,S:0.157,C:0.4}},
+  {code:"P54", name:"Executivo Pessoas", family:"Executivos", vec:{D:0.726,I:0.928,S:0.077,C:0.25}},
+  {code:"P56", name:"Executivo Pessoas Formal", family:"Executivos", vec:{D:0.683,I:0.927,S:0.072,C:0.523}},
+  {code:"P58", name:"Executivo Pessoas de Ação", family:"Executivos", vec:{D:0.581,I:0.718,S:0.07,C:0.938}},
+  {code:"P60", name:"Executivo Pessoas Ponderado", family:"Executivos", vec:{D:0.675,I:0.847,S:0.151,C:0.677}},
   // Pesquisadores
-  {code:"P36", name:"Esmerado Estrategista I", family:"Pesquisadores", vec:{A:0.677,C:0.152,R:0.788,F:0.86}},
-  {code:"P38", name:"Esmerado Estrategista II", family:"Pesquisadores", vec:{A:0.575,C:0.131,R:0.874,F:0.729}},
-  {code:"P40", name:"Pensador Estrategista I", family:"Pesquisadores", vec:{A:0.874,C:0.136,R:0.582,F:0.731}},
-  {code:"P42", name:"Pensador Estrategista II", family:"Pesquisadores", vec:{A:0.878,C:0.124,R:0.728,F:0.578}},
+  {code:"P36", name:"Esmerado Estrategista I", family:"Pesquisadores", vec:{D:0.677,I:0.152,S:0.788,C:0.86}},
+  {code:"P38", name:"Esmerado Estrategista II", family:"Pesquisadores", vec:{D:0.575,I:0.131,S:0.874,C:0.729}},
+  {code:"P40", name:"Pensador Estrategista I", family:"Pesquisadores", vec:{D:0.874,I:0.136,S:0.582,C:0.731}},
+  {code:"P42", name:"Pensador Estrategista II", family:"Pesquisadores", vec:{D:0.878,I:0.124,S:0.728,C:0.578}},
   // Versáteis
-  {code:"P62", name:"Versátil Idealista", family:"Versáteis", vec:{A:0.152,C:0.847,R:0.155,F:0.853}},
-  {code:"P64", name:"Versátil de Ação Formal", family:"Versáteis", vec:{A:0.321,C:0.678,R:0.107,F:0.898}},
-  {code:"P66", name:"Versátil Comunicativo", family:"Versáteis", vec:{A:0.328,C:0.884,R:0.118,F:0.672}},
-  {code:"P68", name:"Versátil Equilibrado", family:"Versáteis", vec:{A:0.112,C:0.893,R:0.333,F:0.683}},
-  {code:"P70", name:"Versátil Harmônico Formal", family:"Versáteis", vec:{A:0.11,C:0.626,R:0.306,F:0.82}},
+  {code:"P62", name:"Versátil Idealista", family:"Versáteis", vec:{D:0.152,I:0.847,S:0.155,C:0.853}},
+  {code:"P64", name:"Versátil de Ação Formal", family:"Versáteis", vec:{D:0.321,I:0.678,S:0.107,C:0.898}},
+  {code:"P66", name:"Versátil Comunicativo", family:"Versáteis", vec:{D:0.328,I:0.884,S:0.118,C:0.672}},
+  {code:"P68", name:"Versátil Equilibrado", family:"Versáteis", vec:{D:0.112,I:0.893,S:0.333,C:0.683}},
+  {code:"P70", name:"Versátil Harmônico Formal", family:"Versáteis", vec:{D:0.11,I:0.626,S:0.306,C:0.82}},
   // Treinadores
-  {code:"P72", name:"Comunicador Estruturado", family:"Treinadores", vec:{A:0.097,C:0.911,R:0.524,F:0.763}},
-  {code:"P74", name:"Comunicativo de Treinamento", family:"Treinadores", vec:{A:0.143,C:0.86,R:0.247,F:0.381}},
-  {code:"P76", name:"Promocional de Ação Livre", family:"Treinadores", vec:{A:0.422,C:0.907,R:0.278,F:0.101}},
-  {code:"P78", name:"Promocional Estratégico Livre I", family:"Treinadores", vec:{A:0.683,C:0.861,R:0.683,F:0.146}},
-  {code:"P80", name:"Promocional Estratégico Livre II", family:"Treinadores", vec:{A:0.587,C:0.789,R:0.889,F:0.12}},
-  {code:"P82", name:"Conselheiro", family:"Treinadores", vec:{A:0.152,C:0.855,R:0.683,F:0.156}},
-  {code:"P84", name:"Conselheiro Ponderado", family:"Treinadores", vec:{A:0.129,C:0.881,R:0.403,F:0.538}},
-  {code:"P86", name:"Altruísta Social", family:"Treinadores", vec:{A:0.132,C:0.536,R:0.876,F:0.641}},
-  {code:"P88", name:"Gestor Comunicativo", family:"Treinadores", vec:{A:0.305,C:0.872,R:0.135,F:0.38}},
+  {code:"P72", name:"Comunicador Estruturado", family:"Treinadores", vec:{D:0.097,I:0.911,S:0.524,C:0.763}},
+  {code:"P74", name:"Comunicativo de Treinamento", family:"Treinadores", vec:{D:0.143,I:0.86,S:0.247,C:0.381}},
+  {code:"P76", name:"Promocional de Ação Livre", family:"Treinadores", vec:{D:0.422,I:0.907,S:0.278,C:0.101}},
+  {code:"P78", name:"Promocional Estratégico Livre I", family:"Treinadores", vec:{D:0.683,I:0.861,S:0.683,C:0.146}},
+  {code:"P80", name:"Promocional Estratégico Livre II", family:"Treinadores", vec:{D:0.587,I:0.789,S:0.889,C:0.12}},
+  {code:"P82", name:"Conselheiro", family:"Treinadores", vec:{D:0.152,I:0.855,S:0.683,C:0.156}},
+  {code:"P84", name:"Conselheiro Ponderado", family:"Treinadores", vec:{D:0.129,I:0.881,S:0.403,C:0.538}},
+  {code:"P86", name:"Altruísta Social", family:"Treinadores", vec:{D:0.132,I:0.536,S:0.876,C:0.641}},
+  {code:"P88", name:"Gestor Comunicativo", family:"Treinadores", vec:{D:0.305,I:0.872,S:0.135,C:0.38}},
   // Gestores
-  {code:"P90", name:"Gestor de Ação Formal", family:"Gestores", vec:{A:0.494,C:0.151,R:0.847,F:0.497}},
-  {code:"P92", name:"Gestor por Aptidão I", family:"Gestores", vec:{A:0.274,C:0.107,R:0.725,F:0.895}},
-  {code:"P94", name:"Gestor por Aptidão II", family:"Gestores", vec:{A:0.275,C:0.106,R:0.895,F:0.725}},
-  {code:"P96", name:"Excelente de Qualidade", family:"Gestores", vec:{A:0.601,C:0.192,R:0.804,F:0.603}},
-  {code:"P98", name:"Especialista de Qualidade I", family:"Gestores", vec:{A:0.393,C:0.187,R:0.395,F:0.814}},
-  {code:"P100", name:"Especialista de Qualidade II", family:"Gestores", vec:{A:0.373,C:0.29,R:0.208,F:0.797}},
+  {code:"P90", name:"Gestor de Ação Formal", family:"Gestores", vec:{D:0.494,I:0.151,S:0.847,C:0.497}},
+  {code:"P92", name:"Gestor por Aptidão I", family:"Gestores", vec:{D:0.274,I:0.107,S:0.725,C:0.895}},
+  {code:"P94", name:"Gestor por Aptidão II", family:"Gestores", vec:{D:0.275,I:0.106,S:0.895,C:0.725}},
+  {code:"P96", name:"Excelente de Qualidade", family:"Gestores", vec:{D:0.601,I:0.192,S:0.804,C:0.603}},
+  {code:"P98", name:"Especialista de Qualidade I", family:"Gestores", vec:{D:0.393,I:0.187,S:0.395,C:0.814}},
+  {code:"P100", name:"Especialista de Qualidade II", family:"Gestores", vec:{D:0.373,I:0.29,S:0.208,C:0.797}},
   // Realizadores
-  {code:"P102", name:"Especialista Pessoas/Processos", family:"Realizadores", vec:{A:0.144,C:0.849,R:0.676,F:0.85}},
-  {code:"P104", name:"Diligente de Ação", family:"Realizadores", vec:{A:0.289,C:0.391,R:0.154,F:0.845}},
-  {code:"P106", name:"Diligente de Ação Harmônico", family:"Realizadores", vec:{A:0.084,C:0.443,R:0.305,F:0.912}},
-  {code:"P108", name:"Diligente por Atitude", family:"Realizadores", vec:{A:0.285,C:0.079,R:0.923,F:0.433}},
-  {code:"P110", name:"Extro-Diligente", family:"Realizadores", vec:{A:0.074,C:0.712,R:0.923,F:0.54}},
-  {code:"P112", name:"Extro-Diligente Informal", family:"Realizadores", vec:{A:0.147,C:0.674,R:0.849,F:0.676}},
-  {code:"P114", name:"Intro-Diligente", family:"Realizadores", vec:{A:0.09,C:0.3,R:0.727,F:0.906}},
-  {code:"P116", name:"Intro-Diligente Paciente", family:"Realizadores", vec:{A:0.082,C:0.261,R:0.908,F:0.675}},
-  {code:"P118", name:"Intro-Diligente Livre", family:"Realizadores", vec:{A:0.122,C:0.293,R:0.874,F:0.398}},
+  {code:"P102", name:"Especialista Pessoas/Processos", family:"Realizadores", vec:{D:0.144,I:0.849,S:0.676,C:0.85}},
+  {code:"P104", name:"Diligente de Ação", family:"Realizadores", vec:{D:0.289,I:0.391,S:0.154,C:0.845}},
+  {code:"P106", name:"Diligente de Ação Harmônico", family:"Realizadores", vec:{D:0.084,I:0.443,S:0.305,C:0.912}},
+  {code:"P108", name:"Diligente por Atitude", family:"Realizadores", vec:{D:0.285,I:0.079,S:0.923,C:0.433}},
+  {code:"P110", name:"Extro-Diligente", family:"Realizadores", vec:{D:0.074,I:0.712,S:0.923,C:0.54}},
+  {code:"P112", name:"Extro-Diligente Informal", family:"Realizadores", vec:{D:0.147,I:0.674,S:0.849,C:0.676}},
+  {code:"P114", name:"Intro-Diligente", family:"Realizadores", vec:{D:0.09,I:0.3,S:0.727,C:0.906}},
+  {code:"P116", name:"Intro-Diligente Paciente", family:"Realizadores", vec:{D:0.082,I:0.261,S:0.908,C:0.675}},
+  {code:"P118", name:"Intro-Diligente Livre", family:"Realizadores", vec:{D:0.122,I:0.293,S:0.874,C:0.398}},
 ];
-// Acha, entre os 59 perfis oficiais, o de shape ACRF mais parecido com o da pessoa (maior
+// Acha, entre os 59 perfis oficiais, o de shape DISC mais parecido com o da pessoa (maior
 // correlação de Pearson entre os dois vetores de 4 pontos) — reaplica pra family/perfil o
-// mesmo raciocínio de "comparar o formato do gráfico" que o roteiro do analista PAT descreve,
-// em vez de reduzir a leitura aos 2 eixos mais intensos.
-function patProfileName(structNorm){
-  const target = PAT_KEYS.map(k => structNorm[k]);
+// mesmo raciocínio de "comparar o formato do gráfico" que o roteiro oficial descreve, em vez
+// de reduzir a leitura aos 2 eixos mais intensos.
+function discProfileName(structNorm){
+  const target = DISC_KEYS.map(k => structNorm[k]);
   let best = null, bestScore = -Infinity;
-  PAT_FAMILY_PROFILES.forEach(p => {
-    const score = pearson(target, PAT_KEYS.map(k => p.vec[k]));
+  DISC_FAMILY_PROFILES.forEach(p => {
+    const score = pearson(target, DISC_KEYS.map(k => p.vec[k]));
     if(score > bestScore){ bestScore = score; best = p; }
   });
   return {
-    nome: `${best.name} (${best.code})`,
+    nome: best.name,
     familia: best.family,
-    desc: `Família ${best.family} — ${PAT_FAMILY_DESC[best.family]}`,
+    desc: `Família ${best.family} — ${DISC_FAMILY_DESC[best.family]}`,
   };
 }
 
-// ---- Parte 1: Perfil Estrutural (16 rodadas × 4 opções A/C/R/F) — jeito natural/instintivo ----
-const PAT_STRUCT_BLOCKS = [
+// ---- Parte 1: Perfil Estrutural (16 rodadas × 4 opções D/I/S/C) — jeito natural/instintivo ----
+const DISC_STRUCT_BLOCKS = [
   { situacao:"Numa ocorrência nova, sem procedimento claro definido, o que mais e o que menos te representa:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Decido na hora, confiando no instinto, mesmo sem ter todos os dados.",
-           C:"Chamo a equipe pelo rádio e resolvemos juntos, conversando enquanto agimos.",
-           R:"Espero alguns segundos a mais, deixando a situação se definir antes de agir.",
-           F:"Busco mentalmente o procedimento ou protocolo mais parecido antes de agir." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Decido na hora, confiando no instinto, mesmo sem ter todos os dados.",
+           I:"Chamo a equipe pelo rádio e resolvemos juntos, conversando enquanto agimos.",
+           S:"Espero alguns segundos a mais, deixando a situação se definir antes de agir.",
+           C:"Busco mentalmente o procedimento ou protocolo mais parecido antes de agir." } },
   { situacao:"Ao assumir uma viatura ou equipe nova, o que mais e o que menos te representa:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Já vou testando meu próprio jeito de trabalhar, sem esperar todo mundo se ajustar.",
-           C:"Converso bastante nos primeiros dias pra criar entrosamento rápido.",
-           R:"Prefiro observar o ritmo da equipe por um tempo antes de mudar qualquer coisa.",
-           F:"Pergunto logo quais são as regras e rotinas já estabelecidas naquela guarnição." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Já vou testando meu próprio jeito de trabalhar, sem esperar todo mundo se ajustar.",
+           I:"Converso bastante nos primeiros dias pra criar entrosamento rápido.",
+           S:"Prefiro observar o ritmo da equipe por um tempo antes de mudar qualquer coisa.",
+           C:"Pergunto logo quais são as regras e rotinas já estabelecidas naquela guarnição." } },
   { situacao:"Diante de uma tarefa administrativa chata mas necessária, o que mais e o que menos te representa:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Faço rápido, do meu jeito, mesmo que não siga o passo a passo à risca.",
-           C:"Prefiro fazer conversando com alguém, nem que seja só pra não ficar monótono.",
-           R:"Faço com calma, sem pressa, no meu tempo.",
-           F:"Sigo o modelo/formulário certinho, do jeito que deve ser feito." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Faço rápido, do meu jeito, mesmo que não siga o passo a passo à risca.",
+           I:"Prefiro fazer conversando com alguém, nem que seja só pra não ficar monótono.",
+           S:"Faço com calma, sem pressa, no meu tempo.",
+           C:"Sigo o modelo/formulário certinho, do jeito que deve ser feito." } },
   { situacao:"Quando um colega discorda da sua forma de agir numa ocorrência, o que mais e o que menos te representa:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Defendo minha posição com firmeza, sem duvidar muito de mim.",
-           C:"Prefiro conversar bastante até a gente entender o lado um do outro.",
-           R:"Deixo o assunto esfriar antes de continuar a conversa.",
-           F:"Busco o que está escrito no procedimento pra resolver a divergência." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Defendo minha posição com firmeza, sem duvidar muito de mim.",
+           I:"Prefiro conversar bastante até a gente entender o lado um do outro.",
+           S:"Deixo o assunto esfriar antes de continuar a conversa.",
+           C:"Busco o que está escrito no procedimento pra resolver a divergência." } },
   { situacao:"No planejamento de uma ação com prazo curto, o que mais e o que menos te representa:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Prefiro agir logo e ajustar o plano no caminho.",
-           C:"Prefiro alinhar verbalmente com todo mundo antes de sair.",
-           R:"Prefiro esperar mais informação antes de definir qualquer coisa.",
-           F:"Prefiro montar uma checklist antes de sair, mesmo com o tempo curto." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Prefiro agir logo e ajustar o plano no caminho.",
+           I:"Prefiro alinhar verbalmente com todo mundo antes de sair.",
+           S:"Prefiro esperar mais informação antes de definir qualquer coisa.",
+           C:"Prefiro montar uma checklist antes de sair, mesmo com o tempo curto." } },
   { situacao:"Ao lidar com um equipamento ou sistema novo (rádio, app, viatura), o que mais e o que menos te representa:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Vou mexendo, testando, sem ler manual.",
-           C:"Pergunto pra alguém que já usa, ao vivo.",
-           R:"Vou usando aos poucos, sem pressa de dominar tudo de uma vez.",
-           F:"Leio o manual ou instrução antes de usar." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Vou mexendo, testando, sem ler manual.",
+           I:"Pergunto pra alguém que já usa, ao vivo.",
+           S:"Vou usando aos poucos, sem pressa de dominar tudo de uma vez.",
+           C:"Leio o manual ou instrução antes de usar." } },
   { situacao:"Numa reunião de passagem de serviço, o que mais e o que menos te representa:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Vou direto ao ponto, sem enrolar em detalhes.",
-           C:"Gosto de comentar e trocar impressões, não só passar a informação seca.",
-           R:"Prefiro deixar quem está mais afobado falar primeiro, e entro com calma.",
-           F:"Sigo a ordem e o formato padrão de passagem, sem pular etapas." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Vou direto ao ponto, sem enrolar em detalhes.",
+           I:"Gosto de comentar e trocar impressões, não só passar a informação seca.",
+           S:"Prefiro deixar quem está mais afobado falar primeiro, e entro com calma.",
+           C:"Sigo a ordem e o formato padrão de passagem, sem pular etapas." } },
   { situacao:"Quando percebe um erro num relatório ou procedimento de outro colega, o que mais e o que menos te representa:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Aponto na hora, direto, sem rodeio.",
-           C:"Comento com jeito, numa conversa, pra não constranger.",
-           R:"Deixo pra falar num momento mais tranquilo, sem pressa.",
-           F:"Registro formalmente / sigo o canal correto para reportar." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Aponto na hora, direto, sem rodeio.",
+           I:"Comento com jeito, numa conversa, pra não constranger.",
+           S:"Deixo pra falar num momento mais tranquilo, sem pressa.",
+           C:"Registro formalmente / sigo o canal correto para reportar." } },
   { situacao:"Ao encarar uma mudança de escala ou rotina de última hora, o que mais e o que menos te representa:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Me adapto na hora, sem muito questionamento.",
-           C:"Preciso conversar sobre o motivo da mudança pra me sentir bem com ela.",
-           R:"Preciso de um tempo pra me ajustar mentalmente à mudança.",
-           F:"Fico incomodado quando a mudança quebra uma rotina já organizada." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Me adapto na hora, sem muito questionamento.",
+           I:"Preciso conversar sobre o motivo da mudança pra me sentir bem com ela.",
+           S:"Preciso de um tempo pra me ajustar mentalmente à mudança.",
+           C:"Fico incomodado quando a mudança quebra uma rotina já organizada." } },
   { situacao:"No meio de uma abordagem que está indo bem, o que mais e o que menos te representa:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Sigo o instinto pra decidir os próximos passos, mesmo fora do script.",
-           C:"Uso a conversa como principal ferramenta pra manter o controle da situação.",
-           R:"Mantenho o ritmo calmo, sem acelerar desnecessariamente.",
-           F:"Sigo rigorosamente a sequência de segurança que aprendi no procedimento." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Sigo o instinto pra decidir os próximos passos, mesmo fora do script.",
+           I:"Uso a conversa como principal ferramenta pra manter o controle da situação.",
+           S:"Mantenho o ritmo calmo, sem acelerar desnecessariamente.",
+           C:"Sigo rigorosamente a sequência de segurança que aprendi no procedimento." } },
   { situacao:"Quando alguém pede sua opinião sobre um problema complexo, o que mais e o que menos te representa:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Dou minha visão geral rápida, mesmo sem ter pensado em todos os ângulos.",
-           C:"Prefiro pensar em voz alta, junto com a pessoa.",
-           R:"Peço um tempo pra pensar com calma antes de responder.",
-           F:"Busco dados e critérios concretos antes de opinar." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Dou minha visão geral rápida, mesmo sem ter pensado em todos os ângulos.",
+           I:"Prefiro pensar em voz alta, junto com a pessoa.",
+           S:"Peço um tempo pra pensar com calma antes de responder.",
+           C:"Busco dados e critérios concretos antes de opinar." } },
   { situacao:"Ao organizar seu material/equipamento de serviço, o que mais e o que menos te representa:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Não ligo muito pra organização, contanto que funcione.",
-           C:"Gosto de comentar/mostrar como organizei pros colegas.",
-           R:"Vou arrumando aos poucos, sem me apressar.",
-           F:"Gosto de tudo no lugar certo, seguindo um padrão fixo." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Não ligo muito pra organização, contanto que funcione.",
+           I:"Gosto de comentar/mostrar como organizei pros colegas.",
+           S:"Vou arrumando aos poucos, sem me apressar.",
+           C:"Gosto de tudo no lugar certo, seguindo um padrão fixo." } },
   { situacao:"Diante de uma ordem que não faz muito sentido pra você, o que mais e o que menos te representa:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Questiono na hora, mesmo sabendo que pode gerar atrito.",
-           C:"Busco entender conversando com quem deu a ordem.",
-           R:"Cumpro por ora e só levanto o ponto depois, com calma.",
-           F:"Cumpro porque é a ordem, mesmo sem concordar totalmente." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Questiono na hora, mesmo sabendo que pode gerar atrito.",
+           I:"Busco entender conversando com quem deu a ordem.",
+           S:"Cumpro por ora e só levanto o ponto depois, com calma.",
+           C:"Cumpro porque é a ordem, mesmo sem concordar totalmente." } },
   { situacao:"No fim de um plantão puxado, o que mais e o que menos te representa:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Já penso na próxima ação/plantão, sem parar muito pra processar o que passou.",
-           C:"Preciso comentar o plantão com alguém antes de ir embora.",
-           R:"Preciso de um tempo sozinho pra desacelerar antes de qualquer coisa.",
-           F:"Reviso e fecho certinho tudo que precisa ser registrado antes de sair." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Já penso na próxima ação/plantão, sem parar muito pra processar o que passou.",
+           I:"Preciso comentar o plantão com alguém antes de ir embora.",
+           S:"Preciso de um tempo sozinho pra desacelerar antes de qualquer coisa.",
+           C:"Reviso e fecho certinho tudo que precisa ser registrado antes de sair." } },
   { situacao:"Ao aprender uma nova técnica ou tática, o que mais e o que menos te representa:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Prefiro já ir pra prática, aprendendo fazendo.",
-           C:"Aprendo melhor discutindo e trocando ideia sobre a técnica.",
-           R:"Prefiro repetir várias vezes, com calma, até internalizar.",
-           F:"Prefiro entender toda a lógica/passo a passo antes de praticar." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Prefiro já ir pra prática, aprendendo fazendo.",
+           I:"Aprendo melhor discutindo e trocando ideia sobre a técnica.",
+           S:"Prefiro repetir várias vezes, com calma, até internalizar.",
+           C:"Prefiro entender toda a lógica/passo a passo antes de praticar." } },
   { situacao:"Quando o comando pede uma sugestão de melhoria para a rotina da equipe, o que mais e o que menos te representa:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Sugiro algo ousado, mesmo que mude bastante o jeito atual de trabalhar.",
-           C:"Prefiro reunir a equipe pra construir a sugestão junto.",
-           R:"Prefiro uma mudança gradual, testada aos poucos.",
-           F:"Sugiro algo que melhora o controle/organização sem bagunçar o que já funciona." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Sugiro algo ousado, mesmo que mude bastante o jeito atual de trabalhar.",
+           I:"Prefiro reunir a equipe pra construir a sugestão junto.",
+           S:"Prefiro uma mudança gradual, testada aos poucos.",
+           C:"Sugiro algo que melhora o controle/organização sem bagunçar o que já funciona." } },
 ];
 
-// ---- Parte 2: Percepção no Ambiente (10 rodadas × 4 opções A/C/R/F) — sob adaptação/pressão ----
-const PAT_PERCEP_BLOCKS = [
+// ---- Parte 2: Percepção no Ambiente (10 rodadas × 4 opções D/I/S/C) — sob adaptação/pressão ----
+const DISC_PERCEP_BLOCKS = [
   { situacao:"Quando sente que está sendo avaliado por superiores, o que mais e o que menos passa a valer para você:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Tomo a frente e mostro iniciativa, mesmo sob os olhares de todos.",
-           C:"Procuro me comunicar mais e mostrar que estou alinhado com a equipe.",
-           R:"Fico mais cauteloso, evitando qualquer decisão precipitada.",
-           F:"Capricho ainda mais em seguir o procedimento à risca." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Tomo a frente e mostro iniciativa, mesmo sob os olhares de todos.",
+           I:"Procuro me comunicar mais e mostrar que estou alinhado com a equipe.",
+           S:"Fico mais cauteloso, evitando qualquer decisão precipitada.",
+           C:"Capricho ainda mais em seguir o procedimento à risca." } },
   { situacao:"Num ambiente de trabalho novo e mais rígido, o que mais e o que menos passa a valer para você:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Seguro minha vontade de agir por conta própria até entender o terreno.",
-           C:"Procuro me expor menos até conhecer melhor as pessoas.",
-           R:"Passo a agir com ainda mais calma do que o normal.",
-           F:"Passo a seguir as regras à risca, mesmo sem concordar com todas." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Seguro minha vontade de agir por conta própria até entender o terreno.",
+           I:"Procuro me expor menos até conhecer melhor as pessoas.",
+           S:"Passo a agir com ainda mais calma do que o normal.",
+           C:"Passo a seguir as regras à risca, mesmo sem concordar com todas." } },
   { situacao:"Quando a cobrança por resultado aumenta, o que mais e o que menos passa a valer para você:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Assumo mais riscos e decido mais rápido do que faria normalmente.",
-           C:"Busco mais apoio da equipe, conversando mais que o de costume.",
-           R:"Mantenho o mesmo ritmo, resistindo à pressão pra acelerar.",
-           F:"Aumento o controle e a checagem de detalhes, com medo de errar." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Assumo mais riscos e decido mais rápido do que faria normalmente.",
+           I:"Busco mais apoio da equipe, conversando mais que o de costume.",
+           S:"Mantenho o mesmo ritmo, resistindo à pressão pra acelerar.",
+           C:"Aumento o controle e a checagem de detalhes, com medo de errar." } },
   { situacao:"Numa equipe que valoriza muito hierarquia e formalidade, o que mais e o que menos passa a valer para você:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Ainda assim, ajo pela própria conta quando julgo necessário.",
-           C:"Adapto minha forma de falar, ficando mais formal do que o habitual.",
-           R:"Espero mais antes de agir, respeitando os canais certos.",
-           F:"Sigo os protocolos formais rigorosamente, mesmo os que acho excessivos." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Ainda assim, ajo pela própria conta quando julgo necessário.",
+           I:"Adapto minha forma de falar, ficando mais formal do que o habitual.",
+           S:"Espero mais antes de agir, respeitando os canais certos.",
+           C:"Sigo os protocolos formais rigorosamente, mesmo os que acho excessivos." } },
   { situacao:"Quando o ambiente está tenso entre os colegas, o que mais e o que menos passa a valer para você:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Tomo posição e resolvo, mesmo correndo o risco de desagradar alguém.",
-           C:"Tento amenizar conversando com as partes envolvidas.",
-           R:"Fico mais recolhido, evitando entrar no atrito.",
-           F:"Me apoio nas normas/regras pra evitar decisão pessoal no meio do conflito." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Tomo posição e resolvo, mesmo correndo o risco de desagradar alguém.",
+           I:"Tento amenizar conversando com as partes envolvidas.",
+           S:"Fico mais recolhido, evitando entrar no atrito.",
+           C:"Me apoio nas normas/regras pra evitar decisão pessoal no meio do conflito." } },
   { situacao:"Quando a rotina muda com frequência e sem aviso, o que mais e o que menos passa a valer para você:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Encaro numa boa, me adapto rápido sem muito custo.",
-           C:"Preciso comentar bastante com a equipe pra digerir cada mudança.",
-           R:"Sinto mais desgaste, precisando de mais tempo pra me ajustar.",
-           F:"Tento recriar alguma estrutura/rotina fixa, mesmo dentro da bagunça." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Encaro numa boa, me adapto rápido sem muito custo.",
+           I:"Preciso comentar bastante com a equipe pra digerir cada mudança.",
+           S:"Sinto mais desgaste, precisando de mais tempo pra me ajustar.",
+           C:"Tento recriar alguma estrutura/rotina fixa, mesmo dentro da bagunça." } },
   { situacao:"Diante de um superior mais controlador, o que mais e o que menos passa a valer para você:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Ainda tento manter minha autonomia dentro do possível.",
-           C:"Procuro manter contato e diálogo frequente pra evitar ruído.",
-           R:"Fico mais na minha, esperando orientação antes de agir.",
-           F:"Sigo à risca o que é pedido, sem questionar muito." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Ainda tento manter minha autonomia dentro do possível.",
+           I:"Procuro manter contato e diálogo frequente pra evitar ruído.",
+           S:"Fico mais na minha, esperando orientação antes de agir.",
+           C:"Sigo à risca o que é pedido, sem questionar muito." } },
   { situacao:"Quando precisa apresentar um resultado/relatório para pessoas de fora da equipe, o que mais e o que menos passa a valer para você:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Vou com confiança, mesmo sem ter preparado cada detalhe.",
-           C:"Invisto bastante na forma de comunicar, ensaiando o discurso.",
-           R:"Prefiro me preparar com calma e antecedência, sem pressa.",
-           F:"Capricho na formatação/organização do material apresentado." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Vou com confiança, mesmo sem ter preparado cada detalhe.",
+           I:"Invisto bastante na forma de comunicar, ensaiando o discurso.",
+           S:"Prefiro me preparar com calma e antecedência, sem pressa.",
+           C:"Capricho na formatação/organização do material apresentado." } },
   { situacao:"Num plantão de alta demanda (muitas ocorrências seguidas), o que mais e o que menos passa a valer para você:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Decido rápido e sigo pra próxima, no automático.",
-           C:"Sinto necessidade de comentar/desabafar com a equipe entre uma ocorrência e outra.",
-           R:"Sinto o cansaço acumulando e preciso desacelerar em algum momento.",
-           F:"Me policio para não pular etapas dos procedimentos mesmo com pressa." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Decido rápido e sigo pra próxima, no automático.",
+           I:"Sinto necessidade de comentar/desabafar com a equipe entre uma ocorrência e outra.",
+           S:"Sinto o cansaço acumulando e preciso desacelerar em algum momento.",
+           C:"Me policio para não pular etapas dos procedimentos mesmo com pressa." } },
   { situacao:"Quando percebe que o ambiente está cobrando um comportamento diferente do seu natural, o que mais e o que menos passa a valer para você:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Insisto no meu jeito, mesmo indo um pouco contra a corrente.",
-           C:"Tento me adaptar através da conversa, buscando entender a expectativa.",
-           R:"Levo um tempo pra aceitar e me ajustar à cobrança.",
-           F:"Me ajusto seguindo a régua/padrão que está sendo pedido." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Insisto no meu jeito, mesmo indo um pouco contra a corrente.",
+           I:"Tento me adaptar através da conversa, buscando entender a expectativa.",
+           S:"Levo um tempo pra aceitar e me ajustar à cobrança.",
+           C:"Me ajusto seguindo a régua/padrão que está sendo pedido." } },
 ];
 
 // ---- Parte 3: Ponderação & Perspectiva (7 itens likert, resposta única — sem escolha forçada) ----
@@ -1194,19 +1193,19 @@ const PERSPECTIVA_ITEMS = [
   { text:"Estou desanimado(a) em relação ao que vem pela frente na corporação.", reverse:true },
 ];
 
-// ---- Eixos derivados (combinação simples entre pares de A/C/R/F) ----
-const PAT_AXES = [
-  { name:"Orientação", a:"A", b:"C", aLabel:"Tecnicamente Orientado", bLabel:"Socialmente Orientado",
+// ---- Eixos derivados (combinação simples entre pares de D/I/S/C) ----
+const DISC_AXES = [
+  { name:"Orientação", a:"D", b:"I", aLabel:"Tecnicamente Orientado", bLabel:"Socialmente Orientado",
     desc:"Ênfase técnica e em tarefa versus ênfase em pessoas e relacionamento." },
-  { name:"Autonomia Operacional", a:"A", b:"F", aLabel:"Autônomo", bLabel:"Metódico",
+  { name:"Autonomia Operacional", a:"D", b:"C", aLabel:"Autônomo", bLabel:"Metódico",
     desc:"Autonomia e abrangência versus exigência de regra, detalhe e conformidade." },
-  { name:"Estilo de Ação", a:"A", b:"R", aLabel:"Promovedor de Ações", bLabel:"Mantenedor de Ações",
+  { name:"Estilo de Ação", a:"D", b:"S", aLabel:"Promovedor de Ações", bLabel:"Mantenedor de Ações",
     desc:"Iniciativa e ritmo próprio versus paciência e colaboração no ritmo do grupo." },
-  { name:"Estilo de Conexão", a:"C", b:"R", aLabel:"Rápida", bLabel:"Ponderada",
+  { name:"Estilo de Conexão", a:"I", b:"S", aLabel:"Rápida", bLabel:"Ponderada",
     desc:"Comunicação espontânea e rápida versus conexão mais analítica e cautelosa." },
-  { name:"Tendência no Estilo Relacional", a:"C", b:"F", aLabel:"Mais Informal", bLabel:"Mais Formal",
+  { name:"Tendência no Estilo Relacional", a:"I", b:"C", aLabel:"Mais Informal", bLabel:"Mais Formal",
     desc:"Informalidade e espontaneidade versus formalidade e protocolo." },
-  { name:"Como Lida com as Regras", a:"R", b:"F", aLabel:"Casual", bLabel:"Cuidadosa",
+  { name:"Como Lida com as Regras", a:"S", b:"C", aLabel:"Casual", bLabel:"Cuidadosa",
     desc:"Flexibilidade com regras versus rigor e controle de detalhe." },
 ];
 
@@ -1215,12 +1214,12 @@ const PAT_AXES = [
 // eixos especificamente mudam de lado, e a diferença de intensidade em pontos percentuais) —
 // não são mais frases fixas por faixa.
 
-// ---- Orientações por polo A/C/R/F ----
+// ---- Orientações por polo D/I/S/C ----
 // "self": para o próprio policial (relatório da Autoavaliação PLUS — desenvolvimento pessoal).
 // "lead": para quem lidera essa pessoa (relatório da Avaliação do Comando PLUS — como conduzir).
 // "cuidado": ponto de atenção específico daquele polo, útil nos dois relatórios.
-const PAT_GUIDANCE = {
-  A: {
+const DISC_GUIDANCE = {
+  D: {
     hi: { trait:"Iniciativa alta — decide rápido, assume risco, não espera ordem pra agir.",
       self:["Antes de decidir algo que afeta outras pessoas, force uma pausa de alguns segundos antes de agir no impulso.",
             "Pratique ouvir uma segunda opinião mesmo quando já tiver decidido — nem sempre a primeira leitura é a certa.",
@@ -1239,7 +1238,7 @@ const PAT_GUIDANCE = {
       cuidado:["Pode demorar demais pra agir numa situação que exige resposta imediata — treine cenários de decisão rápida.",
                "Risco de ficar para trás em ambiente de ritmo acelerado — avalie se a função atual exige mais velocidade do que o perfil confortável."] },
   },
-  C: {
+  I: {
     hi: { trait:"Comunicação alta — se energiza falando, pensa em voz alta, gosta de interação constante.",
       self:["Reserve um tempo sem gente ao redor pra revisar o que ainda falta fazer — nem tudo se resolve conversando.",
             "Anote compromissos assim que combinados, não confie só na conversa pra lembrar depois."],
@@ -1254,7 +1253,7 @@ const PAT_GUIDANCE = {
             "Valorize contribuições escritas e abra espaço de fala individual, não só em grupo."],
       cuidado:["Pode reter informação relevante por não verbalizar espontaneamente — pergunte diretamente, não espere que se ofereça."] },
   },
-  R: {
+  S: {
     hi: { trait:"Constância alta (Amanhã Melhor) — pondera, mantém rotina, decide com calma e consistência.",
       self:["Pratique decidir com prazo apertado de vez em quando, mesmo sem urgência real, pra não travar quando ela aparecer de verdade.",
             "Estabeleça uma meta pessoal nova periodicamente — sem estímulo externo, tende a estagnar na zona confortável."],
@@ -1269,7 +1268,7 @@ const PAT_GUIDANCE = {
             "Canalize a urgência em prazos desafiadores, não em pressão constante — excesso de pressão vira ansiedade, não produtividade."],
       cuidado:["Pode parecer impaciente ou ansioso(a) demais numa situação que exige espera — sinalize quando \"esperar\" é de fato a ação certa."] },
   },
-  F: {
+  C: {
     hi: { trait:"Estrutura alta — busca regra, padrão e controle de detalhe, se sente seguro(a) com estrutura clara.",
       self:["Pratique tolerar uma tarefa fora do procedimento padrão de vez em quando — nem toda situação tem manual.",
             "Quando a mudança for inevitável, busque entender o porquê — internalizar a lógica ajuda a aceitar melhor."],
@@ -1289,13 +1288,13 @@ const PAT_GUIDANCE = {
 // Monta uma lista de orientações combinando os 2 eixos mais intensos do perfil com os
 // índices (Suporte Estrutural, Mudanças, Conflito, Perspectiva) — usado tanto pelo relatório
 // da Autoavaliação PLUS ("self") quanto pelo da Avaliação do Comando PLUS ("lead").
-function buildPatGuidance(r, mode){
-  const archOrder = PAT_KEYS.slice().sort((a,b)=>Math.abs(r.structNorm[b]-r.structMean)-Math.abs(r.structNorm[a]-r.structMean));
+function buildAxisGuidance(r, mode){
+  const archOrder = DISC_KEYS.slice().sort((a,b)=>Math.abs(r.structNorm[b]-r.structMean)-Math.abs(r.structNorm[a]-r.structMean));
   const items = [];
   archOrder.slice(0,2).forEach(k => {
     const pole = r.structNorm[k] >= r.structMean ? 'hi' : 'lo';
-    const g = PAT_GUIDANCE[k][pole];
-    items.push({title:`${PAT_POLES[k].nome} — ${pole==='hi'?PAT_POLES[k].hi:PAT_POLES[k].lo}`, trait:g.trait, tips:g[mode], cuidado:g.cuidado});
+    const g = DISC_GUIDANCE[k][pole];
+    items.push({title:`${DISC_POLES[k].nome} — ${pole==='hi'?DISC_POLES[k].hi:DISC_POLES[k].lo}`, trait:g.trait, tips:g[mode], cuidado:g.cuidado});
   });
 
   const notas = [];
@@ -1328,8 +1327,8 @@ let plusAnswers = {};
 let plusCurrentQ = 0;
 let plusLikertAnswers = {};
 const PLUS_ALL_QUESTIONS = [
-  ...PAT_STRUCT_BLOCKS.map(q => ({front:"pstruct", ...q})),
-  ...PAT_PERCEP_BLOCKS.map(q => ({front:"ppercep", ...q})),
+  ...DISC_STRUCT_BLOCKS.map(q => ({front:"pstruct", ...q})),
+  ...DISC_PERCEP_BLOCKS.map(q => ({front:"ppercep", ...q})),
   ...KNOW_BLOCKS.map(q => ({front:"pknow", ...q})),
   ...OP_BLOCKS.map(q => ({front:"pop", ...q})),
 ];
@@ -1471,12 +1470,12 @@ function normIpsative(blocks, baseOffset, keys, answersObj){
   return norm;
 }
 
-// Índices calculados a partir de um único gráfico A/C/R/F (eixos derivados, Spread, Suporte
+// Índices calculados a partir de um único gráfico D/I/S/C (eixos derivados, Spread, Suporte
 // Estrutural, Conflito, Arquétipo) — compartilhado entre a Autoavaliação PLUS (gráfico
 // Estrutural/Percepção, autorrelato) e a Avaliação do Comando PLUS (gráfico observado pelo
 // comando), pra garantir que as duas leituras usem exatamente a mesma régua.
 function computeStructIndices(structNorm){
-  const axes = PAT_AXES.map(ax => {
+  const axes = DISC_AXES.map(ax => {
     const va = structNorm[ax.a], vb = structNorm[ax.b];
     const total = va+vb;
     const pctA = total>0 ? Math.round((va/total)*100) : 50;
@@ -1484,7 +1483,7 @@ function computeStructIndices(structNorm){
     return {...ax, pctA, pctB, dominant: pctA>=pctB ? ax.aLabel : ax.bLabel, strength: Math.max(pctA,pctB)};
   });
 
-  const vals = PAT_KEYS.map(k=>structNorm[k]);
+  const vals = DISC_KEYS.map(k=>structNorm[k]);
   const spreadPct = Math.round((Math.max(...vals)-Math.min(...vals))*100);
   const spreadLevel = spreadPct>=65?"Muito Alto":spreadPct>=45?"Alto":spreadPct>=22?"Médio":spreadPct>=10?"Baixo":"Muito Baixo";
 
@@ -1494,35 +1493,35 @@ function computeStructIndices(structNorm){
   // (axisPole()), igual ao que o gráfico já desenha em .bipolar-mid. Os dois conceitos são
   // diferentes: um mede intensidade relativa à própria pessoa, o outro diz em qual polo ela
   // está.
-  const structMean = PAT_KEYS.reduce((s,k)=>s+structNorm[k],0)/4;
+  const structMean = DISC_KEYS.reduce((s,k)=>s+structNorm[k],0)/4;
 
-  const suporteRaw = PAT_KEYS.reduce((s,k)=>s+Math.abs(structNorm[k]-structMean),0); // 0..2
+  const suporteRaw = DISC_KEYS.reduce((s,k)=>s+Math.abs(structNorm[k]-structMean),0); // 0..2
   const suportePct = Math.round((suporteRaw/2)*100);
   const suporteLevel = suportePct>=70?"Muito Alto":suportePct>=50?"Alto":suportePct>=30?"Médio":suportePct>=15?"Baixo":"Muito Baixo";
 
-  const dA = structNorm.A-structMean, dF = structNorm.F-structMean;
-  let conflito = "Sem conflito relevante entre Iniciativa (A) e Estrutura (F).";
-  if(Math.abs(dA-dF) < 0.08 && Math.abs(dA) > 0.06 && Math.abs(dF) > 0.06 && Math.sign(dA)===Math.sign(dF)){
-    conflito = dA>0
-      ? "Conflito do lado alto: iniciativa/ousadia (A alto) tensiona com a necessidade de controle e cautela (F alto) — pode gerar indecisão ou estresse diante do inesperado, com baixa tolerância a erro."
-      : "Conflito do lado baixo: a acomodação (A baixo) tensiona com a resistência a regras (F baixo) — combinação que pode gerar imprevisibilidade de comportamento.";
+  const dD = structNorm.D-structMean, dC = structNorm.C-structMean;
+  let conflito = "Sem conflito relevante entre Dominância (D) e Conformidade (C).";
+  if(Math.abs(dD-dC) < 0.08 && Math.abs(dD) > 0.06 && Math.abs(dC) > 0.06 && Math.sign(dD)===Math.sign(dC)){
+    conflito = dD>0
+      ? "Conflito do lado alto: iniciativa/ousadia (D alto) tensiona com a necessidade de controle e cautela (C alto) — pode gerar indecisão ou estresse diante do inesperado, com baixa tolerância a erro."
+      : "Conflito do lado baixo: a acomodação (D baixo) tensiona com a resistência a regras (C baixo) — combinação que pode gerar imprevisibilidade de comportamento.";
   }
 
-  const archOrder = PAT_KEYS.slice().sort((a,b)=>Math.abs(structNorm[b]-structMean)-Math.abs(structNorm[a]-structMean));
-  const archLabel = k => PAT_ARCH_LABELS[k][axisSide(structNorm[k])];
+  const archOrder = DISC_KEYS.slice().sort((a,b)=>Math.abs(structNorm[b]-structMean)-Math.abs(structNorm[a]-structMean));
+  const archLabel = k => DISC_ARCH_LABELS[k][axisSide(structNorm[k])];
   const arquetipo = `${archLabel(archOrder[0])} + ${archLabel(archOrder[1])}`;
-  const patProfile = patProfileName(structNorm);
+  const discProfile = discProfileName(structNorm);
 
-  return { axes, spreadPct, spreadLevel, suportePct, suporteLevel, suporteRaw, structMean, conflito, arquetipo, patProfile };
+  return { axes, spreadPct, spreadLevel, suportePct, suporteLevel, suporteRaw, structMean, conflito, arquetipo, discProfile };
 }
 
 function computePlusResults(){
-  const structNorm = normIpsative(PAT_STRUCT_BLOCKS, 0, PAT_KEYS, plusAnswers);
-  const percepBase = PAT_STRUCT_BLOCKS.length;
-  const percepNorm = normIpsative(PAT_PERCEP_BLOCKS, percepBase, PAT_KEYS, plusAnswers);
+  const structNorm = normIpsative(DISC_STRUCT_BLOCKS, 0, DISC_KEYS, plusAnswers);
+  const percepBase = DISC_STRUCT_BLOCKS.length;
+  const percepNorm = normIpsative(DISC_PERCEP_BLOCKS, percepBase, DISC_KEYS, plusAnswers);
 
   // ---- Parte 4: Conhecimento (E/G/N) ----
-  const knowBase = percepBase + PAT_PERCEP_BLOCKS.length;
+  const knowBase = percepBase + DISC_PERCEP_BLOCKS.length;
   const knowScore = {E:0,G:0,N:0};
   KNOW_BLOCKS.forEach((q,i)=>{
     const a = plusAnswers[knowBase+i];
@@ -1545,10 +1544,10 @@ function computePlusResults(){
 
   // ---- Cruzamento com os 20 perfis funcionais ----
   // Os perfis funcionais já usam o vocabulário C/S/F/M (temperamentos). Como o AutoavPlus
-  // mede A/C/R/F (não C/S/F/M), usamos a correspondência conceitual mais próxima só para
-  // esse cruzamento: A alto ~ iniciativa/decisão (Colérico), C alto ~ comunicação (Sanguíneo),
-  // R alto ~ paciência/estabilidade (Fleumático), F alto ~ estrutura/detalhe (Melancólico).
-  const approxTemp = { C: structNorm.A, S: structNorm.C, F: structNorm.R, M: structNorm.F };
+  // mede D/I/S/C (não C/S/F/M), usamos a correspondência conceitual mais próxima só para
+  // esse cruzamento: D alto ~ iniciativa/decisão (Colérico), I alto ~ comunicação (Sanguíneo),
+  // S alto ~ paciência/estabilidade (Fleumático), C alto ~ estrutura/detalhe (Melancólico).
+  const approxTemp = { C: structNorm.D, S: structNorm.I, F: structNorm.S, M: structNorm.C };
   const userTempVec = ["C","S","F","M"].map(k => approxTemp[k]);
   const userKnowVec = ["E","G","N"].map(k => knowNorm[k]);
 
@@ -1567,8 +1566,8 @@ function computePlusResults(){
   scored.sort((a,b) => b.score - a.score);
 
   const idx = computeStructIndices(structNorm);
-  const { axes, spreadPct, spreadLevel, suportePct, suporteLevel, suporteRaw, structMean, conflito, arquetipo, patProfile } = idx;
-  const percepMean = PAT_KEYS.reduce((s,k)=>s+percepNorm[k],0)/4;
+  const { axes, spreadPct, spreadLevel, suportePct, suporteLevel, suporteRaw, structMean, conflito, arquetipo, discProfile } = idx;
+  const percepMean = DISC_KEYS.reduce((s,k)=>s+percepNorm[k],0)/4;
 
   // ---- Ponderação (Emocional / Racional / Equilibrado) ----
   let pondSum = 0;
@@ -1593,10 +1592,10 @@ function computePlusResults(){
   // ---- Mudanças (comparação Estrutural × Percepção) ----
   // "Muda de lado" compara contra o centro fixo 0.5 (mesmo pivô do gráfico bipolar), não
   // contra a média dinâmica — ver axisPole().
-  const flippedAxes = PAT_KEYS.filter(k => (structNorm[k] >= 0.5) !== (percepNorm[k] >= 0.5));
+  const flippedAxes = DISC_KEYS.filter(k => (structNorm[k] >= 0.5) !== (percepNorm[k] >= 0.5));
   const flips = flippedAxes.length;
-  const aFlipped = flippedAxes.includes('A'), fFlipped = flippedAxes.includes('F');
-  const sameSideAfter = aFlipped && fFlipped && (percepNorm.A>=0.5)===(percepNorm.F>=0.5);
+  const aFlipped = flippedAxes.includes('D'), fFlipped = flippedAxes.includes('C');
+  const sameSideAfter = aFlipped && fFlipped && (percepNorm.D>=0.5)===(percepNorm.C>=0.5);
   let mudancas;
   if(sameSideAfter) mudancas = "Insustentável";
   else if(flips === 0) mudancas = "Fácil";
@@ -1604,7 +1603,7 @@ function computePlusResults(){
   else mudancas = "Muito Difícil";
 
   // ---- Aproveitamento do Potencial (energia total: Estrutural × Percepção) ----
-  const percepSuporteRaw = PAT_KEYS.reduce((s,k)=>s+Math.abs(percepNorm[k]-percepMean),0);
+  const percepSuporteRaw = DISC_KEYS.reduce((s,k)=>s+Math.abs(percepNorm[k]-percepMean),0);
   const energiaDiff = Math.round(((percepSuporteRaw-suporteRaw)/2)*100);
   let aproveitamento = "Equilibrado";
   if(energiaDiff >= 12) aproveitamento = "Sobre Aproveitado";
@@ -1614,7 +1613,7 @@ function computePlusResults(){
     structNorm, percepNorm, structMean, percepMean, knowNorm, knowRank, userVec, ranked: scored, axes,
     spreadPct, spreadLevel, suportePct, suporteLevel, conflito,
     ponderacao, pondAvg, perspectiva, perspAvg,
-    mudancas, flips, flippedAxes, aproveitamento, energiaDiff, arquetipo, patProfile,
+    mudancas, flips, flippedAxes, aproveitamento, energiaDiff, arquetipo, discProfile,
   };
 }
 
@@ -1640,8 +1639,8 @@ function plusSingleDumbbellHtml(k, structNorm){
   const pct = Math.round(structNorm[k]*100);
   return `
     <div class="bipolar">
-      <div class="idx-label" style="margin-bottom:8px;">${k} · ${PAT_POLES[k].nome}</div>
-      <div class="bipolar-labels"><span>${PAT_POLES[k].lo}</span><span>${PAT_POLES[k].hi}</span></div>
+      <div class="idx-label" style="margin-bottom:8px;">${k} · ${DISC_POLES[k].nome}</div>
+      <div class="bipolar-labels"><span>${DISC_POLES[k].lo}</span><span>${DISC_POLES[k].hi}</span></div>
       <div class="bipolar-track">
         <div class="bipolar-mid"></div>
         <div class="bipolar-fill" style="left:calc(${pct}% - 1.5px);"></div>
@@ -1651,7 +1650,7 @@ function plusSingleDumbbellHtml(k, structNorm){
   `;
 }
 function plusSingleAxesHtml(structNorm){
-  return PAT_KEYS.map(k => plusSingleDumbbellHtml(k, structNorm)).join('');
+  return DISC_KEYS.map(k => plusSingleDumbbellHtml(k, structNorm)).join('');
 }
 
 // Régua graduada sob a trilha bipolar: 0 no centro (mesmo ponto do .bipolar-mid, a 50% da
@@ -1665,7 +1664,7 @@ function bipolarRulerHtml(){
     return `<div class="tick${isZero?' zero':''}" style="left:${pos}%;"></div><div class="num${isZero?' zero':''}" style="left:${pos}%;transform:translateX(${tx});">${v}</div>`;
   }).join('')}</div>`;
 }
-// Gráfico combinado (dumbbell) dos quatro eixos crus A/C/R/F: um ponto amber (perfil
+// Gráfico combinado (dumbbell) dos quatro eixos crus D/I/S/C: um ponto amber (perfil
 // estrutural/natural) e um ponto verde (percepção no ambiente) na mesma régua, ligados por
 // uma linha — o comprimento dessa linha já é a representação visual do quanto aquele eixo
 // muda sob pressão do ambiente, sem precisar de um gráfico Parte 1/Parte 2 separado. A posição
@@ -1676,8 +1675,8 @@ function plusDumbbellHtml(k, r){
   const lo = Math.min(structPct, percepPct), hi = Math.max(structPct, percepPct);
   return `
     <div class="bipolar">
-      <div class="idx-label" style="margin-bottom:8px;">${k} · ${PAT_POLES[k].nome}</div>
-      <div class="bipolar-labels"><span>${PAT_POLES[k].lo}</span><span>${PAT_POLES[k].hi}</span></div>
+      <div class="idx-label" style="margin-bottom:8px;">${k} · ${DISC_POLES[k].nome}</div>
+      <div class="bipolar-labels"><span>${DISC_POLES[k].lo}</span><span>${DISC_POLES[k].hi}</span></div>
       <div class="bipolar-track">
         <div class="bipolar-mid"></div>
         <div class="bipolar2-connector" style="left:${lo}%;width:${hi-lo}%;"></div>
@@ -1694,7 +1693,7 @@ function plusCombinedAxesHtml(r){
       <span><span class="legend-dot struct"></span>Perfil estrutural (natural)</span>
       <span><span class="legend-dot percep"></span>Percepção no ambiente</span>
     </div>
-    ${PAT_KEYS.map(k => plusDumbbellHtml(k, r)).join('')}
+    ${DISC_KEYS.map(k => plusDumbbellHtml(k, r)).join('')}
   `;
 }
 
@@ -1706,7 +1705,7 @@ function buildMudancasHtml(r){
     return `Nenhum dos quatro eixos muda de lado entre o jeito natural e a percepção no ambiente — o ajuste existe, mas dentro do mesmo perfil, com baixo gasto de energia.`;
   }
   const list = r.flippedAxes.map(k =>
-    `<b>${PAT_POLES[k].nome} (${k})</b>: de "${axisPole(k, r.structNorm[k])}" (natural) para "${axisPole(k, r.percepNorm[k])}" (sob pressão do ambiente)`
+    `<b>${DISC_POLES[k].nome} (${k})</b>: de "${axisPole(k, r.structNorm[k])}" (natural) para "${axisPole(k, r.percepNorm[k])}" (sob pressão do ambiente)`
   ).join('; ');
   let tail;
   if(r.mudancas === 'Insustentável'){
@@ -1734,7 +1733,7 @@ function showPlusResults(){
   lastPlusResult = r;
   const top = r.ranked[0];
   const know = CONHECIMENTO[r.knowRank[0]], knowSec = CONHECIMENTO[r.knowRank[1]];
-  const guidance = buildPatGuidance(r, 'self');
+  const guidance = buildAxisGuidance(r, 'self');
 
   const guidanceHtml = `
     <div class="section-title">Orientações gerais para você</div>
@@ -1766,21 +1765,21 @@ function showPlusResults(){
       <div><b>OPM/Unidade:</b> ${plusData.opm || '—'}</div>
       <div><b>Data:</b> ${plusData.data || todayBR()}</div>
     </div>
-    <p class="sub">Mapeia quatro eixos de comportamento estrutural (A·C·R·F), como eles se combinam entre si e o quanto o perfil natural muda sob a percepção de exigência do ambiente — combinado com perfil de conhecimento e preferência operacional cruzados com os 20 perfis funcionais.</p>
+    <p class="sub">Mapeia quatro eixos de comportamento estrutural (D·I·S·C), como eles se combinam entre si e o quanto o perfil natural muda sob a percepção de exigência do ambiente — combinado com perfil de conhecimento e preferência operacional cruzados com os 20 perfis funcionais.</p>
 
-    <div class="section-title">Perfil estrutural (A · C · R · F)</div>
+    <div class="section-title">Perfil estrutural (D · I · S · C)</div>
     <div class="card">
-      <div class="desc-block"><b>Perfil dominante — ${r.patProfile.nome}</b></div>
-      <div class="desc-block" style="color:var(--muted);">${r.patProfile.desc}</div>
+      <div class="desc-block"><b>Perfil dominante — ${r.discProfile.nome}</b></div>
+      <div class="desc-block" style="color:var(--muted);">${r.discProfile.desc}</div>
       <div class="desc-block" style="margin-top:8px;color:var(--faint);font-size:12px;">Combinação de eixos: ${r.arquetipo} — os dois eixos com maior intensidade no seu perfil estrutural, acima ou abaixo da média.</div>
     </div>
     <div class="card">
       ${plusCombinedAxesHtml(r)}
       <div class="axis-legend" style="margin-top:16px;">
-        <span><b style="color:var(--amber)">A</b> Iniciativa &amp; Análise — ${PAT_POLES.A.hi} × ${PAT_POLES.A.lo}</span>
-        <span><b style="color:var(--amber)">C</b> Fonte Motivadora — ${PAT_POLES.C.hi} × ${PAT_POLES.C.lo}</span>
-        <span><b style="color:var(--amber)">R</b> Estratégia no Tempo — ${PAT_POLES.R.hi} × ${PAT_POLES.R.lo}</span>
-        <span><b style="color:var(--amber)">F</b> Conforto no Ambiente — ${PAT_POLES.F.hi} × ${PAT_POLES.F.lo}</span>
+        <span><b style="color:var(--amber)">D</b> Dominância — ${DISC_POLES.D.hi} × ${DISC_POLES.D.lo}</span>
+        <span><b style="color:var(--amber)">I</b> Influência — ${DISC_POLES.I.hi} × ${DISC_POLES.I.lo}</span>
+        <span><b style="color:var(--amber)">S</b> Estabilidade — ${DISC_POLES.S.hi} × ${DISC_POLES.S.lo}</span>
+        <span><b style="color:var(--amber)">C</b> Conformidade — ${DISC_POLES.C.hi} × ${DISC_POLES.C.lo}</span>
       </div>
     </div>
 
@@ -1866,7 +1865,7 @@ function showPlusResults(){
 
     <div class="section-title">Como o resultado foi calculado</div>
     <div class="card">
-      <div class="desc-block">O perfil estrutural (A·C·R·F) vem de 16 rodadas de escolha forçada; a percepção no ambiente, de mais 10. Os seis eixos derivados e os índices (Spread, Suporte Estrutural, Conflito) são calculados diretamente a partir desses dois perfis — sem pergunta adicional. Ponderação e Perspectiva vêm de 7 perguntas de concordância à parte. Para cruzar com os 20 perfis funcionais, os eixos A/C/R/F fazem o papel do temperamento (por correspondência conceitual — A≈iniciativa, C≈comunicação, R≈paciência, F≈estrutura), combinados com perfil de conhecimento e preferência operacional (8 rodadas cada), usando o mesmo método de correlação por formato de perfil.</div>
+      <div class="desc-block">O perfil estrutural (D·I·S·C) vem de 16 rodadas de escolha forçada; a percepção no ambiente, de mais 10. Os seis eixos derivados e os índices (Spread, Suporte Estrutural, Conflito) são calculados diretamente a partir desses dois perfis — sem pergunta adicional. Ponderação e Perspectiva vêm de 7 perguntas de concordância à parte. Para cruzar com os 20 perfis funcionais, os eixos D/I/S/C fazem o papel do temperamento (por correspondência conceitual — D≈iniciativa, I≈comunicação, S≈paciência, C≈estrutura), combinados com perfil de conhecimento e preferência operacional (8 rodadas cada), usando o mesmo método de correlação por formato de perfil.</div>
     </div>
 
     <div class="note">Isto é autopercepção, não avaliação de desempenho — o comando não participou dessas respostas. Use este relatório como abertura de conversa sobre função e desenvolvimento, não como decisão final.</div>
@@ -1948,7 +1947,7 @@ function downloadPlusJSON(){
     axes: r.axes.map(a => ({name:a.name, dominant:a.dominant, strength:a.strength})),
     spreadLevel: r.spreadLevel, suporteLevel: r.suporteLevel, conflito: r.conflito,
     ponderacao: r.ponderacao, perspectiva: r.perspectiva,
-    mudancas: r.mudancas, aproveitamento: r.aproveitamento, arquetipo: r.arquetipo, patProfile: r.patProfile.nome,
+    mudancas: r.mudancas, aproveitamento: r.aproveitamento, arquetipo: r.arquetipo, discProfile: r.discProfile.nome,
     knowScore: r.knowNorm, knowRank: r.knowRank, userVec: r.userVec,
     top3: r.ranked.slice(0,3).map(p => ({code:p.code, title:p.title, pct:p.pct})),
   };
@@ -2358,84 +2357,84 @@ function renderNineBoxGrid(container, selected, onSelect){
 }
 
 /* ============================= AVALIAÇÃO DO COMANDO PLUS ============================= */
-// O comandante responde 12 rodadas de escolha forçada nos eixos A/C/R/F da Autoavaliação
+// O comandante responde 12 rodadas de escolha forçada nos eixos D/I/S/C da Autoavaliação
 // PLUS, observando o comportamento do policial, produzindo um perfil estrutural OBSERVADO
 // diretamente comparável ao autorrelatado — sem aproximação C/S/F/M. Reaproveita os mesmos
 // checklists comportamentais, Nine Box e Pipeline usados nos cálculos compartilhados acima.
 
-const PAT_STRUCT_OBS_BLOCKS = [
+const DISC_STRUCT_OBS_BLOCKS = [
   { situacao:"Numa ocorrência nova, sem procedimento claro definido, o que mais e o que menos representa esse policial:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Decide na hora, confiando no instinto, mesmo sem ter todos os dados.",
-           C:"Aciona a equipe pelo rádio e resolve junto, conversando enquanto age.",
-           R:"Espera alguns segundos a mais, deixando a situação se definir antes de agir.",
-           F:"Busca o procedimento ou protocolo mais parecido antes de agir." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Decide na hora, confiando no instinto, mesmo sem ter todos os dados.",
+           I:"Aciona a equipe pelo rádio e resolve junto, conversando enquanto age.",
+           S:"Espera alguns segundos a mais, deixando a situação se definir antes de agir.",
+           C:"Busca o procedimento ou protocolo mais parecido antes de agir." } },
   { situacao:"Ao assumir uma viatura ou equipe nova, o que mais e o que menos representa esse policial:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Já vai testando o próprio jeito de trabalhar, sem esperar todo mundo se ajustar.",
-           C:"Conversa bastante nos primeiros dias pra criar entrosamento rápido.",
-           R:"Prefere observar o ritmo da equipe por um tempo antes de mudar qualquer coisa.",
-           F:"Pergunta logo quais são as regras e rotinas já estabelecidas." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Já vai testando o próprio jeito de trabalhar, sem esperar todo mundo se ajustar.",
+           I:"Conversa bastante nos primeiros dias pra criar entrosamento rápido.",
+           S:"Prefere observar o ritmo da equipe por um tempo antes de mudar qualquer coisa.",
+           C:"Pergunta logo quais são as regras e rotinas já estabelecidas." } },
   { situacao:"Diante de uma tarefa administrativa chata mas necessária, o que mais e o que menos representa esse policial:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Faz rápido, do próprio jeito, mesmo que não siga o passo a passo à risca.",
-           C:"Prefere fazer conversando com alguém por perto.",
-           R:"Faz com calma, sem pressa, no próprio tempo.",
-           F:"Segue o modelo/formulário certinho, do jeito que deve ser feito." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Faz rápido, do próprio jeito, mesmo que não siga o passo a passo à risca.",
+           I:"Prefere fazer conversando com alguém por perto.",
+           S:"Faz com calma, sem pressa, no próprio tempo.",
+           C:"Segue o modelo/formulário certinho, do jeito que deve ser feito." } },
   { situacao:"Quando um colega discorda da forma dele agir numa ocorrência, o que mais e o que menos representa esse policial:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Defende a posição com firmeza, sem duvidar muito de si mesmo.",
-           C:"Prefere conversar bastante até entenderem o lado um do outro.",
-           R:"Deixa o assunto esfriar antes de continuar a conversa.",
-           F:"Busca o que está escrito no procedimento pra resolver a divergência." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Defende a posição com firmeza, sem duvidar muito de si mesmo.",
+           I:"Prefere conversar bastante até entenderem o lado um do outro.",
+           S:"Deixa o assunto esfriar antes de continuar a conversa.",
+           C:"Busca o que está escrito no procedimento pra resolver a divergência." } },
   { situacao:"No planejamento de uma ação com prazo curto, o que mais e o que menos representa esse policial:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Prefere agir logo e ajustar o plano no caminho.",
-           C:"Prefere alinhar verbalmente com todo mundo antes de sair.",
-           R:"Prefere esperar mais informação antes de definir qualquer coisa.",
-           F:"Prefere montar uma checklist antes de sair, mesmo com o tempo curto." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Prefere agir logo e ajustar o plano no caminho.",
+           I:"Prefere alinhar verbalmente com todo mundo antes de sair.",
+           S:"Prefere esperar mais informação antes de definir qualquer coisa.",
+           C:"Prefere montar uma checklist antes de sair, mesmo com o tempo curto." } },
   { situacao:"Numa reunião de passagem de serviço, o que mais e o que menos representa esse policial:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Vai direto ao ponto, sem enrolar em detalhes.",
-           C:"Gosta de comentar e trocar impressões, não só passar a informação seca.",
-           R:"Deixa quem está mais afobado falar primeiro, e entra com calma.",
-           F:"Segue a ordem e o formato padrão de passagem, sem pular etapas." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Vai direto ao ponto, sem enrolar em detalhes.",
+           I:"Gosta de comentar e trocar impressões, não só passar a informação seca.",
+           S:"Deixa quem está mais afobado falar primeiro, e entra com calma.",
+           C:"Segue a ordem e o formato padrão de passagem, sem pular etapas." } },
   { situacao:"Quando percebe um erro num relatório ou procedimento de outro colega, o que mais e o que menos representa esse policial:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Aponta na hora, direto, sem rodeio.",
-           C:"Comenta com jeito, numa conversa, pra não constranger.",
-           R:"Deixa pra falar num momento mais tranquilo, sem pressa.",
-           F:"Registra formalmente / segue o canal correto para reportar." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Aponta na hora, direto, sem rodeio.",
+           I:"Comenta com jeito, numa conversa, pra não constranger.",
+           S:"Deixa pra falar num momento mais tranquilo, sem pressa.",
+           C:"Registra formalmente / segue o canal correto para reportar." } },
   { situacao:"Ao encarar uma mudança de escala ou rotina de última hora, o que mais e o que menos representa esse policial:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Se adapta na hora, sem muito questionamento.",
-           C:"Precisa conversar sobre o motivo da mudança pra se sentir bem com ela.",
-           R:"Precisa de um tempo pra se ajustar mentalmente à mudança.",
-           F:"Fica incomodado quando a mudança quebra uma rotina já organizada." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Se adapta na hora, sem muito questionamento.",
+           I:"Precisa conversar sobre o motivo da mudança pra se sentir bem com ela.",
+           S:"Precisa de um tempo pra se ajustar mentalmente à mudança.",
+           C:"Fica incomodado quando a mudança quebra uma rotina já organizada." } },
   { situacao:"No meio de uma abordagem que está indo bem, o que mais e o que menos representa esse policial:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Segue o instinto pra decidir os próximos passos, mesmo fora do script.",
-           C:"Usa a conversa como principal ferramenta pra manter o controle da situação.",
-           R:"Mantém o ritmo calmo, sem acelerar desnecessariamente.",
-           F:"Segue rigorosamente a sequência de segurança do procedimento." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Segue o instinto pra decidir os próximos passos, mesmo fora do script.",
+           I:"Usa a conversa como principal ferramenta pra manter o controle da situação.",
+           S:"Mantém o ritmo calmo, sem acelerar desnecessariamente.",
+           C:"Segue rigorosamente a sequência de segurança do procedimento." } },
   { situacao:"Ao organizar o material/equipamento de serviço, o que mais e o que menos representa esse policial:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Não liga muito pra organização, contanto que funcione.",
-           C:"Gosta de comentar/mostrar como organizou pros colegas.",
-           R:"Vai arrumando aos poucos, sem se apressar.",
-           F:"Gosta de tudo no lugar certo, seguindo um padrão fixo." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Não liga muito pra organização, contanto que funcione.",
+           I:"Gosta de comentar/mostrar como organizou pros colegas.",
+           S:"Vai arrumando aos poucos, sem se apressar.",
+           C:"Gosta de tudo no lugar certo, seguindo um padrão fixo." } },
   { situacao:"Diante de uma ordem que ele não concorda totalmente, o que mais e o que menos representa esse policial:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Questiona na hora, mesmo sabendo que pode gerar atrito.",
-           C:"Busca entender conversando com quem deu a ordem.",
-           R:"Cumpre por ora e só levanta o ponto depois, com calma.",
-           F:"Cumpre porque é a ordem, mesmo sem concordar totalmente." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Questiona na hora, mesmo sabendo que pode gerar atrito.",
+           I:"Busca entender conversando com quem deu a ordem.",
+           S:"Cumpre por ora e só levanta o ponto depois, com calma.",
+           C:"Cumpre porque é a ordem, mesmo sem concordar totalmente." } },
   { situacao:"No fim de um plantão puxado, o que mais e o que menos representa esse policial:",
-    keys:["A","C","R","F"],
-    opts:{ A:"Já pensa na próxima ação/plantão, sem parar muito pra processar o que passou.",
-           C:"Precisa comentar o plantão com alguém antes de ir embora.",
-           R:"Precisa de um tempo sozinho pra desacelerar antes de qualquer coisa.",
-           F:"Revisa e fecha certinho tudo que precisa ser registrado antes de sair." } },
+    keys:["D","I","S","C"],
+    opts:{ D:"Já pensa na próxima ação/plantão, sem parar muito pra processar o que passou.",
+           I:"Precisa comentar o plantão com alguém antes de ir embora.",
+           S:"Precisa de um tempo sozinho pra desacelerar antes de qualquer coisa.",
+           C:"Revisa e fecha certinho tudo que precisa ser registrado antes de sair." } },
 ];
 
 let cmdPlusStructAnswers = {};
@@ -2464,8 +2463,8 @@ function startCmdPlusStructQuiz(){
 }
 
 function renderCmdPlusStructQuestion(){
-  const total = PAT_STRUCT_OBS_BLOCKS.length;
-  const q = PAT_STRUCT_OBS_BLOCKS[cmdPlusStructQ];
+  const total = DISC_STRUCT_OBS_BLOCKS.length;
+  const q = DISC_STRUCT_OBS_BLOCKS[cmdPlusStructQ];
   document.getElementById('qCounterCmdPlus').textContent = `RODADA ${cmdPlusStructQ+1}/${total}`;
   document.getElementById('progressFillCmdPlus').style.width = `${(cmdPlusStructQ/total)*100}%`;
   document.getElementById('qTextCmdPlus').textContent = q.situacao;
@@ -2515,12 +2514,12 @@ function updateCmdPlusNextBtn(){
   const a = cmdPlusStructAnswers[cmdPlusStructQ];
   const answered = !!(a && a.most && a.least);
   btn.disabled = !answered;
-  btn.textContent = cmdPlusStructQ === PAT_STRUCT_OBS_BLOCKS.length - 1 ? "Continuar →" : "Próxima →";
+  btn.textContent = cmdPlusStructQ === DISC_STRUCT_OBS_BLOCKS.length - 1 ? "Continuar →" : "Próxima →";
 }
 function goCmdPlusNext(){
   const a = cmdPlusStructAnswers[cmdPlusStructQ];
   if(!(a && a.most && a.least)) return;
-  if(cmdPlusStructQ === PAT_STRUCT_OBS_BLOCKS.length - 1){
+  if(cmdPlusStructQ === DISC_STRUCT_OBS_BLOCKS.length - 1){
     cmdPlusAssess = freshCmdPlusAssess();
     renderCmdPlusForm();
     showScreen('screen-cmdplus-form');
@@ -2737,7 +2736,7 @@ function generateCmdPlusReport(){
 }
 
 function computeCmdPlusResults(){
-  const structNorm = normIpsative(PAT_STRUCT_OBS_BLOCKS, 0, PAT_KEYS, cmdPlusStructAnswers);
+  const structNorm = normIpsative(DISC_STRUCT_OBS_BLOCKS, 0, DISC_KEYS, cmdPlusStructAnswers);
   const idx = computeStructIndices(structNorm);
   return { structNorm, ...idx };
 }
@@ -2759,9 +2758,9 @@ function checklistDivergenceNote(ranked, geralNota){
 function buildCmdPlusComparison(rObs){
   if(!importedSelfPlus || !importedSelfPlus.structNorm) return null;
   const selfNorm = importedSelfPlus.structNorm;
-  const rows = PAT_KEYS.map(k => {
+  const rows = DISC_KEYS.map(k => {
     const obsV = rObs.structNorm[k], selfV = selfNorm[k];
-    return { key:k, nome:PAT_POLES[k].nome, obsPct:Math.round(obsV*100), selfPct:Math.round(selfV*100), diff:Math.round((obsV-selfV)*100) };
+    return { key:k, nome:DISC_POLES[k].nome, obsPct:Math.round(obsV*100), selfPct:Math.round(selfV*100), diff:Math.round((obsV-selfV)*100) };
   });
   const maxDiffRow = rows.slice().sort((a,b)=>Math.abs(b.diff)-Math.abs(a.diff))[0];
   return { rows, maxDiffRow };
@@ -2773,7 +2772,7 @@ function showCmdPlusResult(){
   const { perf, pot } = computeNineBoxFrom(cmdPlusAssess.geral, cmdPlusAssess.comandaEquipe);
   const nb = NINE_BOX[`${pot}|${perf}`];
   const pStep = PIPELINE[cmdPlusData.avaliadoPosto];
-  const guidance = buildPatGuidance(rObs, 'lead');
+  const guidance = buildAxisGuidance(rObs, 'lead');
   const comparison = buildCmdPlusComparison(rObs);
 
   const opRanked = fcRanked(CHECKLIST_OP, OP_FC, cmdPlusAssess.op, it => it.label);
@@ -2817,19 +2816,19 @@ function showCmdPlusResult(){
       <div><b>Data:</b> ${cmdPlusData.data}</div>
     </div>
 
-    <div class="section-title">Perfil estrutural observado (A · C · R · F)</div>
+    <div class="section-title">Perfil estrutural observado (D · I · S · C)</div>
     <div class="card">
-      <div class="desc-block"><b>Perfil dominante — ${rObs.patProfile.nome}</b></div>
-      <div class="desc-block" style="color:var(--muted);">${rObs.patProfile.desc}</div>
+      <div class="desc-block"><b>Perfil dominante — ${rObs.discProfile.nome}</b></div>
+      <div class="desc-block" style="color:var(--muted);">${rObs.discProfile.desc}</div>
       <div class="desc-block" style="margin-top:8px;color:var(--faint);font-size:12px;">Combinação de eixos: ${rObs.arquetipo} — os dois eixos com maior intensidade no perfil observado, acima ou abaixo da média.</div>
     </div>
     <div class="card">
       ${plusSingleAxesHtml(rObs.structNorm)}
       <div class="axis-legend" style="margin-top:16px;">
-        <span><b style="color:var(--amber)">A</b> Iniciativa &amp; Análise — ${PAT_POLES.A.hi} × ${PAT_POLES.A.lo}</span>
-        <span><b style="color:var(--amber)">C</b> Fonte Motivadora — ${PAT_POLES.C.hi} × ${PAT_POLES.C.lo}</span>
-        <span><b style="color:var(--amber)">R</b> Estratégia no Tempo — ${PAT_POLES.R.hi} × ${PAT_POLES.R.lo}</span>
-        <span><b style="color:var(--amber)">F</b> Conforto no Ambiente — ${PAT_POLES.F.hi} × ${PAT_POLES.F.lo}</span>
+        <span><b style="color:var(--amber)">D</b> Dominância — ${DISC_POLES.D.hi} × ${DISC_POLES.D.lo}</span>
+        <span><b style="color:var(--amber)">I</b> Influência — ${DISC_POLES.I.hi} × ${DISC_POLES.I.lo}</span>
+        <span><b style="color:var(--amber)">S</b> Estabilidade — ${DISC_POLES.S.hi} × ${DISC_POLES.S.lo}</span>
+        <span><b style="color:var(--amber)">C</b> Conformidade — ${DISC_POLES.C.hi} × ${DISC_POLES.C.lo}</span>
       </div>
     </div>
 
