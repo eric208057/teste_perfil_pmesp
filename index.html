@@ -200,6 +200,9 @@
   .temp-name{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--muted);}
   .temp-track{height:8px;background:var(--panel2);border-radius:2px;overflow:hidden;border:1px solid var(--line);}
   .temp-fill{height:100%;border-radius:2px;}
+  /* ranking de checklist: frase inteira em cima da barra (a coluna de 96px era para nomes curtos) */
+  .temp-row.rank-row{grid-template-columns:1fr 38px;row-gap:5px;}
+  .rank-row .temp-name{grid-column:1/-1;font-family:'Inter',sans-serif;font-size:13px;line-height:1.4;color:var(--text);}
   .temp-val{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--faint);text-align:right;}
 
   .desc-block{font-size:14px;line-height:1.65;color:var(--text);margin-bottom:4px;}
@@ -2176,7 +2179,7 @@ function fcRanked(items, fc, answers, textOf){
 }
 function renderRankBars(container, ranked, colorVar){
   container.innerHTML = ranked.map(r => `
-    <div class="temp-row">
+    <div class="temp-row rank-row">
       <div class="temp-name">${r.text}</div>
       <div class="temp-track"><div class="temp-fill" style="width:${r.pct}%;background:${colorVar};"></div></div>
       <div class="temp-val">${r.pct}%</div>
